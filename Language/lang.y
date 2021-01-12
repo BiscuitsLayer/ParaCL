@@ -19,14 +19,19 @@
 
 %code
 {
+	//	BISON AND FLEX
+	#include "../Language/driver.hpp"
 
-	#include "../Language/lang.hpp"
+	//	LANGUAGE
+	#include "../Language/Lang.hpp"
 
 	namespace yy {
 
 		parser::token_type yylex (parser::semantic_type* yylval, LangDriver* driver);
 
 	}
+
+	extern Scope* globalCurrentScope;
 
 }
 
@@ -56,7 +61,7 @@
 %%
 
 program: 
-	program exprLvl1 SCOLON	{ std::cout << "expression found: " << $2 << std::endl; }
+	program exprLvl1 SCOLON	{ std::cout << "expression found: " << $2 << std::endl; globalCurrentScope->Dump (); }
 |
 ;
 

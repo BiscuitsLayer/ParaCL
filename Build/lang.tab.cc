@@ -51,8 +51,11 @@
 // Unqualified %code blocks.
 #line 21 "../Language/lang.y" // lalr1.cc:413
 
+	//	BISON AND FLEX
+	#include "../Language/driver.hpp"
 
-	#include "../Language/lang.hpp"
+	//	LANGUAGE
+	#include "../Language/Lang.hpp"
 
 	namespace yy {
 
@@ -60,8 +63,10 @@
 
 	}
 
+	extern Scope* globalCurrentScope;
 
-#line 65 "lang.tab.cc" // lalr1.cc:413
+
+#line 70 "lang.tab.cc" // lalr1.cc:413
 
 
 #ifndef YY_
@@ -128,7 +133,7 @@
 
 
 namespace yy {
-#line 132 "lang.tab.cc" // lalr1.cc:479
+#line 137 "lang.tab.cc" // lalr1.cc:479
 
   /// Build a parser object.
   parser::parser (LangDriver* driver_yyarg)
@@ -717,67 +722,67 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 59 "../Language/lang.y" // lalr1.cc:859
-    { std::cout << "expression found: " << yystack_[1].value.as< double > () << std::endl; }
-#line 723 "lang.tab.cc" // lalr1.cc:859
+#line 64 "../Language/lang.y" // lalr1.cc:859
+    { std::cout << "expression found: " << yystack_[1].value.as< double > () << std::endl; globalCurrentScope->Dump (); }
+#line 728 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 4:
-#line 64 "../Language/lang.y" // lalr1.cc:859
+#line 69 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[2].value.as< double > () + yystack_[0].value.as< double > (); std::cout << "ADD: " << yylhs.value.as< double > () << std::endl; }
-#line 729 "lang.tab.cc" // lalr1.cc:859
+#line 734 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 5:
-#line 65 "../Language/lang.y" // lalr1.cc:859
+#line 70 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[2].value.as< double > () - yystack_[0].value.as< double > (); std::cout << "SUB: " << yylhs.value.as< double > () << std::endl; }
-#line 735 "lang.tab.cc" // lalr1.cc:859
+#line 740 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 6:
-#line 66 "../Language/lang.y" // lalr1.cc:859
+#line 71 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
-#line 741 "lang.tab.cc" // lalr1.cc:859
+#line 746 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 7:
-#line 70 "../Language/lang.y" // lalr1.cc:859
+#line 75 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[2].value.as< double > () * yystack_[0].value.as< double > (); std::cout << "MUL: " << yylhs.value.as< double > () << std::endl; }
-#line 747 "lang.tab.cc" // lalr1.cc:859
+#line 752 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 8:
-#line 71 "../Language/lang.y" // lalr1.cc:859
+#line 76 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[2].value.as< double > () / yystack_[0].value.as< double > (); std::cout << "DIV: " << yylhs.value.as< double > () << std::endl; }
-#line 753 "lang.tab.cc" // lalr1.cc:859
+#line 758 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 9:
-#line 72 "../Language/lang.y" // lalr1.cc:859
+#line 77 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
-#line 759 "lang.tab.cc" // lalr1.cc:859
+#line 764 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 10:
-#line 76 "../Language/lang.y" // lalr1.cc:859
+#line 81 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[1].value.as< double > (); std::cout << "PARENTHESES: " << yylhs.value.as< double > () << std::endl; }
-#line 765 "lang.tab.cc" // lalr1.cc:859
+#line 770 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 11:
-#line 77 "../Language/lang.y" // lalr1.cc:859
+#line 82 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
-#line 771 "lang.tab.cc" // lalr1.cc:859
+#line 776 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 12:
-#line 78 "../Language/lang.y" // lalr1.cc:859
+#line 83 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
-#line 777 "lang.tab.cc" // lalr1.cc:859
+#line 782 "lang.tab.cc" // lalr1.cc:859
     break;
 
 
-#line 781 "lang.tab.cc" // lalr1.cc:859
+#line 786 "lang.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -1019,8 +1024,8 @@ namespace yy {
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    59,    59,    60,    64,    65,    66,    70,    71,    72,
-      76,    77,    78
+       0,    64,    64,    65,    69,    70,    71,    75,    76,    77,
+      81,    82,    83
   };
 
   // Print the state stack on the debug stream.
@@ -1102,8 +1107,8 @@ namespace yy {
 
 
 } // yy
-#line 1106 "lang.tab.cc" // lalr1.cc:1167
-#line 81 "../Language/lang.y" // lalr1.cc:1168
+#line 1111 "lang.tab.cc" // lalr1.cc:1167
+#line 86 "../Language/lang.y" // lalr1.cc:1168
 
 
 namespace yy {
