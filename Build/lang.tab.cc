@@ -49,17 +49,19 @@
 
 #line 51 "lang.tab.cc" // lalr1.cc:412
 // Unqualified %code blocks.
-#line 19 "../Language/lang.y" // lalr1.cc:413
+#line 21 "../Language/lang.y" // lalr1.cc:413
 
-#include "../Language/lang.hpp"
 
-namespace yy {
+	#include "../Language/lang.hpp"
 
-parser::token_type yylex(parser::semantic_type* yylval,                         
-                         LangDriver* driver);
-}
+	namespace yy {
 
-#line 63 "lang.tab.cc" // lalr1.cc:413
+		parser::token_type yylex (parser::semantic_type* yylval, LangDriver* driver);
+
+	}
+
+
+#line 65 "lang.tab.cc" // lalr1.cc:413
 
 
 #ifndef YY_
@@ -126,7 +128,7 @@ parser::token_type yylex(parser::semantic_type* yylval,
 
 
 namespace yy {
-#line 130 "lang.tab.cc" // lalr1.cc:479
+#line 132 "lang.tab.cc" // lalr1.cc:479
 
   /// Build a parser object.
   parser::parser (LangDriver* driver_yyarg)
@@ -166,20 +168,12 @@ namespace yy {
   {
       switch (other.type_get ())
     {
-      case 8: // NUMBER
-        value.copy< int > (other.value);
-        break;
-
-      case 12: // expr
-        value.copy< std::vector<int> > (other.value);
-        break;
-
-      case 13: // equals
-        value.copy< std::vector<std::vector<int>> > (other.value);
-        break;
-
-      case 14: // eqlist
-        value.copy< std::vector<std::vector<std::vector<int>>> > (other.value);
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        value.copy< double > (other.value);
         break;
 
       default:
@@ -198,20 +192,12 @@ namespace yy {
     (void) v;
       switch (this->type_get ())
     {
-      case 8: // NUMBER
-        value.copy< int > (v);
-        break;
-
-      case 12: // expr
-        value.copy< std::vector<int> > (v);
-        break;
-
-      case 13: // equals
-        value.copy< std::vector<std::vector<int>> > (v);
-        break;
-
-      case 14: // eqlist
-        value.copy< std::vector<std::vector<std::vector<int>>> > (v);
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        value.copy< double > (v);
         break;
 
       default:
@@ -229,25 +215,7 @@ namespace yy {
   {}
 
   template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const int v)
-    : Base (t)
-    , value (v)
-  {}
-
-  template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const std::vector<int> v)
-    : Base (t)
-    , value (v)
-  {}
-
-  template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const std::vector<std::vector<int>> v)
-    : Base (t)
-    , value (v)
-  {}
-
-  template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const std::vector<std::vector<std::vector<int>>> v)
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const double v)
     : Base (t)
     , value (v)
   {}
@@ -278,20 +246,12 @@ namespace yy {
     // Type destructor.
     switch (yytype)
     {
-      case 8: // NUMBER
-        value.template destroy< int > ();
-        break;
-
-      case 12: // expr
-        value.template destroy< std::vector<int> > ();
-        break;
-
-      case 13: // equals
-        value.template destroy< std::vector<std::vector<int>> > ();
-        break;
-
-      case 14: // eqlist
-        value.template destroy< std::vector<std::vector<std::vector<int>>> > ();
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        value.template destroy< double > ();
         break;
 
       default:
@@ -317,20 +277,12 @@ namespace yy {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 8: // NUMBER
-        value.move< int > (s.value);
-        break;
-
-      case 12: // expr
-        value.move< std::vector<int> > (s.value);
-        break;
-
-      case 13: // equals
-        value.move< std::vector<std::vector<int>> > (s.value);
-        break;
-
-      case 14: // eqlist
-        value.move< std::vector<std::vector<std::vector<int>>> > (s.value);
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        value.move< double > (s.value);
         break;
 
       default:
@@ -378,21 +330,27 @@ namespace yy {
   }
   // Implementation of make_symbol for each symbol type.
   parser::symbol_type
-  parser::make_EQUAL ()
+  parser::make_ADD ()
   {
-    return symbol_type (token::EQUAL);
+    return symbol_type (token::ADD);
   }
 
   parser::symbol_type
-  parser::make_MINUS ()
+  parser::make_SUB ()
   {
-    return symbol_type (token::MINUS);
+    return symbol_type (token::SUB);
   }
 
   parser::symbol_type
-  parser::make_PLUS ()
+  parser::make_MUL ()
   {
-    return symbol_type (token::PLUS);
+    return symbol_type (token::MUL);
+  }
+
+  parser::symbol_type
+  parser::make_DIV ()
+  {
+    return symbol_type (token::DIV);
   }
 
   parser::symbol_type
@@ -402,15 +360,33 @@ namespace yy {
   }
 
   parser::symbol_type
-  parser::make_ERR ()
+  parser::make_LPARENTHESES ()
   {
-    return symbol_type (token::ERR);
+    return symbol_type (token::LPARENTHESES);
   }
 
   parser::symbol_type
-  parser::make_NUMBER (const int& v)
+  parser::make_RPARENTHESES ()
+  {
+    return symbol_type (token::RPARENTHESES);
+  }
+
+  parser::symbol_type
+  parser::make_ERROR ()
+  {
+    return symbol_type (token::ERROR);
+  }
+
+  parser::symbol_type
+  parser::make_NUMBER (const double& v)
   {
     return symbol_type (token::NUMBER, v);
+  }
+
+  parser::symbol_type
+  parser::make_VARIABLE (const double& v)
+  {
+    return symbol_type (token::VARIABLE, v);
   }
 
 
@@ -467,20 +443,12 @@ namespace yy {
   {
       switch (that.type_get ())
     {
-      case 8: // NUMBER
-        value.move< int > (that.value);
-        break;
-
-      case 12: // expr
-        value.move< std::vector<int> > (that.value);
-        break;
-
-      case 13: // equals
-        value.move< std::vector<std::vector<int>> > (that.value);
-        break;
-
-      case 14: // eqlist
-        value.move< std::vector<std::vector<std::vector<int>>> > (that.value);
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        value.move< double > (that.value);
         break;
 
       default:
@@ -498,20 +466,12 @@ namespace yy {
     state = that.state;
       switch (that.type_get ())
     {
-      case 8: // NUMBER
-        value.copy< int > (that.value);
-        break;
-
-      case 12: // expr
-        value.copy< std::vector<int> > (that.value);
-        break;
-
-      case 13: // equals
-        value.copy< std::vector<std::vector<int>> > (that.value);
-        break;
-
-      case 14: // eqlist
-        value.copy< std::vector<std::vector<std::vector<int>>> > (that.value);
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        value.copy< double > (that.value);
         break;
 
       default:
@@ -736,20 +696,12 @@ namespace yy {
          when using variants.  */
         switch (yyr1_[yyn])
     {
-      case 8: // NUMBER
-        yylhs.value.build< int > ();
-        break;
-
-      case 12: // expr
-        yylhs.value.build< std::vector<int> > ();
-        break;
-
-      case 13: // equals
-        yylhs.value.build< std::vector<std::vector<int>> > ();
-        break;
-
-      case 14: // eqlist
-        yylhs.value.build< std::vector<std::vector<std::vector<int>>> > ();
+      case 11: // NUMBER
+      case 12: // VARIABLE
+      case 18: // exprLvl1
+      case 19: // exprLvl2
+      case 20: // exprLvl3
+        yylhs.value.build< double > ();
         break;
 
       default:
@@ -765,57 +717,67 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 48 "../Language/lang.y" // lalr1.cc:859
-    { driver->insert(yystack_[0].value.as< std::vector<std::vector<std::vector<int>>> > ()); }
-#line 771 "lang.tab.cc" // lalr1.cc:859
-    break;
-
-  case 3:
-#line 51 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< std::vector<std::vector<std::vector<int>>> > () = yystack_[0].value.as< std::vector<std::vector<std::vector<int>>> > (); yylhs.value.as< std::vector<std::vector<std::vector<int>>> > ().push_back(yystack_[2].value.as< std::vector<std::vector<int>> > ()); }
-#line 777 "lang.tab.cc" // lalr1.cc:859
+#line 59 "../Language/lang.y" // lalr1.cc:859
+    { std::cout << "expression found: " << yystack_[1].value.as< double > () << std::endl; }
+#line 723 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 4:
-#line 52 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< std::vector<std::vector<std::vector<int>>> > ().push_back(yystack_[1].value.as< std::vector<std::vector<int>> > ());          }
-#line 783 "lang.tab.cc" // lalr1.cc:859
+#line 64 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[2].value.as< double > () + yystack_[0].value.as< double > (); std::cout << "ADD: " << yylhs.value.as< double > () << std::endl; }
+#line 729 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 5:
-#line 55 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< std::vector<std::vector<int>> > ().push_back(yystack_[2].value.as< std::vector<int> > ()); yylhs.value.as< std::vector<std::vector<int>> > ().push_back(yystack_[0].value.as< std::vector<int> > ()); }
-#line 789 "lang.tab.cc" // lalr1.cc:859
+#line 65 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[2].value.as< double > () - yystack_[0].value.as< double > (); std::cout << "SUB: " << yylhs.value.as< double > () << std::endl; }
+#line 735 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 6:
-#line 58 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< std::vector<int> > ().push_back(yystack_[0].value.as< int > ()); }
-#line 795 "lang.tab.cc" // lalr1.cc:859
+#line 66 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
+#line 741 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 7:
-#line 59 "../Language/lang.y" // lalr1.cc:859
-    { 
-                                yylhs.value.as< std::vector<int> > () = yystack_[2].value.as< std::vector<int> > ();
-                                yylhs.value.as< std::vector<int> > ().insert(yylhs.value.as< std::vector<int> > ().end(), yystack_[0].value.as< std::vector<int> > ().begin(), yystack_[0].value.as< std::vector<int> > ().end());
-                              }
-#line 804 "lang.tab.cc" // lalr1.cc:859
+#line 70 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[2].value.as< double > () * yystack_[0].value.as< double > (); std::cout << "MUL: " << yylhs.value.as< double > () << std::endl; }
+#line 747 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 8:
-#line 63 "../Language/lang.y" // lalr1.cc:859
-    { 
-                                yylhs.value.as< std::vector<int> > () = yystack_[2].value.as< std::vector<int> > (); 
-                                std::transform(yystack_[0].value.as< std::vector<int> > ().begin(), yystack_[0].value.as< std::vector<int> > ().end(), yystack_[0].value.as< std::vector<int> > ().begin(),
-                                               [](auto x) { return -x; });
-                                yylhs.value.as< std::vector<int> > ().insert(yylhs.value.as< std::vector<int> > ().end(), yystack_[0].value.as< std::vector<int> > ().begin(), yystack_[0].value.as< std::vector<int> > ().end());
-                              }
-#line 815 "lang.tab.cc" // lalr1.cc:859
+#line 71 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[2].value.as< double > () / yystack_[0].value.as< double > (); std::cout << "DIV: " << yylhs.value.as< double > () << std::endl; }
+#line 753 "lang.tab.cc" // lalr1.cc:859
+    break;
+
+  case 9:
+#line 72 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
+#line 759 "lang.tab.cc" // lalr1.cc:859
+    break;
+
+  case 10:
+#line 76 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[1].value.as< double > (); std::cout << "PARENTHESES: " << yylhs.value.as< double > () << std::endl; }
+#line 765 "lang.tab.cc" // lalr1.cc:859
+    break;
+
+  case 11:
+#line 77 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
+#line 771 "lang.tab.cc" // lalr1.cc:859
+    break;
+
+  case 12:
+#line 78 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< double > () = yystack_[0].value.as< double > (); }
+#line 777 "lang.tab.cc" // lalr1.cc:859
     break;
 
 
-#line 819 "lang.tab.cc" // lalr1.cc:859
+#line 781 "lang.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -976,67 +938,69 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -6;
+  const signed char parser::yypact_ninf_ = -11;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-      -5,    -6,    -3,     4,    -6,     9,    -5,    -5,    -5,    -5,
-      -6,     3,     3,     3,    -6
+     -11,     0,   -11,    -6,   -11,   -11,     8,    10,    11,     9,
+     -11,    -6,    -6,    -6,    -6,   -11,   -11,   -11,   -11,   -11
   };
 
   const unsigned char
   parser::yydefact_[] =
   {
-       0,     6,     0,     0,     2,     0,     0,     0,     0,     4,
-       1,     5,     8,     7,     3
+       3,     0,     1,     0,    11,    12,     0,     6,     9,     0,
+       2,     0,     0,     0,     0,    10,     4,     5,     7,     8
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-      -6,    -2,    -6,     2,    -6
+     -11,    -2,   -10,   -11,   -11
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-      -1,     2,     3,     4,     5
+      -1,     6,     7,     8,     1
   };
 
   const unsigned char
   parser::yytable_[] =
   {
-       6,     7,     8,     1,    11,    12,    13,     7,     8,    10,
-       9,    14
+       2,     9,     3,    18,    19,     4,     5,     0,     3,    16,
+      17,     4,     5,    11,    12,    10,    13,    14,    15
   };
 
-  const unsigned char
+  const signed char
   parser::yycheck_[] =
   {
-       3,     4,     5,     8,     6,     7,     8,     4,     5,     0,
-       6,     9
+       0,     3,     8,    13,    14,    11,    12,    -1,     8,    11,
+      12,    11,    12,     3,     4,     7,     5,     6,     9
   };
 
   const unsigned char
   parser::yystos_[] =
   {
-       0,     8,    12,    13,    14,    15,     3,     4,     5,     6,
-       0,    12,    12,    12,    14
+       0,    21,     0,     8,    11,    12,    18,    19,    20,    18,
+       7,     3,     4,     5,     6,     9,    18,    18,    19,    19
   };
 
   const unsigned char
   parser::yyr1_[] =
   {
-       0,    11,    15,    14,    14,    13,    12,    12,    12
+       0,    17,    21,    21,    18,    18,    18,    19,    19,    19,
+      20,    20,    20
   };
 
   const unsigned char
   parser::yyr2_[] =
   {
-       0,     2,     1,     3,     2,     3,     1,     3,     3
+       0,     2,     3,     0,     3,     3,     1,     3,     3,     1,
+       3,     1,     1
   };
 
 
@@ -1046,16 +1010,17 @@ namespace yy {
   const char*
   const parser::yytname_[] =
   {
-  "$end", "error", "$undefined", "\"=\"", "\"-\"", "\"+\"", "\";\"",
-  "ERR", "NUMBER", "'+'", "'-'", "$accept", "expr", "equals", "eqlist",
-  "program", YY_NULLPTR
+  "$end", "error", "$undefined", "\"+\"", "\"-\"", "\"*\"", "\"/\"",
+  "\";\"", "\"(\"", "\")\"", "ERROR", "NUMBER", "VARIABLE", "'+'", "'-'",
+  "'*'", "'/'", "$accept", "exprLvl1", "exprLvl2", "exprLvl3", "program", YY_NULLPTR
   };
 
 
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    48,    48,    51,    52,    55,    58,    59,    63
+       0,    59,    59,    60,    64,    65,    66,    70,    71,    72,
+      76,    77,    78
   };
 
   // Print the state stack on the debug stream.
@@ -1100,7 +1065,7 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     9,     2,    10,     2,     2,     2,     2,
+       2,     2,    15,    13,     2,    14,     2,    16,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1122,9 +1087,9 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8
+       5,     6,     7,     8,     9,    10,    11,    12
     };
-    const unsigned int user_token_number_max_ = 263;
+    const unsigned int user_token_number_max_ = 267;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -1137,17 +1102,16 @@ namespace yy {
 
 
 } // yy
-#line 1141 "lang.tab.cc" // lalr1.cc:1167
-#line 71 "../Language/lang.y" // lalr1.cc:1168
+#line 1106 "lang.tab.cc" // lalr1.cc:1167
+#line 81 "../Language/lang.y" // lalr1.cc:1168
 
 
 namespace yy {
 
-parser::token_type yylex(parser::semantic_type* yylval,                         
-                         LangDriver* driver)
-{
-  return driver->yylex(yylval);
-}
+	parser::token_type yylex (parser::semantic_type* yylval, LangDriver* driver) {
+		return driver->yylex (yylval);
+	}
 
-void parser::error(const std::string&){}
+	void parser::error (const std::string&) {}
+
 }

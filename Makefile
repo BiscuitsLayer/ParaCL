@@ -4,4 +4,4 @@ fb:
 b:
 		g++ main.cpp Language/lang.cpp Build/lex.yy.cc Build/lang.tab.cc -ggdb3 -o main
 r:
-		./main
+		./main < Test/test1.input

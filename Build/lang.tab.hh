@@ -42,14 +42,16 @@
 // //                    "%code requires" blocks.
 #line 9 "../Language/lang.y" // lalr1.cc:377
 
-#include <algorithm>
-#include <string>
-#include <vector>
 
-// forward decl of argument to parser
-namespace yy { class LangDriver; }
+	#include <algorithm>
+	#include <string>
+	#include <vector>
 
-#line 53 "lang.tab.hh" // lalr1.cc:377
+	// forward declaration of argument to parser
+	namespace yy { class LangDriver; }
+
+
+#line 55 "lang.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -126,7 +128,7 @@ namespace yy { class LangDriver; }
 
 
 namespace yy {
-#line 130 "lang.tab.hh" // lalr1.cc:377
+#line 132 "lang.tab.hh" // lalr1.cc:377
 
 
 
@@ -274,16 +276,11 @@ namespace yy {
     union union_type
     {
       // NUMBER
-      char dummy1[sizeof(int)];
-
-      // expr
-      char dummy2[sizeof(std::vector<int>)];
-
-      // equals
-      char dummy3[sizeof(std::vector<std::vector<int>>)];
-
-      // eqlist
-      char dummy4[sizeof(std::vector<std::vector<std::vector<int>>>)];
+      // VARIABLE
+      // exprLvl1
+      // exprLvl2
+      // exprLvl3
+      char dummy1[sizeof(double)];
 };
 
     /// Symbol semantic values.
@@ -303,12 +300,16 @@ namespace yy {
     {
       enum yytokentype
       {
-        EQUAL = 258,
-        MINUS = 259,
-        PLUS = 260,
-        SCOLON = 261,
-        ERR = 262,
-        NUMBER = 263
+        ADD = 258,
+        SUB = 259,
+        MUL = 260,
+        DIV = 261,
+        SCOLON = 262,
+        LPARENTHESES = 263,
+        RPARENTHESES = 264,
+        ERROR = 265,
+        NUMBER = 266,
+        VARIABLE = 267
       };
     };
 
@@ -346,13 +347,7 @@ namespace yy {
 
   basic_symbol (typename Base::kind_type t);
 
-  basic_symbol (typename Base::kind_type t, const int v);
-
-  basic_symbol (typename Base::kind_type t, const std::vector<int> v);
-
-  basic_symbol (typename Base::kind_type t, const std::vector<std::vector<int>> v);
-
-  basic_symbol (typename Base::kind_type t, const std::vector<std::vector<std::vector<int>>> v);
+  basic_symbol (typename Base::kind_type t, const double v);
 
 
       /// Constructor for symbols with semantic value.
@@ -419,15 +414,19 @@ namespace yy {
     // Symbol constructors declarations.
     static inline
     symbol_type
-    make_EQUAL ();
+    make_ADD ();
 
     static inline
     symbol_type
-    make_MINUS ();
+    make_SUB ();
 
     static inline
     symbol_type
-    make_PLUS ();
+    make_MUL ();
+
+    static inline
+    symbol_type
+    make_DIV ();
 
     static inline
     symbol_type
@@ -435,11 +434,23 @@ namespace yy {
 
     static inline
     symbol_type
-    make_ERR ();
+    make_LPARENTHESES ();
 
     static inline
     symbol_type
-    make_NUMBER (const int& v);
+    make_RPARENTHESES ();
+
+    static inline
+    symbol_type
+    make_ERROR ();
+
+    static inline
+    symbol_type
+    make_NUMBER (const double& v);
+
+    static inline
+    symbol_type
+    make_VARIABLE (const double& v);
 
 
     /// Build a parser object.
@@ -525,7 +536,7 @@ namespace yy {
   // number is the opposite.  If YYTABLE_NINF, syntax error.
   static const unsigned char yytable_[];
 
-  static const unsigned char yycheck_[];
+  static const signed char yycheck_[];
 
   // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
   // symbol of state STATE-NUM.
@@ -642,12 +653,12 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 11,     ///< Last index in yytable_.
+      yylast_ = 18,     ///< Last index in yytable_.
       yynnts_ = 5,  ///< Number of nonterminal symbols.
-      yyfinal_ = 10, ///< Termination state number.
+      yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 11  ///< Number of tokens.
+      yyntokens_ = 17  ///< Number of tokens.
     };
 
 
@@ -658,7 +669,7 @@ namespace yy {
 
 
 } // yy
-#line 662 "lang.tab.hh" // lalr1.cc:377
+#line 673 "lang.tab.hh" // lalr1.cc:377
 
 
 
