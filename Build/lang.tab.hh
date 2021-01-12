@@ -276,11 +276,13 @@ namespace yy {
     union union_type
     {
       // NUMBER
-      // VARIABLE
       // exprLvl1
       // exprLvl2
       // exprLvl3
       char dummy1[sizeof(double)];
+
+      // VARIABLE
+      char dummy2[sizeof(std::string)];
 };
 
     /// Symbol semantic values.
@@ -304,12 +306,24 @@ namespace yy {
         SUB = 259,
         MUL = 260,
         DIV = 261,
-        SCOLON = 262,
-        LPARENTHESES = 263,
-        RPARENTHESES = 264,
-        ERROR = 265,
-        NUMBER = 266,
-        VARIABLE = 267
+        ASSIGN = 262,
+        SCOLON = 263,
+        LPARENTHESES = 264,
+        RPARENTHESES = 265,
+        LBRACE = 266,
+        RBRACE = 267,
+        GREATER = 268,
+        GREATER_OR_EQ = 269,
+        LESS = 270,
+        LESS_OR_EQ = 271,
+        EQ = 272,
+        NOT_EQ = 273,
+        IF = 274,
+        WHILE = 275,
+        PRINT = 276,
+        ERROR = 277,
+        NUMBER = 278,
+        VARIABLE = 279
       };
     };
 
@@ -348,6 +362,8 @@ namespace yy {
   basic_symbol (typename Base::kind_type t);
 
   basic_symbol (typename Base::kind_type t, const double v);
+
+  basic_symbol (typename Base::kind_type t, const std::string v);
 
 
       /// Constructor for symbols with semantic value.
@@ -430,6 +446,10 @@ namespace yy {
 
     static inline
     symbol_type
+    make_ASSIGN ();
+
+    static inline
+    symbol_type
     make_SCOLON ();
 
     static inline
@@ -442,6 +462,50 @@ namespace yy {
 
     static inline
     symbol_type
+    make_LBRACE ();
+
+    static inline
+    symbol_type
+    make_RBRACE ();
+
+    static inline
+    symbol_type
+    make_GREATER ();
+
+    static inline
+    symbol_type
+    make_GREATER_OR_EQ ();
+
+    static inline
+    symbol_type
+    make_LESS ();
+
+    static inline
+    symbol_type
+    make_LESS_OR_EQ ();
+
+    static inline
+    symbol_type
+    make_EQ ();
+
+    static inline
+    symbol_type
+    make_NOT_EQ ();
+
+    static inline
+    symbol_type
+    make_IF ();
+
+    static inline
+    symbol_type
+    make_WHILE ();
+
+    static inline
+    symbol_type
+    make_PRINT ();
+
+    static inline
+    symbol_type
     make_ERROR ();
 
     static inline
@@ -450,7 +514,7 @@ namespace yy {
 
     static inline
     symbol_type
-    make_VARIABLE (const double& v);
+    make_VARIABLE (const std::string& v);
 
 
     /// Build a parser object.
@@ -653,12 +717,12 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 18,     ///< Last index in yytable_.
-      yynnts_ = 5,  ///< Number of nonterminal symbols.
+      yylast_ = 51,     ///< Last index in yytable_.
+      yynnts_ = 9,  ///< Number of nonterminal symbols.
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 17  ///< Number of tokens.
+      yyntokens_ = 29  ///< Number of tokens.
     };
 
 
@@ -669,7 +733,7 @@ namespace yy {
 
 
 } // yy
-#line 673 "lang.tab.hh" // lalr1.cc:377
+#line 737 "lang.tab.hh" // lalr1.cc:377
 
 
 

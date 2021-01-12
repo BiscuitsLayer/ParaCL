@@ -26,9 +26,23 @@ VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
 "-"                         return yy::parser::token_type::SUB;
 "*"                         return yy::parser::token_type::MUL;
 "/"                         return yy::parser::token_type::DIV;
+"="                         return yy::parser::token_type::ASSIGN;
 ";"                         return yy::parser::token_type::SCOLON;
 "("                         return yy::parser::token_type::LPARENTHESES;
 ")"                         return yy::parser::token_type::RPARENTHESES;
+"{"                         return yy::parser::token_type::LBRACE;
+"}"                         return yy::parser::token_type::RBRACE;
+
+">"                         return yy::parser::token_type::GREATER;
+">="                        return yy::parser::token_type::GREATER_OR_EQ;
+"<"                         return yy::parser::token_type::LESS;
+"<="                        return yy::parser::token_type::LESS_OR_EQ;
+"=="                        return yy::parser::token_type::EQ;
+"!="                        return yy::parser::token_type::NOT_EQ;
+
+"if"                        return yy::parser::token_type::IF;
+"while"                     return yy::parser::token_type::WHILE;
+"print"                     return yy::parser::token_type::PRINT;
 {DOUBLE}                    return yy::parser::token_type::NUMBER;
 {VARIABLE}                  return yy::parser::token_type::VARIABLE;
 .			                return yy::parser::token_type::ERROR;
