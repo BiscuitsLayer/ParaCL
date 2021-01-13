@@ -13,8 +13,11 @@ yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval)
             break;
         }
         case yy::parser::token_type::VARIABLE: {
-            // TODO
-            yylval->as <double> () = 0;
+            //  Я бы хотел использовать тут просто std::string, но после 2х часов дебага 
+            //  так и не понял, почему sig segv при присваивании :(
+            std::string* temp = new std::string (lexer_->YYText ());
+            yylval->as <std::string*> () = temp;
+            break;
         }
         default: {
             break;

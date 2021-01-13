@@ -42,16 +42,19 @@
 // //                    "%code requires" blocks.
 #line 9 "../Language/lang.y" // lalr1.cc:377
 
-
+	//	SYSTEM
 	#include <algorithm>
 	#include <string>
 	#include <vector>
+
+	//	LANGUAGE
+	#include "../Language/Lang.hpp"
 
 	// forward declaration of argument to parser
 	namespace yy { class LangDriver; }
 
 
-#line 55 "lang.tab.hh" // lalr1.cc:377
+#line 58 "lang.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -128,7 +131,7 @@
 
 
 namespace yy {
-#line 132 "lang.tab.hh" // lalr1.cc:377
+#line 135 "lang.tab.hh" // lalr1.cc:377
 
 
 
@@ -275,14 +278,22 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // NUMBER
       // exprLvl1
       // exprLvl2
       // exprLvl3
-      char dummy1[sizeof(double)];
+      // assignment
+      // syscall
+      // condition
+      // if_while
+      // scope
+      // inside_scope
+      char dummy1[sizeof(NodeInterface*)];
+
+      // NUMBER
+      char dummy2[sizeof(double)];
 
       // VARIABLE
-      char dummy2[sizeof(std::string)];
+      char dummy3[sizeof(std::string*)];
 };
 
     /// Symbol semantic values.
@@ -318,12 +329,13 @@ namespace yy {
         LESS_OR_EQ = 271,
         EQ = 272,
         NOT_EQ = 273,
-        IF = 274,
-        WHILE = 275,
-        PRINT = 276,
-        ERROR = 277,
-        NUMBER = 278,
-        VARIABLE = 279
+        QMARK = 274,
+        IF = 275,
+        WHILE = 276,
+        PRINT = 277,
+        ERROR = 278,
+        NUMBER = 279,
+        VARIABLE = 280
       };
     };
 
@@ -361,9 +373,11 @@ namespace yy {
 
   basic_symbol (typename Base::kind_type t);
 
+  basic_symbol (typename Base::kind_type t, const NodeInterface* v);
+
   basic_symbol (typename Base::kind_type t, const double v);
 
-  basic_symbol (typename Base::kind_type t, const std::string v);
+  basic_symbol (typename Base::kind_type t, const std::string* v);
 
 
       /// Constructor for symbols with semantic value.
@@ -494,6 +508,10 @@ namespace yy {
 
     static inline
     symbol_type
+    make_QMARK ();
+
+    static inline
+    symbol_type
     make_IF ();
 
     static inline
@@ -514,7 +532,7 @@ namespace yy {
 
     static inline
     symbol_type
-    make_VARIABLE (const std::string& v);
+    make_VARIABLE (const std::string*& v);
 
 
     /// Build a parser object.
@@ -717,12 +735,12 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 51,     ///< Last index in yytable_.
-      yynnts_ = 9,  ///< Number of nonterminal symbols.
+      yylast_ = 54,     ///< Last index in yytable_.
+      yynnts_ = 12,  ///< Number of nonterminal symbols.
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 29  ///< Number of tokens.
+      yyntokens_ = 30  ///< Number of tokens.
     };
 
 
@@ -733,7 +751,7 @@ namespace yy {
 
 
 } // yy
-#line 737 "lang.tab.hh" // lalr1.cc:377
+#line 755 "lang.tab.hh" // lalr1.cc:377
 
 
 

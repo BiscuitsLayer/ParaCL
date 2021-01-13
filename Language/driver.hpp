@@ -1,5 +1,9 @@
 #pragma once
 
+//  SYSTEM
+#include <cstring>
+
+//	BISON AND FLEX
 #include <FlexLexer.h>
 #include "../Build/lang.tab.hh"
 

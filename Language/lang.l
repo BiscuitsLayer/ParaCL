@@ -40,6 +40,7 @@ VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
 "=="                        return yy::parser::token_type::EQ;
 "!="                        return yy::parser::token_type::NOT_EQ;
 
+"?"                         return yy::parser::token_type::QMARK;
 "if"                        return yy::parser::token_type::IF;
 "while"                     return yy::parser::token_type::WHILE;
 "print"                     return yy::parser::token_type::PRINT;

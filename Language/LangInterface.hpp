@@ -1,5 +1,6 @@
 #pragma once
 
+//  SYSTEM
 #include <iostream>
 
 enum class NodeType {
@@ -35,13 +36,8 @@ class NodeInterface {
     protected:
         NodeType type_ = NodeType::ERROR;
     public:
-        NodeInterface* parent_ = nullptr;
-
         //  CTOR
-        explicit NodeInterface (NodeInterface* parent, NodeType type):
-            parent_ (parent),
-            type_ (type)
-            {}
+        explicit NodeInterface (NodeType type);
 
         //  METHODS
         virtual ~NodeInterface () = default;
@@ -49,39 +45,34 @@ class NodeInterface {
         virtual void Dump () const = 0;
 
         //  DERIVED CLASSES CTOR-S
-        static NodeInterface* CreateValue (NodeInterface* parent, 
-            double value);
-        static NodeInterface* CreateVariable (NodeInterface* parent, 
-            const std::string& name);
-        static NodeInterface* CreateBinaryOp (NodeInterface* parent, 
-            NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
-        static NodeInterface* CreateIf (NodeInterface* parent, 
-            NodeInterface* condition, NodeInterface* scope);
-        static NodeInterface* CreateWhile (NodeInterface* parent, 
-            NodeInterface* condition, NodeInterface* scope);
-        static NodeInterface* CreateScan (NodeInterface* parent, 
-            const std::string& name);
-        static NodeInterface* CreatePrint (NodeInterface* parent, 
-            NodeInterface* child);
+        static NodeInterface* CreateValueNode (double value);
+        static NodeInterface* CreateVariableNode (const std::string& name);
+        static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
+        static NodeInterface* CreateIfNode (NodeInterface* condition, NodeInterface* scope);
+        static NodeInterface* CreateWhileNode (NodeInterface* condition, NodeInterface* scope);
+        static NodeInterface* CreateScanNode ();
+        static NodeInterface* CreatePrintNode (NodeInterface* child);
 };
 
-class ScopeInterface : public NodeInterface {
+class ScopeNodeInterface : public NodeInterface {
     private:
         /* empty */
     protected:
         /* empty */
     public:
+        ScopeNodeInterface* previous_ = nullptr;
+
         //  METHODS
-        virtual ~ScopeInterface () = default;
+        virtual ~ScopeNodeInterface () = default;
         virtual void AddNode (NodeInterface* node) = 0;
         virtual double GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, double value) = 0;
+        virtual void Entry (ScopeNodeInterface* next) const = 0;
+        virtual void Return () const = 0;
 
         //  CTOR
-        explicit ScopeInterface (NodeInterface* parent):
-            NodeInterface (parent, NodeType::SCOPE)
-            {}
+        explicit ScopeNodeInterface (ScopeNodeInterface* previous);
 
-        //  DERIVED CLASSE CTOR
-        static ScopeInterface* CreateScope (ScopeInterface* previous = nullptr);
+        //  DERIVED CLASS CTOR
+        static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr);
 };

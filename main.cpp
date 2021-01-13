@@ -1,4 +1,5 @@
-#include <iostream>
+//	SYSTEM
+#include <fstream>
 
 //	BISON AND FLEX
 #include <FlexLexer.h>
@@ -7,13 +8,21 @@
 //	LANGUAGE
 #include "Language/Lang.hpp"
 
-Scope* globalCurrentScope = nullptr;
+ScopeNodeInterface* globalCurrentScope = nullptr;
 
-int main () {
+int main (int argc, char** argv) {
 	FlexLexer *lexer = new yyFlexLexer;
 	yy::LangDriver driver { lexer };
 
-	globalCurrentScope = new Scope (nullptr, nullptr);
+	std::ifstream infile { argv[1] };
+	if (!infile) {
+		std::cerr << "Error opening file!" << std::endl;
+		return 0;
+	}
+
+	lexer->switch_streams (infile, std::cout);
+
+	globalCurrentScope = ScopeNodeInterface::CreateScopeNode (nullptr);
 	driver.parse ();
 	globalCurrentScope->Execute ();
 
