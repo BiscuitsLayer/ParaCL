@@ -8,10 +8,6 @@
 extern ScopeNodeInterface* globalCurrentScope;
 const double EPS = 1e-3;
 
-SymTable::SymTable ():
-    data_ ({})
-    {}
-
 bool SymTable::GetValue (const std::string& name, double& value) const {
     auto search = data_.find (name);
     if (search == data_.end ()) {
@@ -44,6 +40,10 @@ bool SymTable::Add (const std::string& name, double value) {
         return true;
     }
 }
+
+SymTable::SymTable ():
+    data_ ({})
+    {}
 
 double ScopeNode::Execute () const {
     for (auto branch : branches_) {
@@ -101,6 +101,12 @@ ScopeNode::ScopeNode (ScopeNodeInterface* previous):
     branches_ ({}),
     table_ ({})
     {}
+
+ScopeNode::~ScopeNode () {
+    for (auto branch : branches_) {
+        delete branch;
+    }
+}
 
 ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous) {
     return new ScopeNode (previous);
@@ -205,6 +211,11 @@ BinaryOpNode::BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterfa
     rightChild_ (rightChild)
     {}
 
+BinaryOpNode::~BinaryOpNode () {
+    delete leftChild_;
+    delete rightChild_;
+}
+
 NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild) {
     return new BinaryOpNode (type, leftChild, rightChild);
 }
@@ -227,6 +238,11 @@ IfNode::IfNode (NodeInterface* condition, NodeInterface* scope):
     scope_ (scope)
     {}
 
+IfNode::~IfNode () {
+    delete condition_;
+    delete scope_;
+}
+
 NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, NodeInterface* scope) {
     return new IfNode (condition, scope);
 }
@@ -248,6 +264,11 @@ WhileNode::WhileNode (NodeInterface* condition, NodeInterface* scope):
     condition_ (condition),
     scope_ (scope)
     {}
+
+WhileNode::~WhileNode () {
+    delete condition_;
+    delete scope_;
+}
 
 NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, NodeInterface* scope) {
     return new WhileNode (condition, scope);
@@ -287,6 +308,10 @@ PrintNode::PrintNode (NodeInterface* child):
     NodeInterface (NodeType::PRINT),
     child_ (child)
     {}
+
+PrintNode::~PrintNode () {
+    delete child_;
+}
 
 NodeInterface* NodeInterface::CreatePrintNode (NodeInterface* child) {
     return new PrintNode (child);

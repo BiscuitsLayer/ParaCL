@@ -993,99 +993,96 @@ namespace yy {
     { 	
 									//	ADD VARIABLE
 									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0.0);
-									std::cout << "Visible assign success: " << *(yystack_[2].value.as< std::string* > ()) << std::endl;
 
 									NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as< std::string* > ()));
 									delete yystack_[2].value.as< std::string* > ();
 								  	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[0].value.as< NodeInterface* > ());
 								}
-#line 1003 "lang.tab.cc" // lalr1.cc:859
+#line 1002 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 18:
-#line 137 "../Language/lang.y" // lalr1.cc:859
+#line 136 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[0].value.as< NodeInterface* > ()); }
-#line 1009 "lang.tab.cc" // lalr1.cc:859
+#line 1008 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 19:
-#line 138 "../Language/lang.y" // lalr1.cc:859
+#line 137 "../Language/lang.y" // lalr1.cc:859
     { 	
 									//	ADD VARIABLE
 									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0.0);
-									std::cout << "Visible syscall success: " << *(yystack_[2].value.as< std::string* > ()) << std::endl;
 
 									NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as< std::string* > ()));
 									delete yystack_[2].value.as< std::string* > ();
 									NodeInterface* right = NodeInterface::CreateScanNode (); 
 								  	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, right);
 								}
-#line 1024 "lang.tab.cc" // lalr1.cc:859
+#line 1022 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 20:
-#line 151 "../Language/lang.y" // lalr1.cc:859
+#line 149 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1030 "lang.tab.cc" // lalr1.cc:859
+#line 1028 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 21:
-#line 152 "../Language/lang.y" // lalr1.cc:859
+#line 150 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1036 "lang.tab.cc" // lalr1.cc:859
+#line 1034 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 22:
-#line 153 "../Language/lang.y" // lalr1.cc:859
+#line 151 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
-#line 1042 "lang.tab.cc" // lalr1.cc:859
+#line 1040 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 23:
-#line 157 "../Language/lang.y" // lalr1.cc:859
+#line 155 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1048 "lang.tab.cc" // lalr1.cc:859
+#line 1046 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 24:
-#line 158 "../Language/lang.y" // lalr1.cc:859
+#line 156 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1054 "lang.tab.cc" // lalr1.cc:859
+#line 1052 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 25:
-#line 159 "../Language/lang.y" // lalr1.cc:859
+#line 157 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
-#line 1060 "lang.tab.cc" // lalr1.cc:859
+#line 1058 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 26:
-#line 163 "../Language/lang.y" // lalr1.cc:859
+#line 161 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[1].value.as< NodeInterface* > (); }
-#line 1066 "lang.tab.cc" // lalr1.cc:859
+#line 1064 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 27:
-#line 164 "../Language/lang.y" // lalr1.cc:859
+#line 162 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as< double > ()); }
-#line 1072 "lang.tab.cc" // lalr1.cc:859
+#line 1070 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 28:
-#line 165 "../Language/lang.y" // lalr1.cc:859
+#line 163 "../Language/lang.y" // lalr1.cc:859
     { 	
 											//	CHECK IF VARIABLE IS VISIBLE
 											globalCurrentScope->GetVariable (*(yystack_[0].value.as< std::string* > ()));
-											std::cout << "Visible exprlvl3 success 1: " << *(yystack_[0].value.as< std::string* > ()) << std::endl;
 
 											yylhs.value.as< NodeInterface* > () = NodeInterface::CreateVariableNode (*(yystack_[0].value.as< std::string* > ()));
 											delete yystack_[0].value.as< std::string* > (); 
 										}
-#line 1085 "lang.tab.cc" // lalr1.cc:859
+#line 1082 "lang.tab.cc" // lalr1.cc:859
     break;
 
 
-#line 1089 "lang.tab.cc" // lalr1.cc:859
+#line 1086 "lang.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -1356,8 +1353,8 @@ namespace yy {
   parser::yyrline_[] =
   {
        0,    89,    89,    93,   100,   101,   102,   103,   107,   111,
-     112,   116,   117,   118,   119,   120,   121,   125,   137,   138,
-     151,   152,   153,   157,   158,   159,   163,   164,   165
+     112,   116,   117,   118,   119,   120,   121,   125,   136,   137,
+     149,   150,   151,   155,   156,   157,   161,   162,   163
   };
 
   // Print the state stack on the debug stream.
@@ -1441,8 +1438,8 @@ namespace yy {
 
 
 } // yy
-#line 1445 "lang.tab.cc" // lalr1.cc:1167
-#line 175 "../Language/lang.y" // lalr1.cc:1168
+#line 1442 "lang.tab.cc" // lalr1.cc:1167
+#line 172 "../Language/lang.y" // lalr1.cc:1168
 
 
 namespace yy {

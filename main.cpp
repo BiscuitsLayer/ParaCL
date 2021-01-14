@@ -27,6 +27,8 @@ int main (int argc, char** argv) {
 	std::cerr << "Compiled successfully!" << std::endl;
 	
 	globalCurrentScope->Execute ();
+	delete globalCurrentScope;
+	delete lexer;
 
 	return 0;
 }

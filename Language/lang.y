@@ -125,7 +125,6 @@ assignment:
 	VARIABLE ASSIGN exprLvl1	{ 	
 									//	ADD VARIABLE
 									globalCurrentScope->SetVariable (*($1), 0.0);
-									std::cout << "Visible assign success: " << *($1) << std::endl;
 
 									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 									delete $1;
@@ -138,7 +137,6 @@ syscall:
 |	VARIABLE ASSIGN QMARK		{ 	
 									//	ADD VARIABLE
 									globalCurrentScope->SetVariable (*($1), 0.0);
-									std::cout << "Visible syscall success: " << *($1) << std::endl;
 
 									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 									delete $1;
@@ -165,7 +163,6 @@ exprLvl3:
 |	VARIABLE							{ 	
 											//	CHECK IF VARIABLE IS VISIBLE
 											globalCurrentScope->GetVariable (*($1));
-											std::cout << "Visible exprlvl3 success 1: " << *($1) << std::endl;
 
 											$$ = NodeInterface::CreateVariableNode (*($1));
 											delete $1; 

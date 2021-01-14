@@ -12,10 +12,14 @@ class SymTable final {
     private:
         std::unordered_map <std::string, double> data_ {};
     public:
-        SymTable ();
+        //  METHODS
         bool GetValue (const std::string& name, double& value) const;
         bool SetValue (const std::string& name, double value);
         bool Add (const std::string& name, double value);
+
+        //  CTOR AND DTOR
+        SymTable ();
+        ~SymTable () = default;
 };
 
 class ScopeNode final : public ScopeNodeInterface {
@@ -28,15 +32,15 @@ class ScopeNode final : public ScopeNodeInterface {
         virtual void Dump () const override;
 
         //  METHODS FROM SCOPE INTERFACE
-        virtual ~ScopeNode () override = default;
         virtual void AddNode (NodeInterface* node) override;
         virtual double GetVariable (const std::string& name) const override;
         virtual void SetVariable (const std::string& name, double value) override;
         virtual void Entry (ScopeNodeInterface* next) const override;
         virtual void Return () const override;
 
-        //  CTOR
+        //  CTOR AND DTOR
         explicit ScopeNode (ScopeNodeInterface* previous);
+        virtual ~ScopeNode ();
 };
 
 class ValueNode final : public NodeInterface {
@@ -49,6 +53,7 @@ class ValueNode final : public NodeInterface {
 
         //  CTOR
         explicit ValueNode (double value);
+        virtual ~ValueNode () = default;
 };
 
 class VariableNode final : public NodeInterface {
@@ -64,6 +69,7 @@ class VariableNode final : public NodeInterface {
 
         //  CTOR
         explicit VariableNode (const std::string& name);
+        virtual ~VariableNode () = default;
 };
 
 class BinaryOpNode final : public NodeInterface {
@@ -77,6 +83,7 @@ class BinaryOpNode final : public NodeInterface {
 
         //  CTOR
         explicit BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
+        virtual ~BinaryOpNode ();
 };
 
 class IfNode final : public NodeInterface {
@@ -90,6 +97,7 @@ class IfNode final : public NodeInterface {
 
         //  CTOR
         explicit IfNode (NodeInterface* condition, NodeInterface* scope);
+        virtual ~IfNode ();
 };
 
 class WhileNode final : public NodeInterface {
@@ -103,6 +111,7 @@ class WhileNode final : public NodeInterface {
 
         //  CTOR
         explicit WhileNode (NodeInterface* condition, NodeInterface* scope);
+        virtual ~WhileNode ();
 };
 
 class ScanNode final : public NodeInterface {
@@ -115,6 +124,7 @@ class ScanNode final : public NodeInterface {
 
         //  CTOR
         explicit ScanNode ();
+        virtual ~ScanNode () = default;
 };
 
 class PrintNode final : public NodeInterface {
@@ -127,4 +137,5 @@ class PrintNode final : public NodeInterface {
 
         //  CTOR
         explicit PrintNode (NodeInterface* child);
+        virtual ~PrintNode ();
 };
