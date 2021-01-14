@@ -1,6 +1,12 @@
+//  SYSTEM
+#include <cmath>
+#include <unistd.h>
+
+//  LANGUAGE
 #include "Lang.hpp"
 
 extern ScopeNodeInterface* globalCurrentScope;
+const double EPS = 1e-3;
 
 SymTable::SymTable ():
     data_ ({})
@@ -56,11 +62,11 @@ void ScopeNode::AddNode (NodeInterface* node) {
 }
 
 double ScopeNode::GetVariable (const std::string& name) const {
-    const SymTable* cur = &table_;
+    const ScopeNode* cur = this;
     double value = 0;
-    while (!cur->GetValue (name, value)) {
-        if (previous_) {
-            cur = &(static_cast <ScopeNode*> (previous_)->table_);
+    while (!cur->table_.GetValue (name, value)) {
+        if (cur->previous_) {
+            cur = static_cast <ScopeNode*> (cur->previous_);
         }
         else {
             throw std::invalid_argument ("Wrong name of variable");
@@ -70,8 +76,15 @@ double ScopeNode::GetVariable (const std::string& name) const {
 }
 
 void ScopeNode::SetVariable (const std::string& name, double value) {
-    if (!table_.SetValue (name, value)) {
-        table_.Add (name, value);
+    ScopeNode* cur = this;
+    while (!cur->table_.SetValue (name, value)) {
+        if (cur->previous_) {
+            cur = static_cast <ScopeNode*> (cur->previous_);
+        }
+        else {
+            table_.Add (name, value);
+            break;
+        }
     }
 }
 
@@ -156,27 +169,27 @@ double BinaryOpNode::Execute () const {
             break;
         }
         case NodeType::BINARY_OP_GREATER: {
-            return (leftChild_->Execute () > rightChild_->Execute () ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1.0 : -1.0);
             break;
         }
         case NodeType::BINARY_OP_GREATER_OR_EQ: {
-            return (leftChild_->Execute () >= rightChild_->Execute () ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) >= EPS ? 1.0 : -1.0);
             break;
         }
         case NodeType::BINARY_OP_LESS: {
-            return (leftChild_->Execute () < rightChild_->Execute () ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1.0 : -1.0);
             break;
         }
         case NodeType::BINARY_OP_LESS_OR_EQ: {
-            return (leftChild_->Execute () <= rightChild_->Execute () ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) <= EPS ? 1.0 : -1.0);
             break;
         }
         case NodeType::BINARY_OP_EQ: {
-            return (leftChild_->Execute () == rightChild_->Execute () ? 1.0 : -1.0);
+            return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1.0 : -1.0);
             break;
         }
         case NodeType::BINARY_OP_NOT_EQ: {
-            return (leftChild_->Execute () != rightChild_->Execute () ? 1.0 : -1.0);
+            return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1.0 : -1.0);
             break;
         }
     }
@@ -197,8 +210,10 @@ NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* 
 }
 
 double IfNode::Execute () const {
-    if (condition_->Execute () == 1.0) {
+    if (condition_->Execute () > 0.0) {
+        globalCurrentScope->Entry (static_cast <ScopeNodeInterface*> (scope_));
         scope_->Execute ();
+        globalCurrentScope->Return ();
     }
 }
 
@@ -217,8 +232,10 @@ NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, NodeInterf
 }
 
 double WhileNode::Execute () const {
-    while (condition_->Execute () == 1.0) {
+    while (condition_->Execute () > 0.0) {
+        globalCurrentScope->Entry (static_cast <ScopeNodeInterface*> (scope_));
         scope_->Execute ();
+        globalCurrentScope->Return ();
     }
 }
 

@@ -896,13 +896,13 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 92 "../Language/lang.y" // lalr1.cc:859
+#line 89 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = globalCurrentScope; globalCurrentScope->Return (); }
 #line 902 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 3:
-#line 96 "../Language/lang.y" // lalr1.cc:859
+#line 93 "../Language/lang.y" // lalr1.cc:859
     { 
 											ScopeNodeInterface* next = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
 											globalCurrentScope->Entry (next);
@@ -911,160 +911,181 @@ namespace yy {
     break;
 
   case 4:
-#line 103 "../Language/lang.y" // lalr1.cc:859
+#line 100 "../Language/lang.y" // lalr1.cc:859
     { globalCurrentScope->AddNode (yystack_[1].value.as< NodeInterface* > ()); }
 #line 917 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 5:
-#line 104 "../Language/lang.y" // lalr1.cc:859
+#line 101 "../Language/lang.y" // lalr1.cc:859
     { globalCurrentScope->AddNode (yystack_[1].value.as< NodeInterface* > ()); }
 #line 923 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 6:
-#line 105 "../Language/lang.y" // lalr1.cc:859
+#line 102 "../Language/lang.y" // lalr1.cc:859
     { globalCurrentScope->AddNode (yystack_[0].value.as< NodeInterface* > ()); }
 #line 929 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 8:
-#line 110 "../Language/lang.y" // lalr1.cc:859
+  case 7:
+#line 103 "../Language/lang.y" // lalr1.cc:859
     { /* empty */ }
 #line 935 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 9:
-#line 114 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 8:
+#line 107 "../Language/lang.y" // lalr1.cc:859
+    { /* empty */ }
 #line 941 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 10:
-#line 115 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 9:
+#line 111 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 947 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 11:
-#line 119 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 10:
+#line 112 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 953 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 12:
-#line 120 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER_OR_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 11:
+#line 116 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 959 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 13:
-#line 121 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 12:
+#line 117 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER_OR_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 965 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 14:
-#line 122 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 13:
+#line 118 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 971 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 15:
-#line 123 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 14:
+#line 119 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 977 "lang.tab.cc" // lalr1.cc:859
     break;
 
-  case 16:
-#line 124 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+  case 15:
+#line 120 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
 #line 983 "lang.tab.cc" // lalr1.cc:859
     break;
 
+  case 16:
+#line 121 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
+#line 989 "lang.tab.cc" // lalr1.cc:859
+    break;
+
   case 17:
-#line 128 "../Language/lang.y" // lalr1.cc:859
-    { 
+#line 125 "../Language/lang.y" // lalr1.cc:859
+    { 	
+									//	ADD VARIABLE
+									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0.0);
+									std::cout << "Visible assign success: " << *(yystack_[2].value.as< std::string* > ()) << std::endl;
+
 									NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as< std::string* > ()));
 									delete yystack_[2].value.as< std::string* > ();
 								  	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[0].value.as< NodeInterface* > ());
 								}
-#line 993 "lang.tab.cc" // lalr1.cc:859
+#line 1003 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 18:
-#line 136 "../Language/lang.y" // lalr1.cc:859
+#line 137 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[0].value.as< NodeInterface* > ()); }
-#line 999 "lang.tab.cc" // lalr1.cc:859
+#line 1009 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 19:
-#line 137 "../Language/lang.y" // lalr1.cc:859
-    { 
+#line 138 "../Language/lang.y" // lalr1.cc:859
+    { 	
+									//	ADD VARIABLE
+									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0.0);
+									std::cout << "Visible syscall success: " << *(yystack_[2].value.as< std::string* > ()) << std::endl;
+
 									NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as< std::string* > ()));
 									delete yystack_[2].value.as< std::string* > ();
 									NodeInterface* right = NodeInterface::CreateScanNode (); 
 								  	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, right);
 								}
-#line 1010 "lang.tab.cc" // lalr1.cc:859
+#line 1024 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 20:
-#line 146 "../Language/lang.y" // lalr1.cc:859
+#line 151 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1016 "lang.tab.cc" // lalr1.cc:859
+#line 1030 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 21:
-#line 147 "../Language/lang.y" // lalr1.cc:859
+#line 152 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1022 "lang.tab.cc" // lalr1.cc:859
+#line 1036 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 22:
-#line 148 "../Language/lang.y" // lalr1.cc:859
+#line 153 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
-#line 1028 "lang.tab.cc" // lalr1.cc:859
+#line 1042 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 23:
-#line 152 "../Language/lang.y" // lalr1.cc:859
+#line 157 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1034 "lang.tab.cc" // lalr1.cc:859
+#line 1048 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 24:
-#line 153 "../Language/lang.y" // lalr1.cc:859
+#line 158 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1040 "lang.tab.cc" // lalr1.cc:859
+#line 1054 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 25:
-#line 154 "../Language/lang.y" // lalr1.cc:859
+#line 159 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
-#line 1046 "lang.tab.cc" // lalr1.cc:859
+#line 1060 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 26:
-#line 158 "../Language/lang.y" // lalr1.cc:859
+#line 163 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[1].value.as< NodeInterface* > (); }
-#line 1052 "lang.tab.cc" // lalr1.cc:859
+#line 1066 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 27:
-#line 159 "../Language/lang.y" // lalr1.cc:859
+#line 164 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as< double > ()); }
-#line 1058 "lang.tab.cc" // lalr1.cc:859
+#line 1072 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 28:
-#line 160 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateVariableNode (*(yystack_[0].value.as< std::string* > ())); delete yystack_[0].value.as< std::string* > (); }
-#line 1064 "lang.tab.cc" // lalr1.cc:859
+#line 165 "../Language/lang.y" // lalr1.cc:859
+    { 	
+											//	CHECK IF VARIABLE IS VISIBLE
+											globalCurrentScope->GetVariable (*(yystack_[0].value.as< std::string* > ()));
+											std::cout << "Visible exprlvl3 success 1: " << *(yystack_[0].value.as< std::string* > ()) << std::endl;
+
+											yylhs.value.as< NodeInterface* > () = NodeInterface::CreateVariableNode (*(yystack_[0].value.as< std::string* > ()));
+											delete yystack_[0].value.as< std::string* > (); 
+										}
+#line 1085 "lang.tab.cc" // lalr1.cc:859
     break;
 
 
-#line 1068 "lang.tab.cc" // lalr1.cc:859
+#line 1089 "lang.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -1334,9 +1355,9 @@ namespace yy {
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    89,    92,    96,   103,   104,   105,   106,   110,   114,
-     115,   119,   120,   121,   122,   123,   124,   128,   136,   137,
-     146,   147,   148,   152,   153,   154,   158,   159,   160
+       0,    89,    89,    93,   100,   101,   102,   103,   107,   111,
+     112,   116,   117,   118,   119,   120,   121,   125,   137,   138,
+     151,   152,   153,   157,   158,   159,   163,   164,   165
   };
 
   // Print the state stack on the debug stream.
@@ -1420,8 +1441,8 @@ namespace yy {
 
 
 } // yy
-#line 1424 "lang.tab.cc" // lalr1.cc:1167
-#line 163 "../Language/lang.y" // lalr1.cc:1168
+#line 1445 "lang.tab.cc" // lalr1.cc:1167
+#line 175 "../Language/lang.y" // lalr1.cc:1168
 
 
 namespace yy {

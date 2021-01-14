@@ -24,6 +24,8 @@ int main (int argc, char** argv) {
 
 	globalCurrentScope = ScopeNodeInterface::CreateScopeNode (nullptr);
 	driver.parse ();
+	std::cerr << "Compiled successfully!" << std::endl;
+	
 	globalCurrentScope->Execute ();
 
 	return 0;

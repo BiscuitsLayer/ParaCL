@@ -85,9 +85,6 @@
 
 %%
 
-program:
-	inside_scope	
-
 scope:
 	scope_entry inside_scope scope_outro			{ $$ = globalCurrentScope; globalCurrentScope->Return (); }
 ;
@@ -103,7 +100,7 @@ inside_scope:
 	inside_scope assignment SCOLON 		{ globalCurrentScope->AddNode ($2); }
 |	inside_scope syscall SCOLON 		{ globalCurrentScope->AddNode ($2); }
 |	inside_scope if_while				{ globalCurrentScope->AddNode ($2); }
-|	
+|										{ /* empty */ }
 ;
 
 scope_outro:
@@ -125,7 +122,11 @@ condition:
 ;
 
 assignment:
-	VARIABLE ASSIGN exprLvl1	{ 
+	VARIABLE ASSIGN exprLvl1	{ 	
+									//	ADD VARIABLE
+									globalCurrentScope->SetVariable (*($1), 0.0);
+									std::cout << "Visible assign success: " << *($1) << std::endl;
+
 									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 									delete $1;
 								  	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
@@ -134,7 +135,11 @@ assignment:
 
 syscall:
 	PRINT exprLvl1				{ $$ = NodeInterface::CreatePrintNode ($2); }
-|	VARIABLE ASSIGN QMARK		{ 
+|	VARIABLE ASSIGN QMARK		{ 	
+									//	ADD VARIABLE
+									globalCurrentScope->SetVariable (*($1), 0.0);
+									std::cout << "Visible syscall success: " << *($1) << std::endl;
+
 									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 									delete $1;
 									NodeInterface* right = NodeInterface::CreateScanNode (); 
@@ -157,7 +162,14 @@ exprLvl2:
 exprLvl3:
 	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
-|	VARIABLE							{ $$ = NodeInterface::CreateVariableNode (*($1)); delete $1; }
+|	VARIABLE							{ 	
+											//	CHECK IF VARIABLE IS VISIBLE
+											globalCurrentScope->GetVariable (*($1));
+											std::cout << "Visible exprlvl3 success 1: " << *($1) << std::endl;
+
+											$$ = NodeInterface::CreateVariableNode (*($1));
+											delete $1; 
+										}
 ;
 
 %%
