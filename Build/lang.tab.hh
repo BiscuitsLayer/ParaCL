@@ -282,7 +282,7 @@ namespace yy {
       // exprLvl2
       // exprLvl3
       // assignment
-      // syscall
+      // func_call
       // condition
       // if_while
       // scope
@@ -290,7 +290,7 @@ namespace yy {
       char dummy1[sizeof(NodeInterface*)];
 
       // NUMBER
-      char dummy2[sizeof(double)];
+      char dummy2[sizeof(NumberType)];
 
       // VARIABLE
       char dummy3[sizeof(std::string*)];
@@ -375,7 +375,7 @@ namespace yy {
 
   basic_symbol (typename Base::kind_type t, const NodeInterface* v);
 
-  basic_symbol (typename Base::kind_type t, const double v);
+  basic_symbol (typename Base::kind_type t, const NumberType v);
 
   basic_symbol (typename Base::kind_type t, const std::string* v);
 
@@ -528,7 +528,7 @@ namespace yy {
 
     static inline
     symbol_type
-    make_NUMBER (const double& v);
+    make_NUMBER (const NumberType& v);
 
     static inline
     symbol_type
@@ -618,7 +618,7 @@ namespace yy {
   // number is the opposite.  If YYTABLE_NINF, syntax error.
   static const unsigned char yytable_[];
 
-  static const signed char yycheck_[];
+  static const unsigned char yycheck_[];
 
   // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
   // symbol of state STATE-NUM.
@@ -735,7 +735,7 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 54,     ///< Last index in yytable_.
+      yylast_ = 48,     ///< Last index in yytable_.
       yynnts_ = 12,  ///< Number of nonterminal symbols.
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,

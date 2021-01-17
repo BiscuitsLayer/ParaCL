@@ -177,7 +177,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -186,7 +186,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        value.copy< double > (other.value);
+        value.copy< NumberType > (other.value);
         break;
 
       case 25: // VARIABLE
@@ -213,7 +213,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -222,7 +222,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        value.copy< double > (v);
+        value.copy< NumberType > (v);
         break;
 
       case 25: // VARIABLE
@@ -250,7 +250,7 @@ namespace yy {
   {}
 
   template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const double v)
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const NumberType v)
     : Base (t)
     , value (v)
   {}
@@ -291,7 +291,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -300,7 +300,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        value.template destroy< double > ();
+        value.template destroy< NumberType > ();
         break;
 
       case 25: // VARIABLE
@@ -334,7 +334,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -343,7 +343,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        value.move< double > (s.value);
+        value.move< NumberType > (s.value);
         break;
 
       case 25: // VARIABLE
@@ -521,7 +521,7 @@ namespace yy {
   }
 
   parser::symbol_type
-  parser::make_NUMBER (const double& v)
+  parser::make_NUMBER (const NumberType& v)
   {
     return symbol_type (token::NUMBER, v);
   }
@@ -590,7 +590,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -599,7 +599,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        value.move< double > (that.value);
+        value.move< NumberType > (that.value);
         break;
 
       case 25: // VARIABLE
@@ -625,7 +625,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -634,7 +634,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        value.copy< double > (that.value);
+        value.copy< NumberType > (that.value);
         break;
 
       case 25: // VARIABLE
@@ -867,7 +867,7 @@ namespace yy {
       case 32: // exprLvl2
       case 33: // exprLvl3
       case 34: // assignment
-      case 35: // syscall
+      case 35: // func_call
       case 36: // condition
       case 37: // if_while
       case 38: // scope
@@ -876,7 +876,7 @@ namespace yy {
         break;
 
       case 24: // NUMBER
-        yylhs.value.build< double > ();
+        yylhs.value.build< NumberType > ();
         break;
 
       case 25: // VARIABLE
@@ -989,88 +989,80 @@ namespace yy {
     break;
 
   case 17:
-#line 125 "../Language/lang.y" // lalr1.cc:859
+#line 122 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
+#line 995 "lang.tab.cc" // lalr1.cc:859
+    break;
+
+  case 18:
+#line 126 "../Language/lang.y" // lalr1.cc:859
     { 	
 									//	ADD VARIABLE
-									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0.0);
+									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0);
 
 									NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as< std::string* > ()));
 									delete yystack_[2].value.as< std::string* > ();
 								  	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[0].value.as< NodeInterface* > ());
 								}
-#line 1002 "lang.tab.cc" // lalr1.cc:859
-    break;
-
-  case 18:
-#line 136 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[0].value.as< NodeInterface* > ()); }
 #line 1008 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 19:
 #line 137 "../Language/lang.y" // lalr1.cc:859
-    { 	
-									//	ADD VARIABLE
-									globalCurrentScope->SetVariable (*(yystack_[2].value.as< std::string* > ()), 0.0);
-
-									NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as< std::string* > ()));
-									delete yystack_[2].value.as< std::string* > ();
-									NodeInterface* right = NodeInterface::CreateScanNode (); 
-								  	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, right);
-								}
-#line 1022 "lang.tab.cc" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[0].value.as< NodeInterface* > ()); }
+#line 1014 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 20:
-#line 149 "../Language/lang.y" // lalr1.cc:859
+#line 141 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1028 "lang.tab.cc" // lalr1.cc:859
+#line 1020 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 21:
-#line 150 "../Language/lang.y" // lalr1.cc:859
+#line 142 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1034 "lang.tab.cc" // lalr1.cc:859
+#line 1026 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 22:
-#line 151 "../Language/lang.y" // lalr1.cc:859
+#line 143 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
-#line 1040 "lang.tab.cc" // lalr1.cc:859
+#line 1032 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 23:
-#line 155 "../Language/lang.y" // lalr1.cc:859
+#line 147 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1046 "lang.tab.cc" // lalr1.cc:859
+#line 1038 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 24:
-#line 156 "../Language/lang.y" // lalr1.cc:859
+#line 148 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, yystack_[2].value.as< NodeInterface* > (), yystack_[0].value.as< NodeInterface* > ()); }
-#line 1052 "lang.tab.cc" // lalr1.cc:859
+#line 1044 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 25:
-#line 157 "../Language/lang.y" // lalr1.cc:859
+#line 149 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[0].value.as< NodeInterface* > (); }
-#line 1058 "lang.tab.cc" // lalr1.cc:859
+#line 1050 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 26:
-#line 161 "../Language/lang.y" // lalr1.cc:859
+#line 153 "../Language/lang.y" // lalr1.cc:859
     { yylhs.value.as< NodeInterface* > () = yystack_[1].value.as< NodeInterface* > (); }
-#line 1064 "lang.tab.cc" // lalr1.cc:859
+#line 1056 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 27:
-#line 162 "../Language/lang.y" // lalr1.cc:859
-    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as< double > ()); }
-#line 1070 "lang.tab.cc" // lalr1.cc:859
+#line 154 "../Language/lang.y" // lalr1.cc:859
+    { yylhs.value.as< NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as< NumberType > ()); }
+#line 1062 "lang.tab.cc" // lalr1.cc:859
     break;
 
   case 28:
-#line 163 "../Language/lang.y" // lalr1.cc:859
+#line 155 "../Language/lang.y" // lalr1.cc:859
     { 	
 											//	CHECK IF VARIABLE IS VISIBLE
 											globalCurrentScope->GetVariable (*(yystack_[0].value.as< std::string* > ()));
@@ -1078,11 +1070,17 @@ namespace yy {
 											yylhs.value.as< NodeInterface* > () = NodeInterface::CreateVariableNode (*(yystack_[0].value.as< std::string* > ()));
 											delete yystack_[0].value.as< std::string* > (); 
 										}
-#line 1082 "lang.tab.cc" // lalr1.cc:859
+#line 1074 "lang.tab.cc" // lalr1.cc:859
+    break;
+
+  case 29:
+#line 162 "../Language/lang.y" // lalr1.cc:859
+    { 	yylhs.value.as< NodeInterface* > () = NodeInterface::CreateScanNode ();	}
+#line 1080 "lang.tab.cc" // lalr1.cc:859
     break;
 
 
-#line 1086 "lang.tab.cc" // lalr1.cc:859
+#line 1084 "lang.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -1243,28 +1241,28 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -14;
+  const signed char parser::yypact_ninf_ = -21;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-     -14,    12,   -14,    -7,    -3,    -6,    15,     2,    16,   -14,
-      -6,    -6,    -6,   -14,   -14,   -14,     1,     3,    -8,   -14,
-     -14,    36,    13,    26,    28,    -6,    -6,    -6,    -6,   -14,
-     -14,    -6,    -6,    -6,    -6,    -6,    -6,    14,    14,   -14,
-     -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,   -14,
-     -14,   -14,   -14,   -14,    23,   -14,   -14
+     -21,    12,   -21,     4,     6,    -8,    -3,    16,    17,   -21,
+      -8,    -8,    -8,   -21,   -21,   -21,   -21,    -1,     0,    -8,
+     -21,   -21,    25,    26,    34,    35,    -8,    -8,    -8,    -8,
+     -21,    -8,    -8,    -8,    -8,    -8,    -8,    24,    24,   -21,
+     -21,   -21,   -21,   -21,   -21,   -21,   -21,   -21,   -21,   -21,
+     -21,   -21,   -21,   -21,    -2,   -21,   -21
   };
 
   const unsigned char
   parser::yydefact_[] =
   {
        7,     0,     1,     0,     0,     0,     0,     0,     0,     6,
-       0,     0,     0,    27,    28,    18,    22,    25,     0,     4,
-       5,     0,     0,     0,     0,     0,     0,     0,     0,    19,
-      17,     0,     0,     0,     0,     0,     0,     0,     0,    26,
+       0,     0,     0,    29,    27,    28,    19,    22,    25,     0,
+       4,     5,    17,     0,     0,     0,     0,     0,     0,     0,
+      18,     0,     0,     0,     0,     0,     0,     0,     0,    26,
       20,    21,    23,    24,    11,    12,    13,    14,    15,    16,
        3,     9,     7,    10,     0,     8,     2
   };
@@ -1272,45 +1270,43 @@ namespace yy {
   const signed char
   parser::yypgoto_[] =
   {
-     -14,    -5,   -13,   -14,   -14,   -14,    29,   -14,     4,   -11,
-     -14,   -14
+     -21,    -5,   -20,   -21,   -21,   -21,    36,   -21,     8,    -4,
+     -21,   -21
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-      -1,    21,    16,    17,     7,     8,    22,     9,    51,     1,
+      -1,    22,    17,    18,     7,     8,    23,     9,    51,     1,
       52,    56
   };
 
   const unsigned char
   parser::yytable_[] =
   {
-      15,    12,    10,    12,    25,    26,    11,    24,    27,    28,
-      19,    29,     2,    30,    42,    43,    13,    14,    13,    14,
-      40,    41,    18,    37,    20,    50,    44,    45,    46,    47,
-      48,    49,     3,     4,     5,    55,    38,     6,    39,     0,
-      23,    54,    53,     3,     4,     5,     0,     0,     6,    31,
-      32,    33,    34,    35,    36
+      16,    12,    26,    27,    19,    28,    29,    25,    42,    43,
+      55,    13,     2,    10,    30,    11,    14,    15,     3,     4,
+       5,    40,    41,     6,    20,    21,    44,    45,    46,    47,
+      48,    49,     3,     4,     5,    50,    37,     6,    31,    32,
+      33,    34,    35,    36,    38,    39,    53,    24,    54
   };
 
-  const signed char
+  const unsigned char
   parser::yycheck_[] =
   {
-       5,     9,     9,     9,     3,     4,     9,    12,     5,     6,
-       8,    19,     0,    18,    27,    28,    24,    25,    24,    25,
-      25,    26,     7,    10,     8,    11,    31,    32,    33,    34,
-      35,    36,    20,    21,    22,    12,    10,    25,    10,    -1,
-      11,    52,    38,    20,    21,    22,    -1,    -1,    25,    13,
-      14,    15,    16,    17,    18
+       5,     9,     3,     4,     7,     5,     6,    12,    28,    29,
+      12,    19,     0,     9,    19,     9,    24,    25,    20,    21,
+      22,    26,    27,    25,     8,     8,    31,    32,    33,    34,
+      35,    36,    20,    21,    22,    11,    10,    25,    13,    14,
+      15,    16,    17,    18,    10,    10,    38,    11,    52
   };
 
   const unsigned char
   parser::yystos_[] =
   {
        0,    39,     0,    20,    21,    22,    25,    34,    35,    37,
-       9,     9,     9,    24,    25,    31,    32,    33,     7,     8,
-       8,    31,    36,    36,    31,     3,     4,     5,     6,    19,
+       9,     9,     9,    19,    24,    25,    31,    32,    33,     7,
+       8,     8,    31,    36,    36,    31,     3,     4,     5,     6,
       31,    13,    14,    15,    16,    17,    18,    10,    10,    10,
       31,    31,    32,    32,    31,    31,    31,    31,    31,    31,
       11,    38,    40,    38,    39,    12,    41
@@ -1320,16 +1316,16 @@ namespace yy {
   parser::yyr1_[] =
   {
        0,    30,    38,    40,    39,    39,    39,    39,    41,    37,
-      37,    36,    36,    36,    36,    36,    36,    34,    35,    35,
-      31,    31,    31,    32,    32,    32,    33,    33,    33
+      37,    36,    36,    36,    36,    36,    36,    36,    34,    35,
+      31,    31,    31,    32,    32,    32,    33,    33,    33,    33
   };
 
   const unsigned char
   parser::yyr2_[] =
   {
        0,     2,     3,     1,     3,     3,     2,     0,     1,     5,
-       5,     3,     3,     3,     3,     3,     3,     3,     2,     3,
-       3,     3,     1,     3,     3,     1,     3,     1,     1
+       5,     3,     3,     3,     3,     3,     3,     1,     3,     2,
+       3,     3,     1,     3,     3,     1,     3,     1,     1,     1
   };
 
 
@@ -1343,7 +1339,7 @@ namespace yy {
   "\"=\"", "\";\"", "\"(\"", "\")\"", "\"{\"", "\"}\"", "\">\"", "\">=\"",
   "\"<\"", "\"<=\"", "\"==\"", "\"!=\"", "\"?\"", "\"if\"", "\"while\"",
   "\"print\"", "ERROR", "NUMBER", "VARIABLE", "'+'", "'-'", "'*'", "'/'",
-  "$accept", "exprLvl1", "exprLvl2", "exprLvl3", "assignment", "syscall",
+  "$accept", "exprLvl1", "exprLvl2", "exprLvl3", "assignment", "func_call",
   "condition", "if_while", "scope", "inside_scope", "scope_entry",
   "scope_outro", YY_NULLPTR
   };
@@ -1353,8 +1349,8 @@ namespace yy {
   parser::yyrline_[] =
   {
        0,    89,    89,    93,   100,   101,   102,   103,   107,   111,
-     112,   116,   117,   118,   119,   120,   121,   125,   136,   137,
-     149,   150,   151,   155,   156,   157,   161,   162,   163
+     112,   116,   117,   118,   119,   120,   121,   122,   126,   137,
+     141,   142,   143,   147,   148,   149,   153,   154,   155,   162
   };
 
   // Print the state stack on the debug stream.
@@ -1438,8 +1434,8 @@ namespace yy {
 
 
 } // yy
-#line 1442 "lang.tab.cc" // lalr1.cc:1167
-#line 172 "../Language/lang.y" // lalr1.cc:1168
+#line 1438 "lang.tab.cc" // lalr1.cc:1167
+#line 165 "../Language/lang.y" // lalr1.cc:1168
 
 
 namespace yy {
@@ -1448,6 +1444,8 @@ namespace yy {
 		return driver->yylex (yylval);
 	}
 
-	void parser::error (const std::string&) {}
+	void parser::error (const std::string& str) {
+		std::cout << "Syntax Error" << std::endl;
+	}
 
 }

@@ -65,13 +65,13 @@
   ERROR
 ;
 
-%token <double> NUMBER
+%token <NumberType> NUMBER
 %token <std::string*> VARIABLE
 
 /* Объявление нетерминалов */
 %nterm <NodeInterface*> exprLvl1 exprLvl2 exprLvl3
 %nterm <NodeInterface*> assignment
-%nterm <NodeInterface*> syscall
+%nterm <NodeInterface*> func_call
 %nterm <NodeInterface*> condition
 %nterm <NodeInterface*> if_while
 %nterm <NodeInterface*> scope
@@ -98,7 +98,7 @@ scope_entry:
 
 inside_scope:
 	inside_scope assignment SCOLON 		{ globalCurrentScope->AddNode ($2); }
-|	inside_scope syscall SCOLON 		{ globalCurrentScope->AddNode ($2); }
+|	inside_scope func_call SCOLON 		{ globalCurrentScope->AddNode ($2); }
 |	inside_scope if_while				{ globalCurrentScope->AddNode ($2); }
 |										{ /* empty */ }
 ;
@@ -119,12 +119,13 @@ condition:
 |	exprLvl1 LESS_OR_EQ exprLvl1		{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, $1, $3); }
 |	exprLvl1 EQ exprLvl1				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, $1, $3); }
 |	exprLvl1 NOT_EQ exprLvl1			{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, $1, $3); }
+|	exprLvl1							{ $$ = $1; }
 ;
 
 assignment:
 	VARIABLE ASSIGN exprLvl1	{ 	
 									//	ADD VARIABLE
-									globalCurrentScope->SetVariable (*($1), 0.0);
+									globalCurrentScope->SetVariable (*($1), 0);
 
 									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 									delete $1;
@@ -132,17 +133,8 @@ assignment:
 								}
 ;
 
-syscall:
+func_call:
 	PRINT exprLvl1				{ $$ = NodeInterface::CreatePrintNode ($2); }
-|	VARIABLE ASSIGN QMARK		{ 	
-									//	ADD VARIABLE
-									globalCurrentScope->SetVariable (*($1), 0.0);
-
-									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
-									delete $1;
-									NodeInterface* right = NodeInterface::CreateScanNode (); 
-								  	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, right);
-								}
 ;
 
 exprLvl1:
@@ -167,6 +159,7 @@ exprLvl3:
 											$$ = NodeInterface::CreateVariableNode (*($1));
 											delete $1; 
 										}
+|	QMARK								{ 	$$ = NodeInterface::CreateScanNode ();	}
 ;
 
 %%
@@ -177,6 +170,8 @@ namespace yy {
 		return driver->yylex (yylval);
 	}
 
-	void parser::error (const std::string&) {}
+	void parser::error (const std::string& str) {
+		std::cout << "Syntax Error" << std::endl;
+	}
 
 }

@@ -2,6 +2,7 @@
 
 //  SYSTEM
 #include <cstring>
+#include <fstream>
 
 //	BISON AND FLEX
 #include <FlexLexer.h>
@@ -13,9 +14,13 @@ namespace yy {
         private:
             FlexLexer* lexer_;
         public:
-            LangDriver (FlexLexer* lexer);
+            //  METHODS
             parser::token_type yylex (parser::semantic_type* yylval);
             bool parse ();
+
+            //  CTOR AND DTOR
+            LangDriver (std::ifstream& infile);
+            ~LangDriver ();
     };
 
 }

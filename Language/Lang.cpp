@@ -1,14 +1,8 @@
-//  SYSTEM
-#include <cmath>
-#include <unistd.h>
-
-//  LANGUAGE
 #include "Lang.hpp"
 
 extern ScopeNodeInterface* globalCurrentScope;
-const double EPS = 1e-3;
 
-bool SymTable::GetValue (const std::string& name, double& value) const {
+bool SymTable::GetValue (const std::string& name, NumberType& value) const {
     auto search = data_.find (name);
     if (search == data_.end ()) {
         return false;
@@ -19,7 +13,7 @@ bool SymTable::GetValue (const std::string& name, double& value) const {
     }
 }
 
-bool SymTable::SetValue (const std::string& name, double value) {
+bool SymTable::SetValue (const std::string& name, NumberType value) {
     auto search = data_.find (name);
     if (search == data_.end ()) {
         return false;
@@ -30,7 +24,7 @@ bool SymTable::SetValue (const std::string& name, double value) {
     }
 }
 
-bool SymTable::Add (const std::string& name, double value) {
+bool SymTable::Add (const std::string& name, NumberType value) {
     auto search = data_.find (name);
     if (search != data_.end ()) {
         return false;
@@ -45,25 +39,36 @@ SymTable::SymTable ():
     data_ ({})
     {}
 
-double ScopeNode::Execute () const {
+NumberType ScopeNode::Execute () const {
     for (auto branch : branches_) {
-        branch->Execute ();
+        try {
+            branch->Execute ();
+        } catch (std::invalid_argument& ex) {
+            std::cerr << ex.what () << std::endl;
+            branch->Dump (std::cerr);
+            std::cerr << std::endl;
+            exit (ErrorCodes::ERROR_INV_ARG);
+        } catch (std::overflow_error& ex) {
+            std::cerr << ex.what () << std::endl;
+            branch->Dump (std::cerr);
+            std::cerr << std::endl;
+            exit (ErrorCodes::ERROR_OVF);
+        }
     }
-    return 0.0;
+    return 0;
 }
 
-void ScopeNode::Dump () const {
-    // TODO TREE DUMP
-    std::cout << "Test Dump!" << std::endl;
+void ScopeNode::Dump (std::ostream &stream) const {
+    /* empty */
 }
 
 void ScopeNode::AddNode (NodeInterface* node) {
     branches_.push_back (node);
 }
 
-double ScopeNode::GetVariable (const std::string& name) const {
+NumberType ScopeNode::GetVariable (const std::string& name) const {
     const ScopeNode* cur = this;
-    double value = 0;
+    NumberType value = 0;
     while (!cur->table_.GetValue (name, value)) {
         if (cur->previous_) {
             cur = static_cast <ScopeNode*> (cur->previous_);
@@ -75,7 +80,7 @@ double ScopeNode::GetVariable (const std::string& name) const {
     return value;
 }
 
-void ScopeNode::SetVariable (const std::string& name, double value) {
+void ScopeNode::SetVariable (const std::string& name, NumberType value) {
     ScopeNode* cur = this;
     while (!cur->table_.SetValue (name, value)) {
         if (cur->previous_) {
@@ -112,32 +117,32 @@ ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* pre
     return new ScopeNode (previous);
 }
 
-double ValueNode::Execute () const {
+NumberType ValueNode::Execute () const {
     return value_;
 }
 
-void ValueNode::Dump () const {
-    // TODO TREE DUMP
+void ValueNode::Dump (std::ostream &stream) const {
+    stream << value_;
 }
 
-ValueNode::ValueNode (double value):
+ValueNode::ValueNode (NumberType value):
     NodeInterface (NodeType::VALUE),
     value_ (value)
     {}
 
-NodeInterface* NodeInterface::CreateValueNode (double value) {
+NodeInterface* NodeInterface::CreateValueNode (NumberType value) {
     return new ValueNode (value);
 }
 
-double VariableNode::Execute () const {
+NumberType VariableNode::Execute () const {
     return globalCurrentScope->GetVariable (name_);
 }
 
-void VariableNode::Dump () const {
-    // TODO TREE DUMP
+void VariableNode::Dump (std::ostream &stream) const {
+    stream << name_;
 }
 
-void VariableNode::Assign (double value) const {
+void VariableNode::Assign (NumberType value) const {
     globalCurrentScope->SetVariable (name_, value);
 }
 
@@ -150,7 +155,7 @@ NodeInterface* NodeInterface::CreateVariableNode (const std::string& name) {
     return new VariableNode (name);
 }
 
-double BinaryOpNode::Execute () const {
+NumberType BinaryOpNode::Execute () const {
     switch (type_) {
         case NodeType::BINARY_OP_ADD: {
             return leftChild_->Execute () + rightChild_->Execute ();
@@ -165,44 +170,140 @@ double BinaryOpNode::Execute () const {
             break;
         }
         case NodeType::BINARY_OP_DIV: {
-            return leftChild_->Execute () / rightChild_->Execute ();
+            NumberType leftResult = leftChild_->Execute ();
+            NumberType rightResult = rightChild_->Execute ();
+            if (std::fabs (rightResult) < EPS) {
+                throw std::overflow_error ("Division by zero");
+            }
+            else {
+                return leftResult / rightResult;
+            }
             break;
         }
         case NodeType::BINARY_OP_ASSIGN: {
             VariableNode* leftChildAsVariable = static_cast <VariableNode*> (leftChild_);
             leftChildAsVariable->Assign (rightChild_->Execute ());
-            return 0.0;
+            return 0;
             break;
         }
         case NodeType::BINARY_OP_GREATER: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_GREATER_OR_EQ: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) >= EPS ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) >= EPS ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_LESS: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_LESS_OR_EQ: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) <= EPS ? 1.0 : -1.0);
+            return ((leftChild_->Execute () - rightChild_->Execute ()) <= EPS ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_EQ: {
-            return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1.0 : -1.0);
+            return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_NOT_EQ: {
-            return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1.0 : -1.0);
+            return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1 : -1);
             break;
         }
     }
 }
 
-void BinaryOpNode::Dump () const {
-    // TODO TREE DUMP
+void BinaryOpNode::Dump (std::ostream& stream) const {
+    switch (type_) {
+        case NodeType::BINARY_OP_ADD: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " + ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_SUB: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " - ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_MUL: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " * ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_DIV: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " / ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_ASSIGN: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " = ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_GREATER: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " > ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_GREATER_OR_EQ: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " >= ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_LESS: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " < ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_LESS_OR_EQ: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " <= ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_EQ: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " == ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+        case NodeType::BINARY_OP_NOT_EQ: {
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " != ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
+        }
+    }
 }
 
 BinaryOpNode::BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild):
@@ -220,16 +321,18 @@ NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* 
     return new BinaryOpNode (type, leftChild, rightChild);
 }
 
-double IfNode::Execute () const {
-    if (condition_->Execute () > 0.0) {
+NumberType IfNode::Execute () const {
+    if (condition_->Execute () > 0) {
         globalCurrentScope->Entry (static_cast <ScopeNodeInterface*> (scope_));
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
 }
 
-void IfNode::Dump () const {
-    // TODO TREE DUMP
+void IfNode::Dump (std::ostream& stream) const {
+    stream << "if ";
+    condition_->Dump (stream);
+    stream << " { ... }";
 }
 
 IfNode::IfNode (NodeInterface* condition, NodeInterface* scope):
@@ -247,16 +350,18 @@ NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, NodeInterf
     return new IfNode (condition, scope);
 }
 
-double WhileNode::Execute () const {
-    while (condition_->Execute () > 0.0) {
+NumberType WhileNode::Execute () const {
+    while (condition_->Execute () > 0) {
         globalCurrentScope->Entry (static_cast <ScopeNodeInterface*> (scope_));
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
 }
 
-void WhileNode::Dump () const {
-    // TODO TREE DUMP
+void WhileNode::Dump (std::ostream& stream) const {
+    stream << "while ";
+    condition_->Dump (stream);
+    stream << " { ... }";
 }
 
 WhileNode::WhileNode (NodeInterface* condition, NodeInterface* scope):
@@ -274,34 +379,44 @@ NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, NodeInt
     return new WhileNode (condition, scope);
 }
 
-double ScanNode::Execute () const {
+NumberType ScanNode::Execute () const {
     static size_t inputCounter = 0;
-    double returnValue = 0.0;
+    NumberType inputValue = 0;
     std::cout << "In [" << inputCounter++ << "]: ";
-    std::cin >> returnValue;
-    return returnValue;
+    std::cin >> inputValue;
+    isScanned_ = true;
+    value_ = inputValue;
+    return inputValue;
 }
 
-void ScanNode::Dump () const {
-    // TODO TREE DUMP
+void ScanNode::Dump (std::ostream& stream) const {
+    if (isScanned_) {
+        stream << "{" << value_ << "}";
+    }
+    else {
+        stream << "{not scanned}";
+    }
 }
 
 ScanNode::ScanNode ():
-    NodeInterface (NodeType::SCAN)
+    NodeInterface (NodeType::SCAN),
+    value_ (0),
+    isScanned_ (false)
     {}
 
 NodeInterface* NodeInterface::CreateScanNode () {
     return new ScanNode ();
 }
 
-double PrintNode::Execute () const {
+NumberType PrintNode::Execute () const {
     static size_t outputCounter = 0;
     std::cout << "Out[" << outputCounter++ << "]: " << child_->Execute () << std::endl;
-    return 0.0;
+    return 0;
 }
 
-void PrintNode::Dump () const {
-    // TODO TREE DUMP
+void PrintNode::Dump (std::ostream& stream) const {
+    stream << "print ";
+    child_->Dump (stream);
 }
 
 PrintNode::PrintNode (NodeInterface* child):

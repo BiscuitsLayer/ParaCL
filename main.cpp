@@ -11,24 +11,14 @@
 ScopeNodeInterface* globalCurrentScope = nullptr;
 
 int main (int argc, char** argv) {
-	FlexLexer *lexer = new yyFlexLexer;
-	yy::LangDriver driver { lexer };
-
 	std::ifstream infile { argv[1] };
 	if (!infile) {
 		std::cerr << "Error opening file!" << std::endl;
 		return 0;
 	}
-
-	lexer->switch_streams (infile, std::cout);
-
-	globalCurrentScope = ScopeNodeInterface::CreateScopeNode (nullptr);
-	driver.parse ();
-	std::cerr << "Compiled successfully!" << std::endl;
 	
-	globalCurrentScope->Execute ();
-	delete globalCurrentScope;
-	delete lexer;
-
+	yy::LangDriver driver { infile };
+	driver.parse ();
+	
 	return 0;
 }

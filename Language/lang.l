@@ -1,11 +1,12 @@
-
 %option c++
-/* TODO */
-%option noyywrap
 
 %{
 
+//	BISON AND FLEX
 #include "../Build/lang.tab.hh"
+
+//  SETTINGS
+#include "../Language/Settings.hpp"
 
 %}
 
@@ -14,7 +15,8 @@ DOT             [.]
 DIGIT           [0-9]
 DIGIT_NON_ZERO  [1-9]
 DOUBLE          {DIGIT}+{DOT}?{DIGIT}*
-INTEGER         {DIGIT_NON_ZERO}{DIGIT}*
+INT             {DIGIT_NON_ZERO}{DIGIT}*
+NUMBER          {DOUBLE}
 LETTER          [a-zA-Z_]
 LETTER_OR_DIGIT [a-zA-Z0-9_]
 VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
@@ -44,8 +46,12 @@ VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
 "if"                        return yy::parser::token_type::IF;
 "while"                     return yy::parser::token_type::WHILE;
 "print"                     return yy::parser::token_type::PRINT;
-{DOUBLE}                    return yy::parser::token_type::NUMBER;
+{NUMBER}                    return yy::parser::token_type::NUMBER;
 {VARIABLE}                  return yy::parser::token_type::VARIABLE;
 .			                return yy::parser::token_type::ERROR;
 
 %%
+
+int yywrap () {
+	std::cout << "yywrap" << std::endl;
+}

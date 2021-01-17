@@ -3,6 +3,15 @@
 //  SYSTEM
 #include <iostream>
 
+//  SETTINGS
+#include "Settings.hpp"
+
+//  ERROR CODES
+enum ErrorCodes {
+    ERROR_INV_ARG = 1,
+    ERROR_OVF = 2
+};
+
 enum class NodeType {
     VALUE = 0,
     VARIABLE = 1,
@@ -36,16 +45,16 @@ class NodeInterface {
     protected:
         NodeType type_ = NodeType::ERROR;
     public:
-        //  CTOR
-        explicit NodeInterface (NodeType type);
-
         //  METHODS
+        virtual NumberType Execute () const = 0;
+        virtual void Dump (std::ostream &stream) const = 0;
+
+        //  CTOR AND DTOR
+        explicit NodeInterface (NodeType type);
         virtual ~NodeInterface () = default;
-        virtual double Execute () const = 0;
-        virtual void Dump () const = 0;
 
         //  DERIVED CLASSES CTOR-S
-        static NodeInterface* CreateValueNode (double value);
+        static NodeInterface* CreateValueNode (NumberType value);
         static NodeInterface* CreateVariableNode (const std::string& name);
         static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
         static NodeInterface* CreateIfNode (NodeInterface* condition, NodeInterface* scope);
@@ -63,15 +72,15 @@ class ScopeNodeInterface : public NodeInterface {
         ScopeNodeInterface* previous_ = nullptr;
 
         //  METHODS
-        virtual ~ScopeNodeInterface () = default;
         virtual void AddNode (NodeInterface* node) = 0;
-        virtual double GetVariable (const std::string& name) const = 0;
-        virtual void SetVariable (const std::string& name, double value) = 0;
+        virtual NumberType GetVariable (const std::string& name) const = 0;
+        virtual void SetVariable (const std::string& name, NumberType value) = 0;
         virtual void Entry (ScopeNodeInterface* next) const = 0;
         virtual void Return () const = 0;
 
         //  CTOR
         explicit ScopeNodeInterface (ScopeNodeInterface* previous);
+        virtual ~ScopeNodeInterface () = default;
 
         //  DERIVED CLASS CTOR
         static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr);
