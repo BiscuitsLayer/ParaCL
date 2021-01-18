@@ -5,18 +5,19 @@
 #include <fstream>
 
 //	BISON AND FLEX
-#include <FlexLexer.h>
 #include "../Build/lang.tab.hh"
+#include "../Language/SyntaxCheck.hpp"
 
 namespace yy {
 
     class LangDriver {
         private:
-            FlexLexer* lexer_;
+            SyntaxCheck* lexer_ {};
         public:
             //  METHODS
-            parser::token_type yylex (parser::semantic_type* yylval);
+            parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location);
             bool parse ();
+            void error (parser::context const& context) const;
 
             //  CTOR AND DTOR
             LangDriver (std::ifstream& infile);

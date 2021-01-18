@@ -2,8 +2,6 @@ all:	fb b r
 fb:
 		$(MAKE) -C Build
 b:
-		g++ main.cpp 														\
-		Language/driver.cpp Language/LangInterface.cpp Language/Lang.cpp 	\
-		Build/lex.yy.cc Build/lang.tab.cc -ggdb3 -o main
+		g++ main.cpp Language/driver.cpp Language/LangInterface.cpp Language/Lang.cpp Build/lex.yy.cc Build/lang.tab.cc -ggdb3 -o main
 r:
-		./main Test/test4.input
+		./main Test/test5.input

@@ -3,7 +3,10 @@
 %skeleton "lalr1.cc"
 %defines
 %define api.value.type variant
+%define parse.error custom
+
 %param {LangDriver* driver}
+%locations
 
 %code requires
 {
@@ -30,7 +33,7 @@
 
 	namespace yy {
 
-		parser::token_type yylex (parser::semantic_type* yylval, LangDriver* driver);
+		parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location, LangDriver* driver);
 
 	}
 
@@ -166,12 +169,16 @@ exprLvl3:
 
 namespace yy {
 
-	parser::token_type yylex (parser::semantic_type* yylval, LangDriver* driver) {
-		return driver->yylex (yylval);
+	parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location, LangDriver* driver) {
+		return driver->yylex (yylval, location);
 	}
 
-	void parser::error (const std::string& str) {
-		std::cout << "Syntax Error" << std::endl;
+	void parser::error (const parser::location_type& location, const std::string& what) {
+		std::cout << what << " in line: " << location.begin.line << std::endl;
+	}
+
+	void parser::report_syntax_error (parser::context const& context) const {
+		driver->error (context);
 	}
 
 }

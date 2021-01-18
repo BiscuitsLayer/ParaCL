@@ -210,7 +210,11 @@ NumberType BinaryOpNode::Execute () const {
             return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1 : -1);
             break;
         }
+        default: {
+            throw std::invalid_argument ("Wrong type of binary operation");
+        }
     }
+    return 0;
 }
 
 void BinaryOpNode::Dump (std::ostream& stream) const {
@@ -327,6 +331,7 @@ NumberType IfNode::Execute () const {
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
+    return 0;
 }
 
 void IfNode::Dump (std::ostream& stream) const {
@@ -356,6 +361,7 @@ NumberType WhileNode::Execute () const {
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
+    return 0;
 }
 
 void WhileNode::Dump (std::ostream& stream) const {

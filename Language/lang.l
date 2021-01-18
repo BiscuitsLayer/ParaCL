@@ -1,4 +1,7 @@
 %option c++
+%option noyywrap nounput noinput batch debug
+%option yylineno
+%option yyclass="SyntaxCheck"
 
 %{
 
@@ -8,9 +11,15 @@
 //  SETTINGS
 #include "../Language/Settings.hpp"
 
+//  LOCATION UPDATER
+#include "../Language/SyntaxCheck.hpp"
+#define YY_USER_ACTION SetLocation ();
+
 %}
 
-WS              [ \t\n\v]+
+
+WS              [ \t]+
+CR              [\n\v]+
 DOT             [.]
 DIGIT           [0-9]
 DIGIT_NON_ZERO  [1-9]
@@ -24,6 +33,7 @@ VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
 %%
                             /* Сопоставляем каждой лексеме её константу для парсера */
 {WS}                        /* skip blanks and tabs */
+{CR}                        /* next line or vertical tab */
 "+"                         return yy::parser::token_type::ADD;
 "-"                         return yy::parser::token_type::SUB;
 "*"                         return yy::parser::token_type::MUL;
@@ -51,7 +61,3 @@ VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
 .			                return yy::parser::token_type::ERROR;
 
 %%
-
-int yywrap () {
-	std::cout << "yywrap" << std::endl;
-}

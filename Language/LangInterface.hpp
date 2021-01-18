@@ -9,7 +9,8 @@
 //  ERROR CODES
 enum ErrorCodes {
     ERROR_INV_ARG = 1,
-    ERROR_OVF = 2
+    ERROR_OVF = 2,
+    ERROR_SYNTAX = 3
 };
 
 enum class NodeType {

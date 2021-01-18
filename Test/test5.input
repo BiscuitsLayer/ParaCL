@@ -1,0 +1,6 @@
+temp = 5;
+temp = 0;
+if (temp + 5 / ?) {
+    print 10a00;
+}
+print 100;
