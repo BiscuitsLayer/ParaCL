@@ -43,15 +43,11 @@ NumberType ScopeNode::Execute () const {
     for (auto branch : branches_) {
         try {
             branch->Execute ();
-        } catch (std::invalid_argument& ex) {
-            std::cerr << ex.what () << std::endl;
-            branch->Dump (std::cerr);
-            std::cerr << std::endl;
-            exit (ErrorCodes::ERROR_INV_ARG);
-        } catch (std::overflow_error& ex) {
-            std::cerr << ex.what () << std::endl;
-            branch->Dump (std::cerr);
-            std::cerr << std::endl;
+        } 
+        catch (std::overflow_error& ex) {
+            ERRSTREAM << ex.what () << std::endl;
+            branch->Dump (OUTSTREAM);
+            OUTSTREAM << std::endl;
             exit (ErrorCodes::ERROR_OVF);
         }
     }
@@ -74,7 +70,7 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
             cur = static_cast <ScopeNode*> (cur->previous_);
         }
         else {
-            throw std::invalid_argument ("Wrong name of variable");
+            throw std::invalid_argument ("Wrong name of variable!");
         }
     }
     return value;
@@ -93,16 +89,16 @@ void ScopeNode::SetVariable (const std::string& name, NumberType value) {
     }
 }
 
-void ScopeNode::Entry (ScopeNodeInterface* next) const {
-    globalCurrentScope = next;
+void ScopeNode::Entry () const {
+    globalCurrentScope = next_;
 }
 
 void ScopeNode::Return () const {
     globalCurrentScope = globalCurrentScope->previous_;
 }
 
-ScopeNode::ScopeNode (ScopeNodeInterface* previous):
-    ScopeNodeInterface (previous),
+ScopeNode::ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next):
+    ScopeNodeInterface (previous, next),
     branches_ ({}),
     table_ ({})
     {}
@@ -113,8 +109,8 @@ ScopeNode::~ScopeNode () {
     }
 }
 
-ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous) {
-    return new ScopeNode (previous);
+ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next) {
+    return new ScopeNode (previous, next);
 }
 
 NumberType ValueNode::Execute () const {
@@ -135,20 +131,23 @@ NodeInterface* NodeInterface::CreateValueNode (NumberType value) {
 }
 
 NumberType VariableNode::Execute () const {
-    return globalCurrentScope->GetVariable (name_);
+    value_ = globalCurrentScope->GetVariable (name_);
+    return value_;
 }
 
 void VariableNode::Dump (std::ostream &stream) const {
-    stream << name_;
+    stream << name_ << " {" << value_ << "}";
 }
 
 void VariableNode::Assign (NumberType value) const {
+    value_ = value;
     globalCurrentScope->SetVariable (name_, value);
 }
 
 VariableNode::VariableNode (const std::string& name):
     NodeInterface (NodeType::VARIABLE),
-    name_ (name)
+    name_ (name),
+    value_ (0)
     {}
 
 NodeInterface* NodeInterface::CreateVariableNode (const std::string& name) {
@@ -173,7 +172,8 @@ NumberType BinaryOpNode::Execute () const {
             NumberType leftResult = leftChild_->Execute ();
             NumberType rightResult = rightChild_->Execute ();
             if (std::fabs (rightResult) < EPS) {
-                throw std::overflow_error ("Division by zero");
+                isRed_ = true;
+                throw std::overflow_error ("Division by zero! (runtime)");
             }
             else {
                 return leftResult / rightResult;
@@ -210,9 +210,6 @@ NumberType BinaryOpNode::Execute () const {
             return (std::fabs (leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1 : -1);
             break;
         }
-        default: {
-            throw std::invalid_argument ("Wrong type of binary operation");
-        }
     }
     return 0;
 }
@@ -244,11 +241,20 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
             break;
         }
         case NodeType::BINARY_OP_DIV: {
-            stream << "(";
-            leftChild_->Dump (stream);
-            stream << " / ";
-            rightChild_->Dump (stream);
-            stream << ")";
+            if (isRed_) {
+                ERRSTREAM << "(";
+                leftChild_->Dump (ERRSTREAM);
+                ERRSTREAM << " / ";
+                rightChild_->Dump (ERRSTREAM);
+                ERRSTREAM << ")";
+            }
+            else {
+                stream << "(";
+                leftChild_->Dump (stream);
+                stream << " / ";
+                rightChild_->Dump (stream);
+                stream << ")";
+            }
             break;
         }
         case NodeType::BINARY_OP_ASSIGN: {
@@ -327,7 +333,8 @@ NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* 
 
 NumberType IfNode::Execute () const {
     if (condition_->Execute () > 0) {
-        globalCurrentScope->Entry (static_cast <ScopeNodeInterface*> (scope_));
+        globalCurrentScope->next_ = static_cast <ScopeNodeInterface*> (scope_);
+        globalCurrentScope->Entry ();
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
@@ -357,7 +364,8 @@ NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, NodeInterf
 
 NumberType WhileNode::Execute () const {
     while (condition_->Execute () > 0) {
-        globalCurrentScope->Entry (static_cast <ScopeNodeInterface*> (scope_));
+        globalCurrentScope->next_ = static_cast <ScopeNodeInterface*> (scope_);
+        globalCurrentScope->Entry ();
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
@@ -388,8 +396,8 @@ NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, NodeInt
 NumberType ScanNode::Execute () const {
     static size_t inputCounter = 0;
     NumberType inputValue = 0;
-    std::cout << "In [" << inputCounter++ << "]: ";
-    std::cin >> inputValue;
+    OUTSTREAM << "In [" << inputCounter++ << "]: ";
+    INSTREAM >> inputValue;
     isScanned_ = true;
     value_ = inputValue;
     return inputValue;
@@ -416,7 +424,7 @@ NodeInterface* NodeInterface::CreateScanNode () {
 
 NumberType PrintNode::Execute () const {
     static size_t outputCounter = 0;
-    std::cout << "Out[" << outputCounter++ << "]: " << child_->Execute () << std::endl;
+    OUTSTREAM << "Out[" << outputCounter++ << "]: " << child_->Execute () << std::endl;
     return 0;
 }
 

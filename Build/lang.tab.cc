@@ -780,8 +780,8 @@ namespace yy {
   case 3: // scope_entry: "{"
 #line 96 "../Language/lang.y"
                                                                         { 
-											ScopeNodeInterface* next = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
-											globalCurrentScope->Entry (next);
+											globalCurrentScope->next_ = ScopeNodeInterface::CreateScopeNode (globalCurrentScope, nullptr);
+											globalCurrentScope->Entry ();
 										}
 #line 787 "lang.tab.cc"
     break;
@@ -804,74 +804,80 @@ namespace yy {
 #line 805 "lang.tab.cc"
     break;
 
-  case 7: // inside_scope: %empty
+  case 7: // inside_scope: inside_scope scope
 #line 106 "../Language/lang.y"
-                                                                                { /* empty */ }
+                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 811 "lang.tab.cc"
     break;
 
-  case 8: // scope_outro: "}"
-#line 110 "../Language/lang.y"
-                                                                        { /* empty */ }
+  case 8: // inside_scope: %empty
+#line 107 "../Language/lang.y"
+                                                                                { /* empty */ }
 #line 817 "lang.tab.cc"
     break;
 
-  case 9: // if_while: "if" "(" condition ")" scope
-#line 114 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 9: // scope_outro: "}"
+#line 111 "../Language/lang.y"
+                                                                        { /* empty */ }
 #line 823 "lang.tab.cc"
     break;
 
-  case 10: // if_while: "while" "(" condition ")" scope
+  case 10: // if_while: "if" "(" condition ")" scope
 #line 115 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 829 "lang.tab.cc"
     break;
 
-  case 11: // condition: exprLvl1 ">" exprLvl1
-#line 119 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 11: // if_while: "while" "(" condition ")" scope
+#line 116 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 835 "lang.tab.cc"
     break;
 
-  case 12: // condition: exprLvl1 ">=" exprLvl1
+  case 12: // condition: exprLvl1 ">" exprLvl1
 #line 120 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 841 "lang.tab.cc"
     break;
 
-  case 13: // condition: exprLvl1 "<" exprLvl1
+  case 13: // condition: exprLvl1 ">=" exprLvl1
 #line 121 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 847 "lang.tab.cc"
     break;
 
-  case 14: // condition: exprLvl1 "<=" exprLvl1
+  case 14: // condition: exprLvl1 "<" exprLvl1
 #line 122 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 853 "lang.tab.cc"
     break;
 
-  case 15: // condition: exprLvl1 "==" exprLvl1
+  case 15: // condition: exprLvl1 "<=" exprLvl1
 #line 123 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 859 "lang.tab.cc"
     break;
 
-  case 16: // condition: exprLvl1 "!=" exprLvl1
+  case 16: // condition: exprLvl1 "==" exprLvl1
 #line 124 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 865 "lang.tab.cc"
     break;
 
-  case 17: // condition: exprLvl1
+  case 17: // condition: exprLvl1 "!=" exprLvl1
 #line 125 "../Language/lang.y"
-                                                                        { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 871 "lang.tab.cc"
     break;
 
-  case 18: // assignment: VARIABLE "=" exprLvl1
-#line 129 "../Language/lang.y"
+  case 18: // condition: exprLvl1
+#line 126 "../Language/lang.y"
+                                                                        { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
+#line 877 "lang.tab.cc"
+    break;
+
+  case 19: // assignment: VARIABLE "=" exprLvl1
+#line 130 "../Language/lang.y"
                                         { 	
 									//	ADD VARIABLE
 									globalCurrentScope->SetVariable (*(yystack_[2].value.as < std::string* > ()), 0);
@@ -880,83 +886,86 @@ namespace yy {
 									delete yystack_[2].value.as < std::string* > ();
 								  	yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[0].value.as < NodeInterface* > ());
 								}
-#line 884 "lang.tab.cc"
-    break;
-
-  case 19: // func_call: "print" exprLvl1
-#line 140 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 890 "lang.tab.cc"
     break;
 
-  case 20: // exprLvl1: exprLvl2 "+" exprLvl1
-#line 144 "../Language/lang.y"
-                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 20: // func_call: "print" exprLvl1
+#line 141 "../Language/lang.y"
+                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 896 "lang.tab.cc"
     break;
 
-  case 21: // exprLvl1: exprLvl2 "-" exprLvl1
+  case 21: // exprLvl1: exprLvl2 "+" exprLvl1
 #line 145 "../Language/lang.y"
-                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 902 "lang.tab.cc"
     break;
 
-  case 22: // exprLvl1: exprLvl2
+  case 22: // exprLvl1: exprLvl2 "-" exprLvl1
 #line 146 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
+                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 908 "lang.tab.cc"
     break;
 
-  case 23: // exprLvl2: exprLvl3 "*" exprLvl2
-#line 150 "../Language/lang.y"
-                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 23: // exprLvl1: exprLvl2
+#line 147 "../Language/lang.y"
+                                                { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
 #line 914 "lang.tab.cc"
     break;
 
-  case 24: // exprLvl2: exprLvl3 "/" exprLvl2
+  case 24: // exprLvl2: exprLvl3 "*" exprLvl2
 #line 151 "../Language/lang.y"
-                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 920 "lang.tab.cc"
     break;
 
-  case 25: // exprLvl2: exprLvl3
+  case 25: // exprLvl2: exprLvl3 "/" exprLvl2
 #line 152 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
+                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
 #line 926 "lang.tab.cc"
     break;
 
-  case 26: // exprLvl3: "(" exprLvl1 ")"
-#line 156 "../Language/lang.y"
-                                            { yylhs.value.as < NodeInterface* > () = yystack_[1].value.as < NodeInterface* > (); }
+  case 26: // exprLvl2: exprLvl3
+#line 153 "../Language/lang.y"
+                                                { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
 #line 932 "lang.tab.cc"
     break;
 
-  case 27: // exprLvl3: NUMBER
+  case 27: // exprLvl3: "(" exprLvl1 ")"
 #line 157 "../Language/lang.y"
-                                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as < NumberType > ()); }
+                                            { yylhs.value.as < NodeInterface* > () = yystack_[1].value.as < NodeInterface* > (); }
 #line 938 "lang.tab.cc"
     break;
 
-  case 28: // exprLvl3: VARIABLE
+  case 28: // exprLvl3: NUMBER
 #line 158 "../Language/lang.y"
-                                                                        { 	
-											//	CHECK IF VARIABLE IS VISIBLE
-											globalCurrentScope->GetVariable (*(yystack_[0].value.as < std::string* > ()));
+                                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as < NumberType > ()); }
+#line 944 "lang.tab.cc"
+    break;
 
+  case 29: // exprLvl3: VARIABLE
+#line 159 "../Language/lang.y"
+                                                                        { 	
+											try {
+												globalCurrentScope->GetVariable (*(yystack_[0].value.as < std::string* > ()));
+											}
+											catch (std::invalid_argument& ex) {
+												driver->PrintErrorAndExit (yystack_[0].location, "Undefined variable!");
+											}
 											yylhs.value.as < NodeInterface* > () = NodeInterface::CreateVariableNode (*(yystack_[0].value.as < std::string* > ()));
 											delete yystack_[0].value.as < std::string* > (); 
 										}
-#line 950 "lang.tab.cc"
+#line 959 "lang.tab.cc"
     break;
 
-  case 29: // exprLvl3: "?"
-#line 165 "../Language/lang.y"
+  case 30: // exprLvl3: "?"
+#line 169 "../Language/lang.y"
                                                                         { 	yylhs.value.as < NodeInterface* > () = NodeInterface::CreateScanNode ();	}
-#line 956 "lang.tab.cc"
+#line 965 "lang.tab.cc"
     break;
 
 
-#line 960 "lang.tab.cc"
+#line 969 "lang.tab.cc"
 
             default:
               break;
@@ -1193,91 +1202,95 @@ namespace yy {
 
 
 
-  const signed char parser::yypact_ninf_ = -21;
+  const signed char parser::yypact_ninf_ = -35;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-     -21,    13,   -21,     3,     6,    -8,    -3,   -21,    16,    17,
-      -8,    -8,    -8,   -21,   -21,   -21,   -21,    -1,     0,    -8,
-     -21,   -21,    27,    26,    35,    36,    -8,    -8,    -8,    -8,
-     -21,    15,    -8,    -8,    -8,    -8,    -8,    -8,    15,   -21,
-     -21,   -21,   -21,   -21,   -21,   -21,   -21,   -21,   -21,   -21,
-     -21,   -21,   -21,   -21,    -2,   -21,   -21
+     -35,     1,   -35,   -35,    -7,     4,    -5,     8,   -35,   -35,
+     -35,     3,    19,    -5,    -5,    -5,   -35,   -35,   -35,   -35,
+       2,    12,    -5,    18,   -35,   -35,    21,    31,    32,    40,
+      -5,    -5,    -5,    -5,   -35,   -35,   -35,    17,    -5,    -5,
+      -5,    -5,    -5,    -5,    17,   -35,   -35,   -35,   -35,   -35,
+     -35,   -35,   -35,   -35,   -35,   -35,   -35,   -35
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       7,     0,     1,     0,     0,     0,     0,     6,     0,     0,
-       0,     0,     0,    29,    27,    28,    19,    22,    25,     0,
-       4,     5,     0,    17,     0,     0,     0,     0,     0,     0,
-      18,     0,     0,     0,     0,     0,     0,     0,     0,    26,
-      20,    21,    23,    24,     3,     9,     7,    11,    12,    13,
-      14,    15,    16,    10,     0,     8,     2
+       8,     0,     1,     3,     0,     0,     0,     0,     7,     8,
+       6,     0,     0,     0,     0,     0,    30,    28,    29,    20,
+      23,    26,     0,     0,     4,     5,     0,    18,     0,     0,
+       0,     0,     0,     0,    19,     9,     2,     0,     0,     0,
+       0,     0,     0,     0,     0,    27,    21,    22,    24,    25,
+      10,    12,    13,    14,    15,    16,    17,    11
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -21,     9,   -21,   -10,   -21,   -21,    37,   -21,   -21,    -5,
-     -20,   -21
+     -35,   -34,   -35,    42,   -35,   -35,    27,   -35,   -35,    -6,
+     -25,   -35
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-      -1,    45,    46,     1,    56,     7,    22,     8,     9,    23,
-      17,    18
+      -1,     8,     9,     1,    36,    10,    26,    11,    12,    27,
+      20,    21
   };
 
   const signed char
   parser::yytable_[] =
   {
-      16,    12,    26,    27,    19,    28,    29,    25,    42,    43,
-      55,    13,    10,     2,    30,    11,    14,    15,     3,     4,
-       5,    40,    41,     6,    20,    21,    44,    47,    48,    49,
-      50,    51,    52,     3,     4,     5,    54,    31,     6,    32,
-      33,    34,    35,    36,    37,    38,    39,    53,    24
+      19,     2,    13,    50,    15,    30,    31,    48,    49,    29,
+      57,    24,     3,    14,    16,    22,    34,    32,    33,    17,
+      18,     4,     5,     6,    46,    47,     7,    25,     3,     3,
+      35,    37,    51,    52,    53,    54,    55,    56,     4,     5,
+       6,    28,    44,     7,    38,    39,    40,    41,    42,    43,
+      45,    23
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       5,     9,     3,     4,     7,     5,     6,    12,    28,    29,
-      12,    19,     9,     0,    19,     9,    24,    25,    20,    21,
-      22,    26,    27,    25,     8,     8,    11,    32,    33,    34,
-      35,    36,    37,    20,    21,    22,    46,    10,    25,    13,
-      14,    15,    16,    17,    18,    10,    10,    38,    11
+       6,     0,     9,    37,     9,     3,     4,    32,    33,    15,
+      44,     8,    11,     9,    19,     7,    22,     5,     6,    24,
+      25,    20,    21,    22,    30,    31,    25,     8,    11,    11,
+      12,    10,    38,    39,    40,    41,    42,    43,    20,    21,
+      22,    14,    10,    25,    13,    14,    15,    16,    17,    18,
+      10,     9
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,    33,     0,    20,    21,    22,    25,    35,    37,    38,
-       9,     9,     9,    19,    24,    25,    39,    40,    41,     7,
-       8,     8,    36,    39,    36,    39,     3,     4,     5,     6,
-      39,    10,    13,    14,    15,    16,    17,    18,    10,    10,
-      39,    39,    40,    40,    11,    31,    32,    39,    39,    39,
-      39,    39,    39,    31,    33,    12,    34
+       0,    33,     0,    11,    20,    21,    22,    25,    31,    32,
+      35,    37,    38,     9,     9,     9,    19,    24,    25,    39,
+      40,    41,     7,    33,     8,     8,    36,    39,    36,    39,
+       3,     4,     5,     6,    39,    12,    34,    10,    13,    14,
+      15,    16,    17,    18,    10,    10,    39,    39,    40,    40,
+      31,    39,    39,    39,    39,    39,    39,    31
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    30,    31,    32,    33,    33,    33,    33,    34,    35,
-      35,    36,    36,    36,    36,    36,    36,    36,    37,    38,
-      39,    39,    39,    40,    40,    40,    41,    41,    41,    41
+       0,    30,    31,    32,    33,    33,    33,    33,    33,    34,
+      35,    35,    36,    36,    36,    36,    36,    36,    36,    37,
+      38,    39,    39,    39,    40,    40,    40,    41,    41,    41,
+      41
   };
 
   const signed char
   parser::yyr2_[] =
   {
-       0,     2,     3,     1,     3,     3,     2,     0,     1,     5,
-       5,     3,     3,     3,     3,     3,     3,     1,     3,     2,
-       3,     3,     1,     3,     3,     1,     3,     1,     1,     1
+       0,     2,     3,     1,     3,     3,     2,     2,     0,     1,
+       5,     5,     3,     3,     3,     3,     3,     3,     1,     3,
+       2,     3,     3,     1,     3,     3,     1,     3,     1,     1,
+       1
   };
 
 
@@ -1287,9 +1300,10 @@ namespace yy {
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    92,    92,    96,   103,   104,   105,   106,   110,   114,
-     115,   119,   120,   121,   122,   123,   124,   125,   129,   140,
-     144,   145,   146,   150,   151,   152,   156,   157,   158,   165
+       0,    92,    92,    96,   103,   104,   105,   106,   107,   111,
+     115,   116,   120,   121,   122,   123,   124,   125,   126,   130,
+     141,   145,   146,   147,   151,   152,   153,   157,   158,   159,
+     169
   };
 
   void
@@ -1370,9 +1384,9 @@ namespace yy {
   }
 
 } // yy
-#line 1374 "lang.tab.cc"
+#line 1388 "lang.tab.cc"
 
-#line 168 "../Language/lang.y"
+#line 172 "../Language/lang.y"
 
 
 namespace yy {
@@ -1382,11 +1396,11 @@ namespace yy {
 	}
 
 	void parser::error (const parser::location_type& location, const std::string& what) {
-		std::cout << what << " in line: " << location.begin.line << std::endl;
+		/* empty */
 	}
 
 	void parser::report_syntax_error (parser::context const& context) const {
-		driver->error (context);
+		driver->PrintErrorAndExit (context.location (), "Syntax error!");
 	}
 
 }

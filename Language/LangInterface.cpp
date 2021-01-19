@@ -4,7 +4,8 @@ NodeInterface::NodeInterface (NodeType type):
     type_ (type)
     {}
 
-ScopeNodeInterface::ScopeNodeInterface (ScopeNodeInterface* previous):
+ScopeNodeInterface::ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next):
     NodeInterface (NodeType::SCOPE),
-    previous_ (previous)
+    previous_ (previous),
+    next_ (next)
     {}

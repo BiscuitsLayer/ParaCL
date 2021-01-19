@@ -71,18 +71,19 @@ class ScopeNodeInterface : public NodeInterface {
         /* empty */
     public:
         ScopeNodeInterface* previous_ = nullptr;
+        ScopeNodeInterface* next_ = nullptr;
 
         //  METHODS
         virtual void AddNode (NodeInterface* node) = 0;
         virtual NumberType GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, NumberType value) = 0;
-        virtual void Entry (ScopeNodeInterface* next) const = 0;
+        virtual void Entry () const = 0;
         virtual void Return () const = 0;
 
         //  CTOR
-        explicit ScopeNodeInterface (ScopeNodeInterface* previous);
+        explicit ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next);
         virtual ~ScopeNodeInterface () = default;
 
         //  DERIVED CLASS CTOR
-        static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr);
+        static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr, ScopeNodeInterface* next = nullptr);
 };

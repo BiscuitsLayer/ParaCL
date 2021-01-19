@@ -17,7 +17,9 @@ namespace yy {
             //  METHODS
             parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location);
             bool parse ();
-            void error (parser::context const& context) const;
+
+            void PrintErrorAndExit (yy::location location, const std::string& message) const;
+            std::string GetCurrentString () const;
 
             //  CTOR AND DTOR
             LangDriver (std::ifstream& infile);

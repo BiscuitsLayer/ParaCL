@@ -13,7 +13,7 @@ ScopeNodeInterface* globalCurrentScope = nullptr;
 int main (int argc, char** argv) {
 	std::ifstream infile { argv[1] };
 	if (!infile) {
-		std::cerr << "Error opening file!" << std::endl;
+		ERRSTREAM << "Error opening file!" << std::endl;
 		return 0;
 	}
 	

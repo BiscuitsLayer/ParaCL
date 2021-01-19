@@ -36,11 +36,11 @@ class ScopeNode final : public ScopeNodeInterface {
         virtual void AddNode (NodeInterface* node) override;
         virtual NumberType GetVariable (const std::string& name) const override;
         virtual void SetVariable (const std::string& name, NumberType value) override;
-        virtual void Entry (ScopeNodeInterface* next) const override;
+        virtual void Entry () const override;
         virtual void Return () const override;
 
         //  CTOR AND DTOR
-        explicit ScopeNode (ScopeNodeInterface* previous);
+        explicit ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next);
         virtual ~ScopeNode ();
 };
 
@@ -60,6 +60,9 @@ class ValueNode final : public NodeInterface {
 class VariableNode final : public NodeInterface {
     private:
         std::string name_ {};
+
+        //  mutable because it only changes the way this node dumps
+        mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
         virtual NumberType Execute () const override;
@@ -77,6 +80,9 @@ class BinaryOpNode final : public NodeInterface {
     private:
         NodeInterface* leftChild_ = nullptr;
         NodeInterface* rightChild_ = nullptr;
+
+        //  mutable because it only changes the way this node dumps
+        mutable bool isRed_ = false;
     public:
         //  METHODS FROM NODE INTERFACE
         virtual NumberType Execute () const override;

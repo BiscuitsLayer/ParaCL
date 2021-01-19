@@ -94,8 +94,8 @@ scope:
 
 scope_entry:
 	LBRACE								{ 
-											ScopeNodeInterface* next = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
-											globalCurrentScope->Entry (next);
+											globalCurrentScope->next_ = ScopeNodeInterface::CreateScopeNode (globalCurrentScope, nullptr);
+											globalCurrentScope->Entry ();
 										}
 ;
 
@@ -103,6 +103,7 @@ inside_scope:
 	inside_scope assignment SCOLON 		{ globalCurrentScope->AddNode ($2); }
 |	inside_scope func_call SCOLON 		{ globalCurrentScope->AddNode ($2); }
 |	inside_scope if_while				{ globalCurrentScope->AddNode ($2); }
+|	inside_scope scope					{ globalCurrentScope->AddNode ($2); }
 |										{ /* empty */ }
 ;
 
@@ -156,9 +157,12 @@ exprLvl3:
 	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
 |	VARIABLE							{ 	
-											//	CHECK IF VARIABLE IS VISIBLE
-											globalCurrentScope->GetVariable (*($1));
-
+											try {
+												globalCurrentScope->GetVariable (*($1));
+											}
+											catch (std::invalid_argument& ex) {
+												driver->PrintErrorAndExit (@1, "Undefined variable!");
+											}
 											$$ = NodeInterface::CreateVariableNode (*($1));
 											delete $1; 
 										}
@@ -174,11 +178,11 @@ namespace yy {
 	}
 
 	void parser::error (const parser::location_type& location, const std::string& what) {
-		std::cout << what << " in line: " << location.begin.line << std::endl;
+		/* empty */
 	}
 
 	void parser::report_syntax_error (parser::context const& context) const {
-		driver->error (context);
+		driver->PrintErrorAndExit (context.location (), "Syntax error!");
 	}
 
 }

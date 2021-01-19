@@ -6,7 +6,7 @@ yy::LangDriver::LangDriver (std::ifstream& infile):
     lexer_ (new SyntaxCheck)
     {
         globalCurrentScope = ScopeNodeInterface::CreateScopeNode (nullptr);
-        lexer_->switch_streams (infile, std::cout);
+        lexer_->switch_streams (infile, OUTSTREAM);
     }
 
 yy::LangDriver::~LangDriver () {
@@ -18,13 +18,13 @@ yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval,
     yy::parser::token_type tokenType = static_cast <yy::parser::token_type> (lexer_->yylex ());
     switch (tokenType) {
         case yy::parser::token_type::NUMBER: {
-            //  Получаем численное значение token-а, если это число
+            //  Getting the number itself
             yylval->as <NumberType> () = std::stod (lexer_->YYText ());
             break;
         }
         case yy::parser::token_type::VARIABLE: {
-            //  Я бы хотел использовать тут просто std::string, но после 2х часов дебага 
-            //  так и не понял, почему sig segv при присваивании :(
+            //  I would really like to use std::string there, but after debugging for 2 hours
+            //  I still failed with sig segv in the assignment :(
             std::string* temp = new std::string (lexer_->YYText ());
             yylval->as <std::string*> () = temp;
             break;
@@ -39,24 +39,27 @@ yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval,
 
 bool yy::LangDriver::parse () {
     yy::parser parser (this);
-    bool failure = parser.parse ();
-
+    bool failure = parser.parse ();   
     if (!failure) {
-        std::cerr << "Compiled successfully!" << std::endl;
+        OUTSTREAM << "Compiled successfully!" << std::endl;
         globalCurrentScope->Execute ();
     }
     return !failure;
 }
 
-void yy::LangDriver::error (parser::context const& context) const {
+void yy::LangDriver::PrintErrorAndExit (yy::location location, const std::string& message) const {
     std::string wholeString = lexer_->GetCurrentString (), 
-    trueString = wholeString.substr (0, context.location ().begin.column - 1),
-    falseString = wholeString.substr (context.location ().begin.column - 1, context.location ().end.column - 1);
-    std::cerr << "Syntax error!" << std::endl;
-    std::cout << "Line: " << context.location ().begin.line << std::endl;
-    std::cout << "Columns: " << context.location ().begin.column << " - " << context.location ().end.column << std::endl;
-    std::cout << trueString;
-    std::cerr << falseString;
-    std::cout << " ..." << std::endl;
+    trueString = wholeString.substr (0, location.begin.column - 1),
+    falseString = wholeString.substr (location.begin.column - 1, location.end.column - 1);
+    
+    ERRSTREAM << message << std::endl;
+    OUTSTREAM << "Line: " << location.begin.line << ", Columns: " << location.begin.column << " - " << location.end.column << ":" << std::endl;
+    OUTSTREAM << trueString;
+    ERRSTREAM << falseString;
+    OUTSTREAM << " ..." << std::endl;
+
     exit (ErrorCodes::ERROR_SYNTAX);
+}
+std::string yy::LangDriver::GetCurrentString () const {
+    return lexer_->GetCurrentString ();
 }
