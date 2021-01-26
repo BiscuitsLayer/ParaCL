@@ -41,7 +41,7 @@ bool yy::LangDriver::parse () {
     yy::parser parser (this);
     bool failure = parser.parse ();   
     if (!failure) {
-        OUTSTREAM << "Compiled successfully!" << std::endl;
+        OUTSTREAM << "Parsed successfully!" << std::endl;
         globalCurrentScope->Execute ();
     }
     return !failure;
@@ -60,6 +60,7 @@ void yy::LangDriver::PrintErrorAndExit (yy::location location, const std::string
 
     exit (ErrorCodes::ERROR_SYNTAX);
 }
+
 std::string yy::LangDriver::GetCurrentString () const {
     return lexer_->GetCurrentString ();
 }

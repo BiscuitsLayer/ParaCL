@@ -58,8 +58,7 @@
 	// forward declaration of argument to parser
 	namespace yy { class LangDriver; }
 
-
-#line 63 "lang.tab.hh"
+#line 62 "lang.tab.hh"
 
 
 # include <cstdlib> // std::abort
@@ -188,7 +187,7 @@
 #endif
 
 namespace yy {
-#line 192 "lang.tab.hh"
+#line 191 "lang.tab.hh"
 
 
 
@@ -1571,7 +1570,7 @@ switch (yykind)
 
 
 } // yy
-#line 1575 "lang.tab.hh"
+#line 1574 "lang.tab.hh"
 
 
 

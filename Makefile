@@ -4,4 +4,4 @@ fb:
 b:
 		g++ main.cpp Language/driver.cpp Language/LangInterface.cpp Language/Lang.cpp Build/lex.yy.cc Build/lang.tab.cc -ggdb3 -o main
 r:
-		./main Test/Incorrect/5
+		./main Test/Input/Correct/6

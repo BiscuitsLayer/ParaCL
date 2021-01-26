@@ -187,19 +187,19 @@ NumberType BinaryOpNode::Execute () const {
             break;
         }
         case NodeType::BINARY_OP_GREATER: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) > EPS ? 1 : -1);
+            return (leftChild_->Execute () > rightChild_->Execute () ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_GREATER_OR_EQ: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) >= EPS ? 1 : -1);
+            return (leftChild_->Execute () >= rightChild_->Execute () ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_LESS: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) < EPS ? 1 : -1);
+            return (leftChild_->Execute () < rightChild_->Execute () ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_LESS_OR_EQ: {
-            return ((leftChild_->Execute () - rightChild_->Execute ()) <= EPS ? 1 : -1);
+            return (leftChild_->Execute () <= rightChild_->Execute () ? 1 : -1);
             break;
         }
         case NodeType::BINARY_OP_EQ: {
@@ -396,8 +396,19 @@ NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, NodeInt
 NumberType ScanNode::Execute () const {
     static size_t inputCounter = 0;
     NumberType inputValue = 0;
-    OUTSTREAM << "In [" << inputCounter++ << "]: ";
+    if (pythonStyleIO) {
+        OUTSTREAM << "In [" << inputCounter++ << "]: ";
+    }
     INSTREAM >> inputValue;
+    while (!INSTREAM.good ()) {
+        INSTREAM.clear ();
+        INSTREAM.ignore ();
+        ERRSTREAM << "Please, input a number!" << std::endl;
+        if (pythonStyleIO) {
+            OUTSTREAM << "In [" << inputCounter++ << "]: ";
+        }
+        INSTREAM >> inputValue;
+    }
     isScanned_ = true;
     value_ = inputValue;
     return inputValue;
@@ -424,7 +435,11 @@ NodeInterface* NodeInterface::CreateScanNode () {
 
 NumberType PrintNode::Execute () const {
     static size_t outputCounter = 0;
-    OUTSTREAM << "Out[" << outputCounter++ << "]: " << child_->Execute () << std::endl;
+    NumberType outputValue = child_->Execute ();
+    if (pythonStyleIO) {
+        OUTSTREAM << "Out[" << outputCounter++ << "]: " ;
+    }
+    OUTSTREAM << outputValue << std::endl;
     return 0;
 }
 

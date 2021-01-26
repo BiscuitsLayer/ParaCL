@@ -4,14 +4,7 @@
 #include <iostream>
 
 //  SETTINGS
-#include "Settings.hpp"
-
-//  ERROR CODES
-enum ErrorCodes {
-    ERROR_INV_ARG = 1,
-    ERROR_OVF = 2,
-    ERROR_SYNTAX = 3
-};
+#include "../Settings/Settings.hpp"
 
 enum class NodeType {
     VALUE = 0,

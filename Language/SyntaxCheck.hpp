@@ -6,7 +6,6 @@
 #include <FlexLexer.h>
 #endif
 
-
 class SyntaxCheck : public yyFlexLexer {
     private:
         yy::location location_ {};

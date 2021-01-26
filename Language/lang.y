@@ -20,7 +20,6 @@
 
 	// forward declaration of argument to parser
 	namespace yy { class LangDriver; }
-
 }
 
 %code
@@ -32,13 +31,10 @@
 	#include "../Language/Lang.hpp"
 
 	namespace yy {
-
 		parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location, LangDriver* driver);
-
 	}
 
 	extern ScopeNodeInterface* globalCurrentScope;
-
 }
 
 %token
@@ -172,7 +168,6 @@ exprLvl3:
 %%
 
 namespace yy {
-
 	parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location, LangDriver* driver) {
 		return driver->yylex (yylval, location);
 	}
@@ -184,5 +179,4 @@ namespace yy {
 	void parser::report_syntax_error (parser::context const& context) const {
 		driver->PrintErrorAndExit (context.location (), "Syntax error!");
 	}
-
 }

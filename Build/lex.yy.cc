@@ -525,9 +525,9 @@ static const flex_int32_t yy_rule_can_match_eol[27] =
 
 static const flex_int16_t yy_rule_linenum[26] =
     {   0,
-       36,   37,   38,   39,   40,   41,   42,   43,   44,   45,
-       46,   47,   49,   50,   51,   52,   53,   54,   56,   57,
-       58,   59,   60,   61,   62
+       35,   36,   37,   38,   39,   40,   41,   42,   43,   44,
+       45,   46,   48,   49,   50,   51,   52,   53,   55,   56,
+       57,   58,   59,   60,   61
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -545,7 +545,7 @@ static const flex_int16_t yy_rule_linenum[26] =
 #include "../Build/lang.tab.hh"
 
 //  SETTINGS
-#include "../Language/Settings.hpp"
+#include "../Settings/Settings.hpp"
 
 //  LOCATION UPDATER
 #include "../Language/SyntaxCheck.hpp"
@@ -744,9 +744,9 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 33 "../Language/lang.l"
+#line 32 "../Language/lang.l"
 
-#line 35 "../Language/lang.l"
+#line 34 "../Language/lang.l"
                             /* Сопоставляем каждой лексеме её константу для парсера */
 #line 752 "lex.yy.cc"
 
@@ -835,133 +835,133 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 36 "../Language/lang.l"
+#line 35 "../Language/lang.l"
 /* skip blanks and tabs */
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 37 "../Language/lang.l"
+#line 36 "../Language/lang.l"
 /* next line or vertical tab */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 38 "../Language/lang.l"
+#line 37 "../Language/lang.l"
 return yy::parser::token_type::ADD;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 39 "../Language/lang.l"
+#line 38 "../Language/lang.l"
 return yy::parser::token_type::SUB;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 40 "../Language/lang.l"
+#line 39 "../Language/lang.l"
 return yy::parser::token_type::MUL;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 41 "../Language/lang.l"
+#line 40 "../Language/lang.l"
 return yy::parser::token_type::DIV;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 42 "../Language/lang.l"
+#line 41 "../Language/lang.l"
 return yy::parser::token_type::ASSIGN;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 43 "../Language/lang.l"
+#line 42 "../Language/lang.l"
 return yy::parser::token_type::SCOLON;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 44 "../Language/lang.l"
+#line 43 "../Language/lang.l"
 return yy::parser::token_type::LPARENTHESES;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 45 "../Language/lang.l"
+#line 44 "../Language/lang.l"
 return yy::parser::token_type::RPARENTHESES;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 46 "../Language/lang.l"
+#line 45 "../Language/lang.l"
 return yy::parser::token_type::LBRACE;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 47 "../Language/lang.l"
+#line 46 "../Language/lang.l"
 return yy::parser::token_type::RBRACE;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "../Language/lang.l"
+#line 48 "../Language/lang.l"
 return yy::parser::token_type::GREATER;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 50 "../Language/lang.l"
+#line 49 "../Language/lang.l"
 return yy::parser::token_type::GREATER_OR_EQ;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 51 "../Language/lang.l"
+#line 50 "../Language/lang.l"
 return yy::parser::token_type::LESS;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 52 "../Language/lang.l"
+#line 51 "../Language/lang.l"
 return yy::parser::token_type::LESS_OR_EQ;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 53 "../Language/lang.l"
+#line 52 "../Language/lang.l"
 return yy::parser::token_type::EQ;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 54 "../Language/lang.l"
+#line 53 "../Language/lang.l"
 return yy::parser::token_type::NOT_EQ;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 56 "../Language/lang.l"
+#line 55 "../Language/lang.l"
 return yy::parser::token_type::QMARK;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 57 "../Language/lang.l"
+#line 56 "../Language/lang.l"
 return yy::parser::token_type::IF;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 58 "../Language/lang.l"
+#line 57 "../Language/lang.l"
 return yy::parser::token_type::WHILE;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 59 "../Language/lang.l"
+#line 58 "../Language/lang.l"
 return yy::parser::token_type::PRINT;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 60 "../Language/lang.l"
+#line 59 "../Language/lang.l"
 return yy::parser::token_type::NUMBER;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 61 "../Language/lang.l"
+#line 60 "../Language/lang.l"
 return yy::parser::token_type::VARIABLE;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 62 "../Language/lang.l"
+#line 61 "../Language/lang.l"
 return yy::parser::token_type::ERROR;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 64 "../Language/lang.l"
+#line 63 "../Language/lang.l"
 ECHO;
 	YY_BREAK
 #line 968 "lex.yy.cc"
@@ -2091,5 +2091,5 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 64 "../Language/lang.l"
+#line 63 "../Language/lang.l"
 

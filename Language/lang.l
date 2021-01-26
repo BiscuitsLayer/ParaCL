@@ -9,7 +9,7 @@
 #include "../Build/lang.tab.hh"
 
 //  SETTINGS
-#include "../Language/Settings.hpp"
+#include "../Settings/Settings.hpp"
 
 //  LOCATION UPDATER
 #include "../Language/SyntaxCheck.hpp"
@@ -17,14 +17,13 @@
 
 %}
 
-
 WS              [ \t]+
 CR              [\n\v]+
 DOT             [.]
 DIGIT           [0-9]
 DIGIT_NON_ZERO  [1-9]
 DOUBLE          {DIGIT}+{DOT}?{DIGIT}*
-INT             {DIGIT_NON_ZERO}{DIGIT}*
+INT             {DIGIT}{DIGIT}*
 NUMBER          {DOUBLE}
 LETTER          [a-zA-Z_]
 LETTER_OR_DIGIT [a-zA-Z0-9_]
