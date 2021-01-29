@@ -2,18 +2,6 @@
 
 extern ScopeNodeInterface* globalCurrentScope;
 
-yy::LangDriver::LangDriver (std::ifstream& infile):
-    lexer_ (new SyntaxCheck)
-    {
-        globalCurrentScope = ScopeNodeInterface::CreateScopeNode (nullptr);
-        lexer_->switch_streams (infile, OUTSTREAM);
-    }
-
-yy::LangDriver::~LangDriver () {
-    delete globalCurrentScope;
-    delete lexer_;
-}
-
 yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval, parser::location_type* location) {
     yy::parser::token_type tokenType = static_cast <yy::parser::token_type> (lexer_->yylex ());
     switch (tokenType) {
@@ -42,7 +30,7 @@ bool yy::LangDriver::parse () {
     bool failure = parser.parse ();   
     if (!failure) {
         OUTSTREAM << "Parsed successfully!" << std::endl;
-        globalCurrentScope->Execute ();
+        
     }
     return !failure;
 }
@@ -59,8 +47,4 @@ void yy::LangDriver::PrintErrorAndExit (yy::location location, const std::string
     OUTSTREAM << " ..." << std::endl;
 
     exit (ErrorCodes::ERROR_SYNTAX);
-}
-
-std::string yy::LangDriver::GetCurrentString () const {
-    return lexer_->GetCurrentString ();
 }

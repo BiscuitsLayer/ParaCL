@@ -18,7 +18,9 @@ int main (int argc, char** argv) {
 	}
 	
 	yy::LangDriver driver { infile };
-	driver.parse ();
+	if (driver.parse ()) {
+		driver.execute ();
+	}
 	
 	return 0;
 }

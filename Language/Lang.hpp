@@ -29,19 +29,19 @@ class ScopeNode final : public ScopeNodeInterface {
         SymTable table_ {};      
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  METHODS FROM SCOPE INTERFACE
-        virtual void AddNode (NodeInterface* node) override;
-        virtual NumberType GetVariable (const std::string& name) const override;
-        virtual void SetVariable (const std::string& name, NumberType value) override;
-        virtual void Entry () const override;
-        virtual void Return () const override;
+        void AddNode (NodeInterface* node) override;
+        NumberType GetVariable (const std::string& name) const override;
+        void SetVariable (const std::string& name, NumberType value) override;
+        void Entry () const override;
+        void Return () const override;
 
         //  CTOR AND DTOR
-        explicit ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next);
-        virtual ~ScopeNode ();
+        ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next);
+        ~ScopeNode ();
 };
 
 class ValueNode final : public NodeInterface {
@@ -49,12 +49,12 @@ class ValueNode final : public NodeInterface {
         NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR AND DTOR
-        explicit ValueNode (NumberType value);
-        virtual ~ValueNode () = default;
+        ValueNode (NumberType value);
+        ~ValueNode () = default;
 };
 
 class VariableNode final : public NodeInterface {
@@ -65,15 +65,15 @@ class VariableNode final : public NodeInterface {
         mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  EXTRA METHOD
-        virtual void Assign (NumberType value) const;
+        void Assign (NumberType value) const;
 
         //  CTOR AND DTOR
-        explicit VariableNode (const std::string& name);
-        virtual ~VariableNode () = default;
+        VariableNode (const std::string& name);
+        ~VariableNode () = default;
 };
 
 class BinaryOpNode final : public NodeInterface {
@@ -85,40 +85,40 @@ class BinaryOpNode final : public NodeInterface {
         mutable bool isRed_ = false;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR AND DTOR
-        explicit BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
-        virtual ~BinaryOpNode ();
+        BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
+        ~BinaryOpNode ();
 };
 
 class IfNode final : public NodeInterface {
     private:
        NodeInterface* condition_ = nullptr;
-       NodeInterface* scope_ = nullptr;
+       ScopeNodeInterface* scope_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR AND DTOR
-        explicit IfNode (NodeInterface* condition, NodeInterface* scope);
-        virtual ~IfNode ();
+        IfNode (NodeInterface* condition, ScopeNodeInterface* scope);
+        ~IfNode ();
 };
 
 class WhileNode final : public NodeInterface {
     private:
        NodeInterface* condition_ = nullptr;
-       NodeInterface* scope_ = nullptr;
+       ScopeNodeInterface* scope_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR AND DTOR
-        explicit WhileNode (NodeInterface* condition, NodeInterface* scope);
-        virtual ~WhileNode ();
+        WhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
+        ~WhileNode ();
 };
 
 class ScanNode final : public NodeInterface {
@@ -128,12 +128,12 @@ class ScanNode final : public NodeInterface {
         mutable bool isScanned_ = false;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR AND DTOR
-        explicit ScanNode ();
-        virtual ~ScanNode () = default;
+        ScanNode ();
+        ~ScanNode () = default;
 };
 
 class PrintNode final : public NodeInterface {
@@ -141,10 +141,10 @@ class PrintNode final : public NodeInterface {
        NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        virtual NumberType Execute () const override;
-        virtual void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR AND DTOR
-        explicit PrintNode (NodeInterface* child);
-        virtual ~PrintNode ();
+        PrintNode (NodeInterface* child);
+        ~PrintNode ();
 };

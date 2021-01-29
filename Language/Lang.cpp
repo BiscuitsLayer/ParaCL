@@ -347,7 +347,7 @@ void IfNode::Dump (std::ostream& stream) const {
     stream << " { ... }";
 }
 
-IfNode::IfNode (NodeInterface* condition, NodeInterface* scope):
+IfNode::IfNode (NodeInterface* condition, ScopeNodeInterface* scope):
     NodeInterface (NodeType::IF),
     condition_ (condition),
     scope_ (scope)
@@ -358,7 +358,7 @@ IfNode::~IfNode () {
     delete scope_;
 }
 
-NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, NodeInterface* scope) {
+NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope) {
     return new IfNode (condition, scope);
 }
 
@@ -378,7 +378,7 @@ void WhileNode::Dump (std::ostream& stream) const {
     stream << " { ... }";
 }
 
-WhileNode::WhileNode (NodeInterface* condition, NodeInterface* scope):
+WhileNode::WhileNode (NodeInterface* condition, ScopeNodeInterface* scope):
     NodeInterface (NodeType::WHILE),
     condition_ (condition),
     scope_ (scope)
@@ -389,7 +389,7 @@ WhileNode::~WhileNode () {
     delete scope_;
 }
 
-NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, NodeInterface* scope) {
+NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope) {
     return new WhileNode (condition, scope);
 }
 

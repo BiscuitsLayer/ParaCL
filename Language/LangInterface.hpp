@@ -33,6 +33,9 @@ enum class NodeType {
     ERROR = 18
 };
 
+class NodeInterface;
+class ScopeNodeInterface;
+
 class NodeInterface {
     private:
         /* empty */
@@ -43,16 +46,20 @@ class NodeInterface {
         virtual NumberType Execute () const = 0;
         virtual void Dump (std::ostream &stream) const = 0;
 
-        //  CTOR AND DTOR
-        explicit NodeInterface (NodeType type);
+        //  CTOR
+        NodeInterface::NodeInterface (NodeType type):
+            type_ (type)
+            {}
+
+        //  DTOR
         virtual ~NodeInterface () = default;
 
         //  DERIVED CLASSES CTOR-S
         static NodeInterface* CreateValueNode (NumberType value);
         static NodeInterface* CreateVariableNode (const std::string& name);
         static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
-        static NodeInterface* CreateIfNode (NodeInterface* condition, NodeInterface* scope);
-        static NodeInterface* CreateWhileNode (NodeInterface* condition, NodeInterface* scope);
+        static NodeInterface* CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope);
+        static NodeInterface* CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
         static NodeInterface* CreateScanNode ();
         static NodeInterface* CreatePrintNode (NodeInterface* child);
 };
@@ -74,7 +81,13 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void Return () const = 0;
 
         //  CTOR
-        explicit ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next);
+        ScopeNodeInterface::ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next):
+            NodeInterface (NodeType::SCOPE),
+            previous_ (previous),
+            next_ (next)
+            {}
+
+        //  DTOR
         virtual ~ScopeNodeInterface () = default;
 
         //  DERIVED CLASS CTOR

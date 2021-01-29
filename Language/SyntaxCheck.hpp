@@ -8,33 +8,25 @@
 
 class SyntaxCheck : public yyFlexLexer {
     private:
+        //  DUMP STUFF
         yy::location location_ {};
         std::string currentString_ {};
-        bool isCR (const char* str) {
-            return ((str[0] == '\n') || (str[0] == '\v'));
-        }
+
+        //  CARRIAGE RETURN CHECK
+        bool isCR (const char* str) { return ((str[0] == '\n') || (str[0] == '\v')); }
     public:
+        //  CTOR
         SyntaxCheck ():
             location_ ({})
             {}
-        void SetLocation () {
-            int oldEndColumn = location_.end.column;
-            location_.begin.line = location_.end.line = lineno ();
-            if (isCR (yytext)) {
-                location_.begin.column = location_.end.column = 1;
-                currentString_.clear ();
-            }
-            else {
-                location_.begin.column = oldEndColumn;
-                location_.end.column = location_.begin.column + YYLeng ();
-                currentString_ += yytext;
-            }
-        }
-        yy::location GetLocation () const {
-            return location_;
-        }
-        std::string GetCurrentString () const {
-            return currentString_;
-        }
-        virtual int yylex () override;
+
+        //  SETTER
+        void SetLocation ();
+
+        //  GETTERS
+        yy::location GetLocation () const { return location_; }
+        std::string GetCurrentString () const { return currentString_; }
+
+        //  OVERLOADED METHOD
+        int yylex () override;
 };
