@@ -1,7 +1,5 @@
 #include "driver.hpp"
 
-extern ScopeNodeInterface* globalCurrentScope;
-
 yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval, parser::location_type* location) {
     yy::parser::token_type tokenType = static_cast <yy::parser::token_type> (lexer_->yylex ());
     switch (tokenType) {
@@ -30,7 +28,6 @@ bool yy::LangDriver::parse () {
     bool failure = parser.parse ();   
     if (!failure) {
         OUTSTREAM << "Parsed successfully!" << std::endl;
-        
     }
     return !failure;
 }

@@ -8,6 +8,8 @@
 #include "../Build/lang.tab.hh"
 #include "../Language/SyntaxCheck.hpp"
 
+extern ScopeNodeInterface* globalCurrentScope;
+
 namespace yy {
 
     class LangDriver {

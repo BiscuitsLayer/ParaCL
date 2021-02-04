@@ -73,7 +73,7 @@
 %nterm <NodeInterface*> func_call
 %nterm <NodeInterface*> condition
 %nterm <NodeInterface*> if_while
-%nterm <NodeInterface*> scope
+%nterm <ScopeNodeInterface*> scope
 %nterm <NodeInterface*> inside_scope
 
 /* Левоассоциативные и правоассоциативные лексемы */

@@ -378,7 +378,6 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // scope
       // inside_scope
       // if_while
       // condition
@@ -392,8 +391,11 @@ namespace yy {
       // NUMBER
       char dummy2[sizeof (NumberType)];
 
+      // scope
+      char dummy3[sizeof (ScopeNodeInterface*)];
+
       // VARIABLE
-      char dummy3[sizeof (std::string*)];
+      char dummy4[sizeof (std::string*)];
     };
 
     /// The size of the largest semantic type.
@@ -561,7 +563,6 @@ namespace yy {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_scope: // scope
       case symbol_kind::S_inside_scope: // inside_scope
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
@@ -575,6 +576,10 @@ namespace yy {
 
       case symbol_kind::S_NUMBER: // NUMBER
         value.move< NumberType > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_scope: // scope
+        value.move< ScopeNodeInterface* > (std::move (that.value));
         break;
 
       case symbol_kind::S_VARIABLE: // VARIABLE
@@ -633,6 +638,20 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, ScopeNodeInterface*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const ScopeNodeInterface*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::string*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -668,7 +687,6 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_scope: // scope
       case symbol_kind::S_inside_scope: // inside_scope
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
@@ -682,6 +700,10 @@ switch (yykind)
 
       case symbol_kind::S_NUMBER: // NUMBER
         value.template destroy< NumberType > ();
+        break;
+
+      case symbol_kind::S_scope: // scope
+        value.template destroy< ScopeNodeInterface* > ();
         break;
 
       case symbol_kind::S_VARIABLE: // VARIABLE
@@ -1570,7 +1592,7 @@ switch (yykind)
 
 
 } // yy
-#line 1574 "lang.tab.hh"
+#line 1596 "lang.tab.hh"
 
 
 

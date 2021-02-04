@@ -9,6 +9,8 @@
 //  INTERFACE
 #include "LangInterface.hpp"
 
+extern ScopeNodeInterface* globalCurrentScope;
+
 class SymTable final {
     private:
         std::unordered_map <std::string, NumberType> data_ {};
@@ -18,8 +20,12 @@ class SymTable final {
         bool SetValue (const std::string& name, NumberType value);
         bool Add (const std::string& name, NumberType value);
 
-        //  CTOR AND DTOR
-        SymTable ();
+        //  CTOR
+        SymTable ():
+            data_ ({})
+            {}
+
+        //  DTOR
         ~SymTable () = default;
 };
 
@@ -30,18 +36,28 @@ class ScopeNode final : public ScopeNodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        void Dump (std::ostream &stream) const override { stream << "{ ... }"; }   
 
         //  METHODS FROM SCOPE INTERFACE
-        void AddNode (NodeInterface* node) override;
+        void AddNode (NodeInterface* node) override { branches_.push_back (node); }
         NumberType GetVariable (const std::string& name) const override;
         void SetVariable (const std::string& name, NumberType value) override;
-        void Entry () const override;
-        void Return () const override;
+        void Entry () const override    { globalCurrentScope = next_; }
+        void Return () const override   { globalCurrentScope = globalCurrentScope->previous_; }
 
-        //  CTOR AND DTOR
-        ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next);
-        ~ScopeNode ();
+        //  CTOR
+        ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next):
+            ScopeNodeInterface (previous, next),
+            branches_ ({}),
+            table_ ({})
+            {}
+
+        //  DTOR
+        ~ScopeNode () {
+            for (auto branch : branches_) {
+                delete branch;
+            }
+        }
 };
 
 class ValueNode final : public NodeInterface {
@@ -49,11 +65,16 @@ class ValueNode final : public NodeInterface {
         NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override { return value_; }
+        void Dump (std::ostream &stream) const override { stream << value_; }
 
-        //  CTOR AND DTOR
-        ValueNode (NumberType value);
+        //  CTOR
+        ValueNode (NumberType value):
+            NodeInterface (NodeType::VALUE),
+            value_ (value)
+            {}
+
+        //  DTOR
         ~ValueNode () = default;
 };
 
@@ -65,14 +86,20 @@ class VariableNode final : public NodeInterface {
         mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        NumberType Execute () const override { value_ = globalCurrentScope->GetVariable (name_); return value_; }
+        void Dump (std::ostream &stream) const override { stream << name_ << " {" << value_ << "}"; }
 
         //  EXTRA METHOD
-        void Assign (NumberType value) const;
+        void Assign (NumberType value) const { value_ = value; globalCurrentScope->SetVariable (name_, value); }
 
-        //  CTOR AND DTOR
-        VariableNode (const std::string& name);
+        //  CTOR
+        VariableNode (const std::string& name):
+            NodeInterface (NodeType::VARIABLE),
+            name_ (name),
+            value_ (0)
+            {}
+
+        //  DTOR
         ~VariableNode () = default;
 };
 
@@ -88,9 +115,15 @@ class BinaryOpNode final : public NodeInterface {
         NumberType Execute () const override;
         void Dump (std::ostream &stream) const override;
 
-        //  CTOR AND DTOR
-        BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
-        ~BinaryOpNode ();
+        //  CTOR
+        BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild):
+            NodeInterface (type),
+            leftChild_ (leftChild),
+            rightChild_ (rightChild)
+            {}
+        
+        //  DTOR
+        ~BinaryOpNode () { delete leftChild_; delete rightChild_; }
 };
 
 class IfNode final : public NodeInterface {
@@ -100,11 +133,22 @@ class IfNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        void Dump (std::ostream &stream) const override {
+            stream << "if ";
+            condition_->Dump (stream);
+            stream << " ";
+            scope_->Dump (stream);
+        }
 
-        //  CTOR AND DTOR
-        IfNode (NodeInterface* condition, ScopeNodeInterface* scope);
-        ~IfNode ();
+        //  CTOR
+        IfNode (NodeInterface* condition, ScopeNodeInterface* scope):
+            NodeInterface (NodeType::IF),
+            condition_ (condition),
+            scope_ (scope)
+            {}
+
+        //  DTOR
+        ~IfNode () { delete condition_; delete scope_; }
 };
 
 class WhileNode final : public NodeInterface {
@@ -114,11 +158,22 @@ class WhileNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        void Dump (std::ostream &stream) const override {
+            stream << "while ";
+            condition_->Dump (stream);
+            stream << " ";
+            scope_->Dump (stream);
+        }
 
-        //  CTOR AND DTOR
-        WhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
-        ~WhileNode ();
+        //  CTOR
+        WhileNode (NodeInterface* condition, ScopeNodeInterface* scope):
+            NodeInterface (NodeType::WHILE),
+            condition_ (condition),
+            scope_ (scope)
+            {}
+
+        //  DTOR
+        ~WhileNode () { delete condition_; delete scope_; }
 };
 
 class ScanNode final : public NodeInterface {
@@ -129,10 +184,23 @@ class ScanNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        void Dump (std::ostream &stream) const override {
+            if (isScanned_) {
+                stream << "{" << value_ << "}";
+            }
+            else {
+                stream << "{not scanned}";
+            }
+        }
 
-        //  CTOR AND DTOR
-        ScanNode ();
+        //  CTOR
+        ScanNode ():
+            NodeInterface (NodeType::SCAN),
+            value_ (0),
+            isScanned_ (false)
+            {}
+
+        //  DTOR
         ~ScanNode () = default;
 };
 
@@ -142,9 +210,14 @@ class PrintNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override;
+        void Dump (std::ostream &stream) const override { stream << "print "; child_->Dump (stream); }
 
-        //  CTOR AND DTOR
-        PrintNode (NodeInterface* child);
-        ~PrintNode ();
+        //  CTOR
+        PrintNode (NodeInterface* child):
+            NodeInterface (NodeType::PRINT),
+            child_ (child)
+            {}
+
+        //  DTOR
+        ~PrintNode () { delete child_; }
 };

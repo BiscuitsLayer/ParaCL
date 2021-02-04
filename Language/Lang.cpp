@@ -1,7 +1,5 @@
 #include "Lang.hpp"
 
-extern ScopeNodeInterface* globalCurrentScope;
-
 bool SymTable::GetValue (const std::string& name, NumberType& value) const {
     auto search = data_.find (name);
     if (search == data_.end ()) {
@@ -35,10 +33,6 @@ bool SymTable::Add (const std::string& name, NumberType value) {
     }
 }
 
-SymTable::SymTable ():
-    data_ ({})
-    {}
-
 NumberType ScopeNode::Execute () const {
     for (auto branch : branches_) {
         try {
@@ -52,14 +46,6 @@ NumberType ScopeNode::Execute () const {
         }
     }
     return 0;
-}
-
-void ScopeNode::Dump (std::ostream &stream) const {
-    /* empty */
-}
-
-void ScopeNode::AddNode (NodeInterface* node) {
-    branches_.push_back (node);
 }
 
 NumberType ScopeNode::GetVariable (const std::string& name) const {
@@ -87,71 +73,6 @@ void ScopeNode::SetVariable (const std::string& name, NumberType value) {
             break;
         }
     }
-}
-
-void ScopeNode::Entry () const {
-    globalCurrentScope = next_;
-}
-
-void ScopeNode::Return () const {
-    globalCurrentScope = globalCurrentScope->previous_;
-}
-
-ScopeNode::ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next):
-    ScopeNodeInterface (previous, next),
-    branches_ ({}),
-    table_ ({})
-    {}
-
-ScopeNode::~ScopeNode () {
-    for (auto branch : branches_) {
-        delete branch;
-    }
-}
-
-ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next) {
-    return new ScopeNode (previous, next);
-}
-
-NumberType ValueNode::Execute () const {
-    return value_;
-}
-
-void ValueNode::Dump (std::ostream &stream) const {
-    stream << value_;
-}
-
-ValueNode::ValueNode (NumberType value):
-    NodeInterface (NodeType::VALUE),
-    value_ (value)
-    {}
-
-NodeInterface* NodeInterface::CreateValueNode (NumberType value) {
-    return new ValueNode (value);
-}
-
-NumberType VariableNode::Execute () const {
-    value_ = globalCurrentScope->GetVariable (name_);
-    return value_;
-}
-
-void VariableNode::Dump (std::ostream &stream) const {
-    stream << name_ << " {" << value_ << "}";
-}
-
-void VariableNode::Assign (NumberType value) const {
-    value_ = value;
-    globalCurrentScope->SetVariable (name_, value);
-}
-
-VariableNode::VariableNode (const std::string& name):
-    NodeInterface (NodeType::VARIABLE),
-    name_ (name),
-    value_ (0)
-    {}
-
-NodeInterface* NodeInterface::CreateVariableNode (const std::string& name) {
-    return new VariableNode (name);
 }
 
 NumberType BinaryOpNode::Execute () const {
@@ -316,81 +237,24 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
     }
 }
 
-BinaryOpNode::BinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild):
-    NodeInterface (type),
-    leftChild_ (leftChild),
-    rightChild_ (rightChild)
-    {}
-
-BinaryOpNode::~BinaryOpNode () {
-    delete leftChild_;
-    delete rightChild_;
-}
-
-NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild) {
-    return new BinaryOpNode (type, leftChild, rightChild);
-}
-
 NumberType IfNode::Execute () const {
     if (condition_->Execute () > 0) {
-        globalCurrentScope->next_ = static_cast <ScopeNodeInterface*> (scope_);
+        globalCurrentScope->next_ = scope_;
         globalCurrentScope->Entry ();
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
     return 0;
-}
-
-void IfNode::Dump (std::ostream& stream) const {
-    stream << "if ";
-    condition_->Dump (stream);
-    stream << " { ... }";
-}
-
-IfNode::IfNode (NodeInterface* condition, ScopeNodeInterface* scope):
-    NodeInterface (NodeType::IF),
-    condition_ (condition),
-    scope_ (scope)
-    {}
-
-IfNode::~IfNode () {
-    delete condition_;
-    delete scope_;
-}
-
-NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope) {
-    return new IfNode (condition, scope);
 }
 
 NumberType WhileNode::Execute () const {
     while (condition_->Execute () > 0) {
-        globalCurrentScope->next_ = static_cast <ScopeNodeInterface*> (scope_);
+        globalCurrentScope->next_ = scope_;
         globalCurrentScope->Entry ();
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
     return 0;
-}
-
-void WhileNode::Dump (std::ostream& stream) const {
-    stream << "while ";
-    condition_->Dump (stream);
-    stream << " { ... }";
-}
-
-WhileNode::WhileNode (NodeInterface* condition, ScopeNodeInterface* scope):
-    NodeInterface (NodeType::WHILE),
-    condition_ (condition),
-    scope_ (scope)
-    {}
-
-WhileNode::~WhileNode () {
-    delete condition_;
-    delete scope_;
-}
-
-NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope) {
-    return new WhileNode (condition, scope);
 }
 
 NumberType ScanNode::Execute () const {
@@ -414,25 +278,6 @@ NumberType ScanNode::Execute () const {
     return inputValue;
 }
 
-void ScanNode::Dump (std::ostream& stream) const {
-    if (isScanned_) {
-        stream << "{" << value_ << "}";
-    }
-    else {
-        stream << "{not scanned}";
-    }
-}
-
-ScanNode::ScanNode ():
-    NodeInterface (NodeType::SCAN),
-    value_ (0),
-    isScanned_ (false)
-    {}
-
-NodeInterface* NodeInterface::CreateScanNode () {
-    return new ScanNode ();
-}
-
 NumberType PrintNode::Execute () const {
     static size_t outputCounter = 0;
     NumberType outputValue = child_->Execute ();
@@ -441,22 +286,4 @@ NumberType PrintNode::Execute () const {
     }
     OUTSTREAM << outputValue << std::endl;
     return 0;
-}
-
-void PrintNode::Dump (std::ostream& stream) const {
-    stream << "print ";
-    child_->Dump (stream);
-}
-
-PrintNode::PrintNode (NodeInterface* child):
-    NodeInterface (NodeType::PRINT),
-    child_ (child)
-    {}
-
-PrintNode::~PrintNode () {
-    delete child_;
-}
-
-NodeInterface* NodeInterface::CreatePrintNode (NodeInterface* child) {
-    return new PrintNode (child);
 }

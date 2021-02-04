@@ -47,7 +47,7 @@ class NodeInterface {
         virtual void Dump (std::ostream &stream) const = 0;
 
         //  CTOR
-        NodeInterface::NodeInterface (NodeType type):
+        NodeInterface (NodeType type):
             type_ (type)
             {}
 
@@ -81,7 +81,7 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void Return () const = 0;
 
         //  CTOR
-        ScopeNodeInterface::ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next):
+        ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next):
             NodeInterface (NodeType::SCOPE),
             previous_ (previous),
             next_ (next)
