@@ -382,7 +382,7 @@ namespace yy {
       // if_while
       // condition
       // assignment
-      // func_call
+      // syscall
       // exprLvl1
       // exprLvl2
       // exprLvl3
@@ -394,7 +394,7 @@ namespace yy {
       // scope
       char dummy3[sizeof (ScopeNodeInterface*)];
 
-      // VARIABLE
+      // TEXT
       char dummy4[sizeof (std::string*)];
     };
 
@@ -464,9 +464,13 @@ namespace yy {
     IF = 275,                      // "if"
     WHILE = 276,                   // "while"
     PRINT = 277,                   // "print"
-    ERROR = 278,                   // ERROR
-    NUMBER = 279,                  // NUMBER
-    VARIABLE = 280                 // VARIABLE
+    FUNC = 278,                    // "func"
+    RETURN = 279,                  // "return"
+    COLON = 280,                   // ":"
+    COMMA = 281,                   // ","
+    ERROR = 282,                   // ERROR
+    NUMBER = 283,                  // NUMBER
+    TEXT = 284                     // TEXT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -483,7 +487,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 30, ///< Number of tokens.
+        YYNTOKENS = 34, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -508,25 +512,36 @@ namespace yy {
         S_IF = 20,                               // "if"
         S_WHILE = 21,                            // "while"
         S_PRINT = 22,                            // "print"
-        S_ERROR = 23,                            // ERROR
-        S_NUMBER = 24,                           // NUMBER
-        S_VARIABLE = 25,                         // VARIABLE
-        S_26_ = 26,                              // '+'
-        S_27_ = 27,                              // '-'
-        S_28_ = 28,                              // '*'
-        S_29_ = 29,                              // '/'
-        S_YYACCEPT = 30,                         // $accept
-        S_scope = 31,                            // scope
-        S_scope_entry = 32,                      // scope_entry
-        S_inside_scope = 33,                     // inside_scope
-        S_scope_outro = 34,                      // scope_outro
-        S_if_while = 35,                         // if_while
-        S_condition = 36,                        // condition
-        S_assignment = 37,                       // assignment
-        S_func_call = 38,                        // func_call
-        S_exprLvl1 = 39,                         // exprLvl1
-        S_exprLvl2 = 40,                         // exprLvl2
-        S_exprLvl3 = 41                          // exprLvl3
+        S_FUNC = 23,                             // "func"
+        S_RETURN = 24,                           // "return"
+        S_COLON = 25,                            // ":"
+        S_COMMA = 26,                            // ","
+        S_ERROR = 27,                            // ERROR
+        S_NUMBER = 28,                           // NUMBER
+        S_TEXT = 29,                             // TEXT
+        S_30_ = 30,                              // '+'
+        S_31_ = 31,                              // '-'
+        S_32_ = 32,                              // '*'
+        S_33_ = 33,                              // '/'
+        S_YYACCEPT = 34,                         // $accept
+        S_scope = 35,                            // scope
+        S_scope_entry = 36,                      // scope_entry
+        S_inside_scope = 37,                     // inside_scope
+        S_scope_outro = 38,                      // scope_outro
+        S_if_while = 39,                         // if_while
+        S_condition = 40,                        // condition
+        S_assignment = 41,                       // assignment
+        S_function_assignment = 42,              // function_assignment
+        S_function_header = 43,                  // function_header
+        S_arg_list = 44,                         // arg_list
+        S_arg_list_inside = 45,                  // arg_list_inside
+        S_return = 46,                           // return
+        S_syscall = 47,                          // syscall
+        S_exprLvl1 = 48,                         // exprLvl1
+        S_exprLvl2 = 49,                         // exprLvl2
+        S_exprLvl3 = 50,                         // exprLvl3
+        S_call_arg_list = 51,                    // call_arg_list
+        S_call_arg_list_inside = 52              // call_arg_list_inside
       };
     };
 
@@ -567,7 +582,7 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_func_call: // func_call
+      case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
       case symbol_kind::S_exprLvl3: // exprLvl3
@@ -582,7 +597,7 @@ namespace yy {
         value.move< ScopeNodeInterface* > (std::move (that.value));
         break;
 
-      case symbol_kind::S_VARIABLE: // VARIABLE
+      case symbol_kind::S_TEXT: // TEXT
         value.move< std::string* > (std::move (that.value));
         break;
 
@@ -691,7 +706,7 @@ switch (yykind)
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_func_call: // func_call
+      case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
       case symbol_kind::S_exprLvl3: // exprLvl3
@@ -706,7 +721,7 @@ switch (yykind)
         value.template destroy< ScopeNodeInterface* > ();
         break;
 
-      case symbol_kind::S_VARIABLE: // VARIABLE
+      case symbol_kind::S_TEXT: // TEXT
         value.template destroy< std::string* > ();
         break;
 
@@ -1216,6 +1231,66 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_FUNC (location_type l)
+      {
+        return symbol_type (token::FUNC, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_FUNC (const location_type& l)
+      {
+        return symbol_type (token::FUNC, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_RETURN (location_type l)
+      {
+        return symbol_type (token::RETURN, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_RETURN (const location_type& l)
+      {
+        return symbol_type (token::RETURN, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_COLON (location_type l)
+      {
+        return symbol_type (token::COLON, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_COLON (const location_type& l)
+      {
+        return symbol_type (token::COLON, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_COMMA (location_type l)
+      {
+        return symbol_type (token::COMMA, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_COMMA (const location_type& l)
+      {
+        return symbol_type (token::COMMA, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_ERROR (location_type l)
       {
         return symbol_type (token::ERROR, std::move (l));
@@ -1246,16 +1321,16 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_VARIABLE (std::string* v, location_type l)
+      make_TEXT (std::string* v, location_type l)
       {
-        return symbol_type (token::VARIABLE, std::move (v), std::move (l));
+        return symbol_type (token::TEXT, std::move (v), std::move (l));
       }
 #else
       static
       symbol_type
-      make_VARIABLE (const std::string*& v, const location_type& l)
+      make_TEXT (const std::string*& v, const location_type& l)
       {
-        return symbol_type (token::VARIABLE, v, l);
+        return symbol_type (token::TEXT, v, l);
       }
 #endif
 
@@ -1579,8 +1654,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 51,     ///< Last index in yytable_.
-      yynnts_ = 12,  ///< Number of nonterminal symbols.
+      yylast_ = 101,     ///< Last index in yytable_.
+      yynnts_ = 19,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
 
@@ -1592,7 +1667,7 @@ switch (yykind)
 
 
 } // yy
-#line 1596 "lang.tab.hh"
+#line 1671 "lang.tab.hh"
 
 
 

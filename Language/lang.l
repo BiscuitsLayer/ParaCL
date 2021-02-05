@@ -27,7 +27,7 @@ INT             {DIGIT}{DIGIT}*
 NUMBER          {DOUBLE}
 LETTER          [a-zA-Z_]
 LETTER_OR_DIGIT [a-zA-Z0-9_]
-VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
+TEXT            {LETTER}{LETTER_OR_DIGIT}*
 
 %%
                             /* Сопоставляем каждой лексеме её константу для парсера */
@@ -55,8 +55,13 @@ VARIABLE        {LETTER}{LETTER_OR_DIGIT}*
 "if"                        return yy::parser::token_type::IF;
 "while"                     return yy::parser::token_type::WHILE;
 "print"                     return yy::parser::token_type::PRINT;
+
+"func"                      return yy::parser::token_type::FUNC;
+"return"                    return yy::parser::token_type::RETURN;
+":"                         return yy::parser::token_type::COLON;
+","                         return yy::parser::token_type::COMMA;
 {NUMBER}                    return yy::parser::token_type::NUMBER;
-{VARIABLE}                  return yy::parser::token_type::VARIABLE;
+{TEXT}                      return yy::parser::token_type::TEXT;
 .			                return yy::parser::token_type::ERROR;
 
 %%

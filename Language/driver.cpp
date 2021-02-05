@@ -8,7 +8,7 @@ yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval,
             yylval->as <NumberType> () = std::stod (lexer_->YYText ());
             break;
         }
-        case yy::parser::token_type::VARIABLE: {
+        case yy::parser::token_type::TEXT: {
             //  I would really like to use std::string there, but after debugging for 2 hours
             //  I still failed with sig segv in the assignment :(
             std::string* temp = new std::string (lexer_->YYText ());

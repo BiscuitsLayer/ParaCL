@@ -61,16 +61,21 @@
   IF			"if"
   WHILE			"while"
   PRINT			"print"
+
+  FUNC			"func"
+  RETURN		"return"
+  COLON			":"
+  COMMA			","
   ERROR
 ;
 
 %token <NumberType> NUMBER
-%token <std::string*> VARIABLE
+%token <std::string*> TEXT
 
 /* Объявление нетерминалов */
 %nterm <NodeInterface*> exprLvl1 exprLvl2 exprLvl3
 %nterm <NodeInterface*> assignment
-%nterm <NodeInterface*> func_call
+%nterm <NodeInterface*> syscall
 %nterm <NodeInterface*> condition
 %nterm <NodeInterface*> if_while
 %nterm <ScopeNodeInterface*> scope
@@ -86,25 +91,29 @@
 
 scope:
 	scope_entry inside_scope scope_outro			{ $$ = globalCurrentScope; globalCurrentScope->Return (); }
+|	scope_entry inside_scope scope_outro SCOLON		{ $$ = globalCurrentScope; globalCurrentScope->Return (); }
 ;
 
 scope_entry:
-	LBRACE								{ 
-											globalCurrentScope->next_ = ScopeNodeInterface::CreateScopeNode (globalCurrentScope, nullptr);
-											globalCurrentScope->Entry ();
-										}
+	LBRACE											{ 
+														globalCurrentScope->next_ = ScopeNodeInterface::CreateScopeNode (globalCurrentScope, nullptr);
+														globalCurrentScope->Entry ();
+													}
 ;
 
 inside_scope:
-	inside_scope assignment SCOLON 		{ globalCurrentScope->AddNode ($2); }
-|	inside_scope func_call SCOLON 		{ globalCurrentScope->AddNode ($2); }
-|	inside_scope if_while				{ globalCurrentScope->AddNode ($2); }
-|	inside_scope scope					{ globalCurrentScope->AddNode ($2); }
-|										{ /* empty */ }
+	inside_scope assignment 						{ globalCurrentScope->AddNode ($2); }
+|	inside_scope function_assignment				{ /* TODO */ }
+|	inside_scope return								{ /* TODO */ }
+|	inside_scope exprLvl1 SCOLON					{ /* TODO */ }
+|	inside_scope syscall 							{ globalCurrentScope->AddNode ($2); }
+|	inside_scope if_while							{ globalCurrentScope->AddNode ($2); }
+|	inside_scope scope								{ globalCurrentScope->AddNode ($2); }
+|													{ /* empty */ }
 ;
 
 scope_outro:
-	RBRACE								{ /* empty */ }
+	RBRACE											{ /* empty */ }
 ;
 
 if_while:
@@ -123,18 +132,41 @@ condition:
 ;
 
 assignment:
-	VARIABLE ASSIGN exprLvl1	{ 	
-									//	ADD VARIABLE
-									globalCurrentScope->SetVariable (*($1), 0);
-
-									NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
-									delete $1;
-								  	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
-								}
+	TEXT ASSIGN exprLvl1 SCOLON			{ 	
+											//	ADD VARIABLE
+											globalCurrentScope->SetVariable (*($1), 0);
+											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
+											delete $1;
+								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
+										}
+|	TEXT ASSIGN scope					{ /* TODO */ }
 ;
 
-func_call:
-	PRINT exprLvl1				{ $$ = NodeInterface::CreatePrintNode ($2); }
+function_assignment:
+	TEXT ASSIGN function_header scope				{ /* TODO */ }
+;
+
+function_header:
+	FUNC arg_list 									{ /* TODO */ }
+|	FUNC arg_list COLON	TEXT						{ /* TODO */ }
+;
+
+arg_list:
+	LPARENTHESES arg_list_inside RPARENTHESES		{ /* TODO */ }
+|	LPARENTHESES RPARENTHESES						{ /* TODO */ }
+;
+
+arg_list_inside:
+	TEXT 											{ /* TODO */ }
+|	TEXT COMMA arg_list_inside						{ /* TODO */ }
+;
+
+return:
+	RETURN exprLvl1 SCOLON							{ /* TODO */ }
+;
+
+syscall:
+	PRINT exprLvl1 SCOLON	{ $$ = NodeInterface::CreatePrintNode ($2); }
 ;
 
 exprLvl1:
@@ -152,7 +184,7 @@ exprLvl2:
 exprLvl3:
 	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
-|	VARIABLE							{ 	
+|	TEXT								{ 	
 											try {
 												globalCurrentScope->GetVariable (*($1));
 											}
@@ -162,8 +194,19 @@ exprLvl3:
 											$$ = NodeInterface::CreateVariableNode (*($1));
 											delete $1; 
 										}
-|	QMARK								{ 	$$ = NodeInterface::CreateScanNode ();	}
+|	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
+|	TEXT call_arg_list					{ /* TODO */ }
 ;
+
+call_arg_list:
+	LPARENTHESES call_arg_list_inside RPARENTHESES	{ /* TODO */ }
+|	LPARENTHESES RPARENTHESES						{ /* TODO */ }
+;
+
+call_arg_list_inside:
+	exprLvl1 										{ /* TODO */ }
+|	exprLvl1 COMMA arg_list_inside					{ /* TODO */ }
+;	
 
 %%
 

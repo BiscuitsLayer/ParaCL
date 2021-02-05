@@ -5,4 +5,4 @@ b:
 		g++ main.cpp Language/driver.cpp Build/lex.yy.cc Build/lang.tab.cc \
 		Language/Lang.cpp Language/LangInterface.cpp Language/SyntaxCheck.cpp -ggdb3 -o main
 r:
-		./main Test/Input/Incorrect/4
+		./main Test/Functions/4
