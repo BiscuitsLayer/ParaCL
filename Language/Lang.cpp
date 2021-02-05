@@ -38,6 +38,7 @@ NumberType ScopeNode::Execute () const {
     for (auto branch : branches_) {
         try {
             returnValue = branch->Execute ();
+            std::cout << "retval = " << returnValue << std::endl;
         } 
         catch (std::overflow_error& ex) {
             ERRSTREAM << ex.what () << std::endl;
@@ -104,8 +105,9 @@ NumberType BinaryOpNode::Execute () const {
         }
         case NodeType::BINARY_OP_ASSIGN: {
             VariableNode* leftChildAsVariable = static_cast <VariableNode*> (leftChild_);
-            leftChildAsVariable->Assign (rightChild_->Execute ());
-            return 0;
+            NumberType result = rightChild_->Execute ();
+            leftChildAsVariable->Assign (result);
+            return result;
             break;
         }
         case NodeType::BINARY_OP_GREATER: {

@@ -30,7 +30,9 @@ enum class NodeType {
     PRINT = 16,
     SCOPE = 17,
 
-    ERROR = 18
+    FUNCTION = 18,
+    FUNCTION_VARIABLE = 19,
+    ERROR = 20
 };
 
 class NodeInterface;

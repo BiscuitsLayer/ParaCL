@@ -3,6 +3,7 @@
 //  SYSTEM
 #include <cmath>
 #include <vector>
+#include <variant>
 #include <unordered_map>
 #include <exception>
 
@@ -28,6 +29,71 @@ class SymTable final {
         //  DTOR
         ~SymTable () = default;
 };
+
+class FunctionSymTable final {
+    private:
+        std::unordered_map <std::string, ScopeNodeInterface*> namedData_ {};
+        std::vector <ScopeNodeInterface*> unnamedData_ {};
+    public:
+        //  METHODS
+        bool ExecuteFunction (const std::variant <int, std::string>& id, NumberType& result) const {
+            try {
+                auto search = namedData_.find (std::get <std::string> (id));
+                if (search == namedData_.end ()) {
+                    return false;
+                }
+                else {
+                    result = search->second->Execute ();
+                    return true;
+                }
+            }
+            catch (const std::bad_variant_access&) {
+                if (unnamedData_.size () <= std::get <int> (id)) {
+                    return false;
+                }
+                else {
+                    result = unnamedData_[std::get <int> (id)]->Execute ();
+                    return true;
+                }
+            }
+        }
+        bool AddFunction (std::variant <int, std::string>& id, ScopeNodeInterface* scope) {
+            try {
+                auto search = namedData_.find (std::get <std::string> (id));
+                if (search != namedData_.end ()) {
+                    return false;
+                }
+                else {
+                    namedData_[std::get <std::string> (id)] = scope;
+                    return true;
+                }
+            }
+            catch (const std::bad_variant_access&) {
+                static int unnamedIdx = 0;
+                id = unnamedIdx++;
+                unnamedData_.push_back (scope);
+                return true;
+            }
+        }
+
+        //  CTOR
+        FunctionSymTable ():
+            namedData_ ({}),
+            unnamedData_ ({})
+            {}
+
+        //  DTOR
+        ~FunctionSymTable () {
+            for (auto nameToScope : namedData_) {
+                delete nameToScope.second;
+            }
+            for (auto scope : unnamedData_) {
+                delete scope;
+            }
+        }
+};
+
+extern FunctionSymTable* globalFunctionSymTable;
 
 class ScopeNode final : public ScopeNodeInterface {
     private:
@@ -90,7 +156,7 @@ class VariableNode final : public NodeInterface {
         void Dump (std::ostream &stream) const override { stream << name_ << " {" << value_ << "}"; }
 
         //  EXTRA METHOD
-        void Assign (NumberType value) const { value_ = value; globalCurrentScope->SetVariable (name_, value); }
+        void Assign (NumberType value) { value_ = value; globalCurrentScope->SetVariable (name_, value); }
 
         //  CTOR
         VariableNode (const std::string& name):
@@ -101,6 +167,35 @@ class VariableNode final : public NodeInterface {
 
         //  DTOR
         ~VariableNode () = default;
+};
+
+class FunctionVariableNode final : public NodeInterface {
+    private:
+        std::string name_ {};
+        std::variant <int, std::string> id_ {};
+
+        //  mutable because it only changes the way this node dumps
+        mutable NumberType value_ = 0;
+    public:
+        //  METHODS FROM NODE INTERFACE
+        NumberType Execute () const override { 
+            globalFunctionSymTable->ExecuteFunction (id_, value_);
+            return value_; 
+        }
+        void Dump (std::ostream &stream) const override { stream << name_ << " () {" << value_ << "}"; }
+
+        //  EXTRA METHOD
+        void Assign (ScopeNodeInterface* scope) { globalFunctionSymTable->AddFunction (id_, scope); }
+
+        //  CTOR
+        FunctionVariableNode (const std::string& name):
+            NodeInterface (NodeType::FUNCTION_VARIABLE),
+            name_ (name),
+            value_ (0)
+            {}
+
+        //  DTOR
+        ~FunctionVariableNode () = default;
 };
 
 class BinaryOpNode final : public NodeInterface {
@@ -206,7 +301,7 @@ class ScanNode final : public NodeInterface {
 
 class PrintNode final : public NodeInterface {
     private:
-       NodeInterface* child_ = nullptr;
+        NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;

@@ -133,13 +133,17 @@ condition:
 
 assignment:
 	TEXT ASSIGN exprLvl1 SCOLON			{ 	
-											//	ADD VARIABLE
 											globalCurrentScope->SetVariable (*($1), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 											delete $1;
 								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
 										}
-|	TEXT ASSIGN scope					{ /* TODO */ }
+|	TEXT ASSIGN scope					{ 
+											globalCurrentScope->SetVariable (*($1), 0);
+											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
+											delete $1;
+								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
+										}
 ;
 
 function_assignment:
