@@ -61,7 +61,7 @@ class NodeInterface {
         static NodeInterface* CreateReturnNode (NodeInterface* child);
         static NodeInterface* CreateValueNode (NumberType value);
         static NodeInterface* CreateVariableNode (const std::string& name);
-        static NodeInterface* CreateFunctionVariableNode (const std::string& varialeName, ScopeNodeInterface* scope, bool hasName = false, const std::string& functionName = "");
+        static NodeInterface* CreateFunctionVariableNode (const std::string& variableName);
         static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
         static NodeInterface* CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope);
         static NodeInterface* CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope);

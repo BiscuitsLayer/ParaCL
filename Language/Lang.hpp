@@ -11,6 +11,7 @@
 #include "LangInterface.hpp"
 
 extern ScopeNodeInterface* globalCurrentScope;
+const int poisonFunctionIdx = -1;
 
 class VariableSymTable final {
     private:
@@ -35,9 +36,6 @@ class FunctionSymTable final {
         std::unordered_map <std::string, ScopeNodeInterface*> namedData_ {};
         std::vector <ScopeNodeInterface*> unnamedData_ {};
     public:
-        //  POISON IDX
-        static const int poisonFunctionIdx = -1;
-
         //  METHODS
         bool ExecuteFunction (const std::variant <int, std::string>& id, NumberType& result) const {
             try {
@@ -140,7 +138,7 @@ class FunctionVariableSymTable final {
                     ans = functionName;
                 }
                 else {
-                    ans = FunctionSymTable::poisonFunctionIdx;
+                    ans = poisonFunctionIdx;
                 }
                 globalFunctionSymTable->SetFunction (ans, scope);
                 search->second = ans;
@@ -158,7 +156,7 @@ class FunctionVariableSymTable final {
                     ans = functionName;
                 }
                 else {
-                    ans = FunctionSymTable::poisonFunctionIdx;
+                    ans = poisonFunctionIdx;
                 }
                 globalFunctionSymTable->AddFunction (ans, scope);
                 data_[variableName] = ans;
@@ -225,7 +223,7 @@ class ScopeNode final : public ScopeNodeInterface {
             }
             return value;
         }
-        void SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") override {
+        void SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override {
             ScopeNode* cur = this;
             while (!cur->functionVariableTable_.SetFunctionVariable (variableName, scope, hasFunctionName, functionName)) {
                 if (cur->previous_) {
@@ -311,14 +309,12 @@ class FunctionVariableNode final : public NodeInterface {
         void Dump (std::ostream &stream) const override { stream << variableName_ << "() {" << value_ << "}"; }
 
         //  EXTRA METHOD
-        void Assign (ScopeNodeInterface* scope) { globalCurrentScope->SetFunctionVariable (variableName_, scope);
-        //  I don't really know if we need other params there (hasName, functionName) or not, so test it (I think that we dont))
-        //  FIXME
+        void Assign (ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") { 
+            globalCurrentScope->SetFunctionVariable (variableName_, scope, hasFunctionName, functionName);
         }
 
         //  CTOR
-        FunctionVariableNode (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = ""):
-            //  FIXME find out params that we really need in ctor
+        FunctionVariableNode (const std::string& variableName):
             NodeInterface (NodeType::FUNCTION_VARIABLE),
             variableName_ (variableName),
             value_ (0)

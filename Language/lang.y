@@ -151,7 +151,7 @@ assignment:
 
 function_assignment:
 	TEXT ASSIGN function_header scope				{ 
-														NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1), $4);
+														NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1));
 														delete $1;
 														$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, nullptr);
 													}

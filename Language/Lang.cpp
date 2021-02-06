@@ -110,8 +110,10 @@ NumberType BinaryOpNode::Execute () const {
             break;
         }
         case NodeType::BINARY_OP_FUNCTION_ASSIGN: {
-            /* empty */
-            //FIXME
+            FunctionVariableNode* leftChildAsFunctionVariable = static_cast <FunctionVariableNode*> (leftChild_);
+            //leftChildAsFunctionVariable->Assign ();
+            //You need to get scope, hasName and functionName from right child
+            return 0;
             break;
         }
         case NodeType::BINARY_OP_GREATER: {
