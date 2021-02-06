@@ -1,11 +1,20 @@
 //	LANGUAGE
 #include "../Language/Lang.hpp"
 
+NodeInterface* NodeInterface::CreateReturnNode (NodeInterface* child) {
+    return new ReturnNode (child);
+}
+
 NodeInterface* NodeInterface::CreateValueNode (NumberType value) {
     return new ValueNode (value);
 }
+
 NodeInterface* NodeInterface::CreateVariableNode (const std::string& name) { 
-    return new VariableNode (name); 
+    return new VariableNode (name);
+}
+
+NodeInterface* NodeInterface::CreateFunctionVariableNode (const std::string& variableName, ScopeNodeInterface* scope, bool hasName, const std::string& functionName) { 
+    return new FunctionVariableNode (variableName, scope, hasName, functionName); 
 }
 
 NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild) {

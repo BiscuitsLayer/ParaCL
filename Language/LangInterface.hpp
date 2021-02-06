@@ -10,29 +10,30 @@ enum class NodeType {
     VALUE = 0,
     VARIABLE = 1,
 
-    BINARY_OP_ADD = 2,
-    BINARY_OP_SUB = 3,
-    BINARY_OP_MUL = 4,
-    BINARY_OP_DIV = 5,
-    BINARY_OP_ASSIGN = 6,
+    BINARY_OP_ADD,
+    BINARY_OP_SUB,
+    BINARY_OP_MUL,
+    BINARY_OP_DIV,
+    BINARY_OP_ASSIGN,
+    BINARY_OP_FUNCTION_ASSIGN,
 
-    BINARY_OP_GREATER = 7,
-    BINARY_OP_GREATER_OR_EQ = 8,
-    BINARY_OP_LESS = 9,
-    BINARY_OP_LESS_OR_EQ = 10,
+    BINARY_OP_GREATER,
+    BINARY_OP_GREATER_OR_EQ,
+    BINARY_OP_LESS,
+    BINARY_OP_LESS_OR_EQ,
 
-    BINARY_OP_EQ = 11,
-    BINARY_OP_NOT_EQ = 12,
+    BINARY_OP_EQ,
+    BINARY_OP_NOT_EQ,
 
-    IF = 13,
-    WHILE = 14,
-    SCAN = 15,
-    PRINT = 16,
-    SCOPE = 17,
+    IF,
+    WHILE,
+    SCAN,
+    PRINT,
+    SCOPE,
 
-    FUNCTION = 18,
-    FUNCTION_VARIABLE = 19,
-    ERROR = 20
+    FUNCTION,
+    FUNCTION_VARIABLE,
+    ERROR
 };
 
 class NodeInterface;
@@ -57,8 +58,10 @@ class NodeInterface {
         virtual ~NodeInterface () = default;
 
         //  DERIVED CLASSES CTOR-S
+        static NodeInterface* CreateReturnNode (NodeInterface* child);
         static NodeInterface* CreateValueNode (NumberType value);
         static NodeInterface* CreateVariableNode (const std::string& name);
+        static NodeInterface* CreateFunctionVariableNode (const std::string& varialeName, ScopeNodeInterface* scope, bool hasName = false, const std::string& functionName = "");
         static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
         static NodeInterface* CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope);
         static NodeInterface* CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
@@ -79,6 +82,8 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void AddNode (NodeInterface* node) = 0;
         virtual NumberType GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, NumberType value) = 0;
+        virtual NumberType GetFunctionVariable (const std::string& variableName) const = 0;
+        virtual void SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
         virtual void Entry () const = 0;
         virtual void Return () const = 0;
 

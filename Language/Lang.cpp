@@ -1,6 +1,6 @@
 #include "Lang.hpp"
 
-bool SymTable::GetValue (const std::string& name, NumberType& value) const {
+bool VariableSymTable::GetVariableValue (const std::string& name, NumberType& value) const {
     auto search = data_.find (name);
     if (search == data_.end ()) {
         return false;
@@ -11,7 +11,7 @@ bool SymTable::GetValue (const std::string& name, NumberType& value) const {
     }
 }
 
-bool SymTable::SetValue (const std::string& name, NumberType value) {
+bool VariableSymTable::SetVariableValue (const std::string& name, NumberType value) {
     auto search = data_.find (name);
     if (search == data_.end ()) {
         return false;
@@ -22,7 +22,7 @@ bool SymTable::SetValue (const std::string& name, NumberType value) {
     }
 }
 
-bool SymTable::Add (const std::string& name, NumberType value) {
+bool VariableSymTable::AddVariable (const std::string& name, NumberType value) {
     auto search = data_.find (name);
     if (search != data_.end ()) {
         return false;
@@ -38,7 +38,6 @@ NumberType ScopeNode::Execute () const {
     for (auto branch : branches_) {
         try {
             returnValue = branch->Execute ();
-            std::cout << "retval = " << returnValue << std::endl;
         } 
         catch (std::overflow_error& ex) {
             ERRSTREAM << ex.what () << std::endl;
@@ -53,7 +52,7 @@ NumberType ScopeNode::Execute () const {
 NumberType ScopeNode::GetVariable (const std::string& name) const {
     const ScopeNode* cur = this;
     NumberType value = 0;
-    while (!cur->table_.GetValue (name, value)) {
+    while (!cur->variableTable_.GetVariableValue (name, value)) {
         if (cur->previous_) {
             cur = static_cast <ScopeNode*> (cur->previous_);
         }
@@ -66,12 +65,12 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
 
 void ScopeNode::SetVariable (const std::string& name, NumberType value) {
     ScopeNode* cur = this;
-    while (!cur->table_.SetValue (name, value)) {
+    while (!cur->variableTable_.SetVariableValue (name, value)) {
         if (cur->previous_) {
             cur = static_cast <ScopeNode*> (cur->previous_);
         }
         else {
-            table_.Add (name, value);
+            variableTable_.AddVariable (name, value);
             break;
         }
     }
@@ -108,6 +107,11 @@ NumberType BinaryOpNode::Execute () const {
             NumberType result = rightChild_->Execute ();
             leftChildAsVariable->Assign (result);
             return result;
+            break;
+        }
+        case NodeType::BINARY_OP_FUNCTION_ASSIGN: {
+            /* empty */
+            //FIXME
             break;
         }
         case NodeType::BINARY_OP_GREATER: {
@@ -188,6 +192,9 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
             rightChild_->Dump (stream);
             stream << ")";
             break;
+        }
+        case NodeType::BINARY_OP_FUNCTION_ASSIGN: {
+            //TODO
         }
         case NodeType::BINARY_OP_GREATER: {
             stream << "(";

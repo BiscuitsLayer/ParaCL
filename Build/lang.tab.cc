@@ -184,6 +184,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -197,6 +199,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.copy< ScopeNodeInterface* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.copy< std::string > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -236,6 +242,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -249,6 +257,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.move< ScopeNodeInterface* > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.move< std::string > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -356,6 +368,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -369,6 +383,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.YY_MOVE_OR_COPY< ScopeNodeInterface* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -394,6 +412,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -407,6 +427,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.move< ScopeNodeInterface* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.move< std::string > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -432,6 +456,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -445,6 +471,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.copy< ScopeNodeInterface* > (that.value);
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.copy< std::string > (that.value);
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -469,6 +499,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -482,6 +514,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.move< ScopeNodeInterface* > (that.value);
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.move< std::string > (that.value);
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -750,6 +786,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -763,6 +801,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         yylhs.value.emplace< ScopeNodeInterface* > ();
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        yylhs.value.emplace< std::string > ();
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -790,260 +832,267 @@ namespace yy {
           switch (yyn)
             {
   case 2: // scope: scope_entry inside_scope scope_outro
-#line 93 "../Language/lang.y"
+#line 96 "../Language/lang.y"
                                                                 { yylhs.value.as < ScopeNodeInterface* > () = globalCurrentScope; globalCurrentScope->Return (); }
-#line 796 "lang.tab.cc"
+#line 838 "lang.tab.cc"
     break;
 
   case 3: // scope: scope_entry inside_scope scope_outro ";"
-#line 94 "../Language/lang.y"
+#line 97 "../Language/lang.y"
                                                                 { yylhs.value.as < ScopeNodeInterface* > () = globalCurrentScope; globalCurrentScope->Return (); }
-#line 802 "lang.tab.cc"
+#line 844 "lang.tab.cc"
     break;
 
   case 4: // scope_entry: "{"
-#line 98 "../Language/lang.y"
+#line 101 "../Language/lang.y"
                                                                                                 { 
 														globalCurrentScope->next_ = ScopeNodeInterface::CreateScopeNode (globalCurrentScope, nullptr);
 														globalCurrentScope->Entry ();
 													}
-#line 811 "lang.tab.cc"
-    break;
-
-  case 5: // inside_scope: inside_scope assignment
-#line 105 "../Language/lang.y"
-                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
-#line 817 "lang.tab.cc"
-    break;
-
-  case 6: // inside_scope: inside_scope function_assignment
-#line 106 "../Language/lang.y"
-                                                                        { /* TODO */ }
-#line 823 "lang.tab.cc"
-    break;
-
-  case 7: // inside_scope: inside_scope return
-#line 107 "../Language/lang.y"
-                                                                                        { /* TODO */ }
-#line 829 "lang.tab.cc"
-    break;
-
-  case 8: // inside_scope: inside_scope exprLvl1 ";"
-#line 108 "../Language/lang.y"
-                                                                        { /* TODO */ }
-#line 835 "lang.tab.cc"
-    break;
-
-  case 9: // inside_scope: inside_scope syscall
-#line 109 "../Language/lang.y"
-                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
-#line 841 "lang.tab.cc"
-    break;
-
-  case 10: // inside_scope: inside_scope if_while
-#line 110 "../Language/lang.y"
-                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
-#line 847 "lang.tab.cc"
-    break;
-
-  case 11: // inside_scope: inside_scope scope
-#line 111 "../Language/lang.y"
-                                                                                        { globalCurrentScope->AddNode (yystack_[0].value.as < ScopeNodeInterface* > ()); }
 #line 853 "lang.tab.cc"
     break;
 
-  case 12: // inside_scope: %empty
-#line 112 "../Language/lang.y"
-                                                                                                        { /* empty */ }
+  case 5: // inside_scope: inside_scope assignment
+#line 108 "../Language/lang.y"
+                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 859 "lang.tab.cc"
     break;
 
-  case 13: // scope_outro: "}"
-#line 116 "../Language/lang.y"
-                                                                                                { /* empty */ }
+  case 6: // inside_scope: inside_scope function_assignment
+#line 109 "../Language/lang.y"
+                                                                        { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 865 "lang.tab.cc"
     break;
 
-  case 14: // if_while: "if" "(" condition ")" scope
-#line 120 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < ScopeNodeInterface* > ()); }
+  case 7: // inside_scope: inside_scope return
+#line 110 "../Language/lang.y"
+                                                                                        { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 871 "lang.tab.cc"
     break;
 
-  case 15: // if_while: "while" "(" condition ")" scope
-#line 121 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < ScopeNodeInterface* > ()); }
+  case 8: // inside_scope: inside_scope exprLvl1 ";"
+#line 111 "../Language/lang.y"
+                                                                        { globalCurrentScope->AddNode (yystack_[1].value.as < NodeInterface* > ()); }
 #line 877 "lang.tab.cc"
     break;
 
-  case 16: // condition: exprLvl1 ">" exprLvl1
-#line 125 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 9: // inside_scope: inside_scope syscall
+#line 112 "../Language/lang.y"
+                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 883 "lang.tab.cc"
     break;
 
-  case 17: // condition: exprLvl1 ">=" exprLvl1
-#line 126 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 10: // inside_scope: inside_scope if_while
+#line 113 "../Language/lang.y"
+                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
 #line 889 "lang.tab.cc"
     break;
 
-  case 18: // condition: exprLvl1 "<" exprLvl1
-#line 127 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 11: // inside_scope: inside_scope scope
+#line 114 "../Language/lang.y"
+                                                                                        { globalCurrentScope->AddNode (yystack_[0].value.as < ScopeNodeInterface* > ()); }
 #line 895 "lang.tab.cc"
     break;
 
-  case 19: // condition: exprLvl1 "<=" exprLvl1
-#line 128 "../Language/lang.y"
-                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 12: // inside_scope: %empty
+#line 115 "../Language/lang.y"
+                                                                                                        { /* empty */ }
 #line 901 "lang.tab.cc"
     break;
 
-  case 20: // condition: exprLvl1 "==" exprLvl1
-#line 129 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 13: // scope_outro: "}"
+#line 119 "../Language/lang.y"
+                                                                                                { /* empty */ }
 #line 907 "lang.tab.cc"
     break;
 
-  case 21: // condition: exprLvl1 "!=" exprLvl1
-#line 130 "../Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+  case 14: // if_while: "if" "(" condition ")" scope
+#line 123 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < ScopeNodeInterface* > ()); }
 #line 913 "lang.tab.cc"
     break;
 
-  case 22: // condition: exprLvl1
-#line 131 "../Language/lang.y"
-                                                                        { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
+  case 15: // if_while: "while" "(" condition ")" scope
+#line 124 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < ScopeNodeInterface* > ()); }
 #line 919 "lang.tab.cc"
     break;
 
+  case 16: // condition: exprLvl1 ">" exprLvl1
+#line 128 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+#line 925 "lang.tab.cc"
+    break;
+
+  case 17: // condition: exprLvl1 ">=" exprLvl1
+#line 129 "../Language/lang.y"
+                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_GREATER_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+#line 931 "lang.tab.cc"
+    break;
+
+  case 18: // condition: exprLvl1 "<" exprLvl1
+#line 130 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+#line 937 "lang.tab.cc"
+    break;
+
+  case 19: // condition: exprLvl1 "<=" exprLvl1
+#line 131 "../Language/lang.y"
+                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_LESS_OR_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+#line 943 "lang.tab.cc"
+    break;
+
+  case 20: // condition: exprLvl1 "==" exprLvl1
+#line 132 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+#line 949 "lang.tab.cc"
+    break;
+
+  case 21: // condition: exprLvl1 "!=" exprLvl1
+#line 133 "../Language/lang.y"
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_NOT_EQ, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
+#line 955 "lang.tab.cc"
+    break;
+
+  case 22: // condition: exprLvl1
+#line 134 "../Language/lang.y"
+                                                                        { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
+#line 961 "lang.tab.cc"
+    break;
+
   case 23: // assignment: TEXT "=" exprLvl1 ";"
-#line 135 "../Language/lang.y"
+#line 138 "../Language/lang.y"
                                                         { 	
 											globalCurrentScope->SetVariable (*(yystack_[3].value.as < std::string* > ()), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[3].value.as < std::string* > ()));
 											delete yystack_[3].value.as < std::string* > ();
 								  			yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[1].value.as < NodeInterface* > ());
 										}
-#line 930 "lang.tab.cc"
+#line 972 "lang.tab.cc"
     break;
 
   case 24: // assignment: TEXT "=" scope
-#line 141 "../Language/lang.y"
+#line 144 "../Language/lang.y"
                                                                 { 
 											globalCurrentScope->SetVariable (*(yystack_[2].value.as < std::string* > ()), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as < std::string* > ()));
 											delete yystack_[2].value.as < std::string* > ();
 								  			yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[0].value.as < ScopeNodeInterface* > ());
 										}
-#line 941 "lang.tab.cc"
-    break;
-
-  case 25: // function_assignment: TEXT "=" function_header scope
-#line 150 "../Language/lang.y"
-                                                                        { /* TODO */ }
-#line 947 "lang.tab.cc"
-    break;
-
-  case 26: // function_header: "func" arg_list
-#line 154 "../Language/lang.y"
-                                                                                        { /* TODO */ }
-#line 953 "lang.tab.cc"
-    break;
-
-  case 27: // function_header: "func" arg_list ":" TEXT
-#line 155 "../Language/lang.y"
-                                                                                { /* TODO */ }
-#line 959 "lang.tab.cc"
-    break;
-
-  case 28: // arg_list: "(" arg_list_inside ")"
-#line 159 "../Language/lang.y"
-                                                                { /* TODO */ }
-#line 965 "lang.tab.cc"
-    break;
-
-  case 29: // arg_list: "(" ")"
-#line 160 "../Language/lang.y"
-                                                                                { /* TODO */ }
-#line 971 "lang.tab.cc"
-    break;
-
-  case 30: // arg_list_inside: TEXT
-#line 164 "../Language/lang.y"
-                                                                                                { /* TODO */ }
-#line 977 "lang.tab.cc"
-    break;
-
-  case 31: // arg_list_inside: TEXT "," arg_list_inside
-#line 165 "../Language/lang.y"
-                                                                                { /* TODO */ }
 #line 983 "lang.tab.cc"
     break;
 
-  case 32: // return: "return" exprLvl1 ";"
+  case 25: // function_assignment: TEXT "=" function_header scope
+#line 153 "../Language/lang.y"
+                                                                        { 
+														NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*(yystack_[3].value.as < std::string* > ()), yystack_[0].value.as < ScopeNodeInterface* > ());
+														delete yystack_[3].value.as < std::string* > ();
+														yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, nullptr);
+													}
+#line 993 "lang.tab.cc"
+    break;
+
+  case 26: // function_header: "func" arg_list
+#line 161 "../Language/lang.y"
+                                                                                        { /* TODO */ }
+#line 999 "lang.tab.cc"
+    break;
+
+  case 27: // function_header: "func" arg_list ":" TEXT
+#line 162 "../Language/lang.y"
+                                                                                { 
+														yylhs.value.as < std::string > () = *(yystack_[0].value.as < std::string* > ());
+														delete yystack_[0].value.as < std::string* > ();
+													}
+#line 1008 "lang.tab.cc"
+    break;
+
+  case 28: // arg_list: "(" arg_list_inside ")"
 #line 169 "../Language/lang.y"
+                                                                { /* TODO */ }
+#line 1014 "lang.tab.cc"
+    break;
+
+  case 29: // arg_list: "(" ")"
+#line 170 "../Language/lang.y"
                                                                                 { /* TODO */ }
-#line 989 "lang.tab.cc"
+#line 1020 "lang.tab.cc"
+    break;
+
+  case 30: // arg_list_inside: TEXT
+#line 174 "../Language/lang.y"
+                                                                                                { /* TODO */ }
+#line 1026 "lang.tab.cc"
+    break;
+
+  case 31: // arg_list_inside: TEXT "," arg_list_inside
+#line 175 "../Language/lang.y"
+                                                                                { /* TODO */ }
+#line 1032 "lang.tab.cc"
+    break;
+
+  case 32: // return: "return" exprLvl1 ";"
+#line 179 "../Language/lang.y"
+                                                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateReturnNode (yystack_[1].value.as < NodeInterface* > ()); }
+#line 1038 "lang.tab.cc"
     break;
 
   case 33: // syscall: "print" exprLvl1 ";"
-#line 173 "../Language/lang.y"
-                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[1].value.as < NodeInterface* > ()); }
-#line 995 "lang.tab.cc"
+#line 183 "../Language/lang.y"
+                                                                                { yylhs.value.as < NodeInterface* > () = NodeInterface::CreatePrintNode (yystack_[1].value.as < NodeInterface* > ()); }
+#line 1044 "lang.tab.cc"
     break;
 
   case 34: // exprLvl1: exprLvl2 "+" exprLvl1
-#line 177 "../Language/lang.y"
+#line 187 "../Language/lang.y"
                                 { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
-#line 1001 "lang.tab.cc"
+#line 1050 "lang.tab.cc"
     break;
 
   case 35: // exprLvl1: exprLvl2 "-" exprLvl1
-#line 178 "../Language/lang.y"
+#line 188 "../Language/lang.y"
                                 { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
-#line 1007 "lang.tab.cc"
+#line 1056 "lang.tab.cc"
     break;
 
   case 36: // exprLvl1: exprLvl2
-#line 179 "../Language/lang.y"
+#line 189 "../Language/lang.y"
                                                 { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
-#line 1013 "lang.tab.cc"
+#line 1062 "lang.tab.cc"
     break;
 
   case 37: // exprLvl2: exprLvl3 "*" exprLvl2
-#line 183 "../Language/lang.y"
+#line 193 "../Language/lang.y"
                                 { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
-#line 1019 "lang.tab.cc"
+#line 1068 "lang.tab.cc"
     break;
 
   case 38: // exprLvl2: exprLvl3 "/" exprLvl2
-#line 184 "../Language/lang.y"
+#line 194 "../Language/lang.y"
                                 { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < NodeInterface* > ()); }
-#line 1025 "lang.tab.cc"
+#line 1074 "lang.tab.cc"
     break;
 
   case 39: // exprLvl2: exprLvl3
-#line 185 "../Language/lang.y"
+#line 195 "../Language/lang.y"
                                                 { yylhs.value.as < NodeInterface* > () = yystack_[0].value.as < NodeInterface* > (); }
-#line 1031 "lang.tab.cc"
+#line 1080 "lang.tab.cc"
     break;
 
   case 40: // exprLvl3: "(" exprLvl1 ")"
-#line 189 "../Language/lang.y"
+#line 199 "../Language/lang.y"
                                             { yylhs.value.as < NodeInterface* > () = yystack_[1].value.as < NodeInterface* > (); }
-#line 1037 "lang.tab.cc"
+#line 1086 "lang.tab.cc"
     break;
 
   case 41: // exprLvl3: NUMBER
-#line 190 "../Language/lang.y"
+#line 200 "../Language/lang.y"
                                                                         { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateValueNode (yystack_[0].value.as < NumberType > ()); }
-#line 1043 "lang.tab.cc"
+#line 1092 "lang.tab.cc"
     break;
 
   case 42: // exprLvl3: TEXT
-#line 191 "../Language/lang.y"
+#line 201 "../Language/lang.y"
                                                                         { 	
 											try {
 												globalCurrentScope->GetVariable (*(yystack_[0].value.as < std::string* > ()));
@@ -1054,47 +1103,47 @@ namespace yy {
 											yylhs.value.as < NodeInterface* > () = NodeInterface::CreateVariableNode (*(yystack_[0].value.as < std::string* > ()));
 											delete yystack_[0].value.as < std::string* > (); 
 										}
-#line 1058 "lang.tab.cc"
+#line 1107 "lang.tab.cc"
     break;
 
   case 43: // exprLvl3: "?"
-#line 201 "../Language/lang.y"
+#line 211 "../Language/lang.y"
                                                                         { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateScanNode (); }
-#line 1064 "lang.tab.cc"
+#line 1113 "lang.tab.cc"
     break;
 
   case 44: // exprLvl3: TEXT call_arg_list
-#line 202 "../Language/lang.y"
+#line 212 "../Language/lang.y"
                                                                 { /* TODO */ }
-#line 1070 "lang.tab.cc"
+#line 1119 "lang.tab.cc"
     break;
 
   case 45: // call_arg_list: "(" call_arg_list_inside ")"
-#line 206 "../Language/lang.y"
+#line 216 "../Language/lang.y"
                                                         { /* TODO */ }
-#line 1076 "lang.tab.cc"
+#line 1125 "lang.tab.cc"
     break;
 
   case 46: // call_arg_list: "(" ")"
-#line 207 "../Language/lang.y"
+#line 217 "../Language/lang.y"
                                                                                 { /* TODO */ }
-#line 1082 "lang.tab.cc"
+#line 1131 "lang.tab.cc"
     break;
 
   case 47: // call_arg_list_inside: exprLvl1
-#line 211 "../Language/lang.y"
+#line 221 "../Language/lang.y"
                                                                                                 { /* TODO */ }
-#line 1088 "lang.tab.cc"
+#line 1137 "lang.tab.cc"
     break;
 
   case 48: // call_arg_list_inside: exprLvl1 "," arg_list_inside
-#line 212 "../Language/lang.y"
+#line 222 "../Language/lang.y"
                                                                         { /* TODO */ }
-#line 1094 "lang.tab.cc"
+#line 1143 "lang.tab.cc"
     break;
 
 
-#line 1098 "lang.tab.cc"
+#line 1147 "lang.tab.cc"
 
             default:
               break;
@@ -1452,11 +1501,11 @@ namespace yy {
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    93,    93,    94,    98,   105,   106,   107,   108,   109,
-     110,   111,   112,   116,   120,   121,   125,   126,   127,   128,
-     129,   130,   131,   135,   141,   150,   154,   155,   159,   160,
-     164,   165,   169,   173,   177,   178,   179,   183,   184,   185,
-     189,   190,   191,   201,   202,   206,   207,   211,   212
+       0,    96,    96,    97,   101,   108,   109,   110,   111,   112,
+     113,   114,   115,   119,   123,   124,   128,   129,   130,   131,
+     132,   133,   134,   138,   144,   153,   161,   162,   169,   170,
+     174,   175,   179,   183,   187,   188,   189,   193,   194,   195,
+     199,   200,   201,   211,   212,   216,   217,   221,   222
   };
 
   void
@@ -1537,9 +1586,9 @@ namespace yy {
   }
 
 } // yy
-#line 1541 "lang.tab.cc"
+#line 1590 "lang.tab.cc"
 
-#line 215 "../Language/lang.y"
+#line 225 "../Language/lang.y"
 
 
 namespace yy {

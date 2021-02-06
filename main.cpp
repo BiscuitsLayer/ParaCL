@@ -9,6 +9,7 @@
 #include "Language/Lang.hpp"
 
 ScopeNodeInterface* globalCurrentScope = nullptr;
+FunctionSymTable* globalFunctionSymTable = nullptr;
 
 int main (int argc, char** argv) {
 	std::ifstream infile { argv[1] };

@@ -75,6 +75,9 @@
 /* Объявление нетерминалов */
 %nterm <NodeInterface*> exprLvl1 exprLvl2 exprLvl3
 %nterm <NodeInterface*> assignment
+%nterm <NodeInterface*> function_assignment
+%nterm <std::string> function_header
+%nterm <NodeInterface*> return
 %nterm <NodeInterface*> syscall
 %nterm <NodeInterface*> condition
 %nterm <NodeInterface*> if_while
@@ -103,9 +106,9 @@ scope_entry:
 
 inside_scope:
 	inside_scope assignment 						{ globalCurrentScope->AddNode ($2); }
-|	inside_scope function_assignment				{ /* TODO */ }
-|	inside_scope return								{ /* TODO */ }
-|	inside_scope exprLvl1 SCOLON					{ /* TODO */ }
+|	inside_scope function_assignment				{ globalCurrentScope->AddNode ($2); }
+|	inside_scope return								{ globalCurrentScope->AddNode ($2); }
+|	inside_scope exprLvl1 SCOLON					{ globalCurrentScope->AddNode ($2); }
 |	inside_scope syscall 							{ globalCurrentScope->AddNode ($2); }
 |	inside_scope if_while							{ globalCurrentScope->AddNode ($2); }
 |	inside_scope scope								{ globalCurrentScope->AddNode ($2); }
@@ -147,12 +150,19 @@ assignment:
 ;
 
 function_assignment:
-	TEXT ASSIGN function_header scope				{ /* TODO */ }
+	TEXT ASSIGN function_header scope				{ 
+														NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1), $4);
+														delete $1;
+														$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, nullptr);
+													}
 ;
 
 function_header:
 	FUNC arg_list 									{ /* TODO */ }
-|	FUNC arg_list COLON	TEXT						{ /* TODO */ }
+|	FUNC arg_list COLON	TEXT						{ 
+														$$ = *($4);
+														delete $4;
+													}
 ;
 
 arg_list:
@@ -166,11 +176,11 @@ arg_list_inside:
 ;
 
 return:
-	RETURN exprLvl1 SCOLON							{ /* TODO */ }
+	RETURN exprLvl1 SCOLON							{ $$ = NodeInterface::CreateReturnNode ($2); }
 ;
 
 syscall:
-	PRINT exprLvl1 SCOLON	{ $$ = NodeInterface::CreatePrintNode ($2); }
+	PRINT exprLvl1 SCOLON							{ $$ = NodeInterface::CreatePrintNode ($2); }
 ;
 
 exprLvl1:

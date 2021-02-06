@@ -382,6 +382,8 @@ namespace yy {
       // if_while
       // condition
       // assignment
+      // function_assignment
+      // return
       // syscall
       // exprLvl1
       // exprLvl2
@@ -394,8 +396,11 @@ namespace yy {
       // scope
       char dummy3[sizeof (ScopeNodeInterface*)];
 
+      // function_header
+      char dummy4[sizeof (std::string)];
+
       // TEXT
-      char dummy4[sizeof (std::string*)];
+      char dummy5[sizeof (std::string*)];
     };
 
     /// The size of the largest semantic type.
@@ -582,6 +587,8 @@ namespace yy {
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -595,6 +602,10 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.move< ScopeNodeInterface* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.move< std::string > (std::move (that.value));
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -667,6 +678,20 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::string&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::string& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::string*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -706,6 +731,8 @@ switch (yykind)
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
       case symbol_kind::S_exprLvl2: // exprLvl2
@@ -719,6 +746,10 @@ switch (yykind)
 
       case symbol_kind::S_scope: // scope
         value.template destroy< ScopeNodeInterface* > ();
+        break;
+
+      case symbol_kind::S_function_header: // function_header
+        value.template destroy< std::string > ();
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -1667,7 +1698,7 @@ switch (yykind)
 
 
 } // yy
-#line 1671 "lang.tab.hh"
+#line 1702 "lang.tab.hh"
 
 
 

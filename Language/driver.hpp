@@ -9,6 +9,7 @@
 #include "../Language/SyntaxCheck.hpp"
 
 extern ScopeNodeInterface* globalCurrentScope;
+extern FunctionSymTable* globalFunctionSymTable;
 
 namespace yy {
 
@@ -31,12 +32,14 @@ namespace yy {
                 lexer_ (new SyntaxCheck)
                 {
                     globalCurrentScope = ScopeNodeInterface::CreateScopeNode (nullptr);
+                    globalFunctionSymTable = new FunctionSymTable ();
                     lexer_->switch_streams (infile, OUTSTREAM);
                 }
 
             //  DTOR
             ~LangDriver () {
                 delete globalCurrentScope;
+                delete globalFunctionSymTable;
                 delete lexer_;
             }
     };
