@@ -37,8 +37,17 @@ class FunctionSymTable final {
         std::vector <ScopeNodeInterface*> unnamedData_ {};
     public:
         //  METHODS
+        bool GetFunction (const std::string& functionName) const {
+            auto search = namedData_.find (functionName);
+            if (search == namedData_.end ()) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
         bool ExecuteFunction (const std::variant <int, std::string>& id, NumberType& result) const {
-            try {
+            if (std::holds_alternative <std::string> (id)) {
                 auto search = namedData_.find (std::get <std::string> (id));
                 if (search == namedData_.end ()) {
                     return false;
@@ -48,7 +57,7 @@ class FunctionSymTable final {
                     return true;
                 }
             }
-            catch (const std::bad_variant_access&) {
+            else {
                 if (unnamedData_.size () <= std::get <int> (id)) {
                     return false;
                 }
@@ -58,8 +67,8 @@ class FunctionSymTable final {
                 }
             }
         }
-        bool SetFunction (std::variant <int, std::string>& id, ScopeNodeInterface* scope) {
-            try {
+        bool SetFunction (const std::variant <int, std::string>& id, ScopeNodeInterface* scope) {
+            if (std::holds_alternative <std::string> (id)) {
                 auto search = namedData_.find (std::get <std::string> (id));
                 if (search == namedData_.end ()) {
                     return false;
@@ -69,13 +78,13 @@ class FunctionSymTable final {
                     return true;
                 }
             }
-            catch (const std::bad_variant_access&) {
+            else {
                 unnamedData_[std::get <int> (id)] = scope;
                 return true;
             }
         }
         bool AddFunction (std::variant <int, std::string>& id, ScopeNodeInterface* scope) {
-            try {
+            if (std::holds_alternative <std::string> (id)) {
                 auto search = namedData_.find (std::get <std::string> (id));
                 if (search != namedData_.end ()) {
                     return false;
@@ -85,7 +94,7 @@ class FunctionSymTable final {
                     return true;
                 }
             }
-            catch (const std::bad_variant_access&) {
+            else {
                 static int unnamedIdx = 0;
                 id = unnamedIdx++;
                 unnamedData_.push_back (scope);
@@ -117,14 +126,27 @@ class FunctionVariableSymTable final {
         std::unordered_map <std::string, std::variant <int, std::string>> data_ {};
     public:
         //  METHODS
-        bool ExecuteFunctionVariable (const std::string& variableName, NumberType& value) const {
-            auto search = data_.find (variableName);
-            if (search == data_.end ()) {
+        bool GetFunctionVariable (const std::string& name) const {
+            auto search = data_.find (name);
+            if (search == data_.end () && !globalFunctionSymTable->GetFunction (name)) {
                 return false;
             }
             else {
+                return true;
+            }
+        }
+        bool ExecuteFunctionVariable (const std::string& name, NumberType& value) const {
+            auto search = data_.find (name);
+            if (search != data_.end ()) {
                 globalFunctionSymTable->ExecuteFunction (search->second, value);
                 return true;
+            }
+            else if (globalFunctionSymTable->GetFunction (name)) {
+                globalFunctionSymTable->ExecuteFunction ({ name }, value);
+                return true;
+            }
+            else {
+                return false;
             }
         }
         bool SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") {
@@ -134,12 +156,7 @@ class FunctionVariableSymTable final {
             }
             else {
                 std::variant <int, std::string> ans {};
-                if (hasFunctionName) {
-                    ans = functionName;
-                }
-                else {
-                    ans = poisonFunctionIdx;
-                }
+                ans = search->second;
                 globalFunctionSymTable->SetFunction (ans, scope);
                 search->second = ans;
                 return true;
@@ -173,29 +190,6 @@ class FunctionVariableSymTable final {
         ~FunctionVariableSymTable () = default;
 };
 
-class ReturnNode final : public NodeInterface {
-    private:
-        NodeInterface* child_ = nullptr;
-    public:
-        //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override {
-            //  FIXME
-            // NumberType returnValue = child_->Execute ();
-            // now skip, later we will throw exception and do return in ScopeNode::Execute ();
-            return child_->Execute ();
-        }
-        void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
-
-        //  CTOR
-        ReturnNode (NodeInterface* child):
-            NodeInterface (NodeType::PRINT),
-            child_ (child)
-            {}
-
-        //  DTOR
-        ~ReturnNode () { delete child_; }
-};
-
 class ScopeNode final : public ScopeNodeInterface {
     private:
         std::vector <NodeInterface*> branches_ {};
@@ -210,7 +204,19 @@ class ScopeNode final : public ScopeNodeInterface {
         void AddNode (NodeInterface* node) override { branches_.push_back (node); }
         NumberType GetVariable (const std::string& name) const override;
         void SetVariable (const std::string& name, NumberType value) override;
-        NumberType GetFunctionVariable (const std::string& variableName) const override {
+        void GetFunctionVariable (const std::string& variableName) const override {
+            const ScopeNode* cur = this;
+            NumberType value = 0;
+            while (!cur->functionVariableTable_.GetFunctionVariable (variableName)) {
+                if (cur->previous_) {
+                    cur = static_cast <ScopeNode*> (cur->previous_);
+                }
+                else {
+                    throw std::invalid_argument ("Wrong name of function variable!");
+                }
+            }
+        }
+        NumberType ExecuteFunctionVariable (const std::string& variableName) const override {
             const ScopeNode* cur = this;
             NumberType value = 0;
             while (!cur->functionVariableTable_.ExecuteFunctionVariable (variableName, value)) {
@@ -305,8 +311,8 @@ class FunctionVariableNode final : public NodeInterface {
         mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { value_ = globalCurrentScope->GetFunctionVariable (variableName_); return value_; }
-        void Dump (std::ostream &stream) const override { stream << variableName_ << "() {" << value_ << "}"; }
+        NumberType Execute () const override { value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_); return value_; }
+        void Dump (std::ostream &stream) const override { stream << variableName_ << " () {" << value_ << "}"; }
 
         //  EXTRA METHOD
         void Assign (ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") { 
@@ -322,6 +328,40 @@ class FunctionVariableNode final : public NodeInterface {
 
         //  DTOR
         ~FunctionVariableNode () = default;
+};
+
+class ReturnPerformer {
+    private:
+        /* empty */
+    public:
+        NumberType value_ = 0;
+        ReturnPerformer (NumberType value):
+            value_ (value)
+            {}
+};
+
+class ReturnNode final : public NodeInterface {
+    private:
+        NodeInterface* child_ = nullptr;
+    public:
+        //  METHODS FROM NODE INTERFACE
+        NumberType Execute () const override {
+            //  FIXME
+            // NumberType returnValue = child_->Execute ();
+            // now skip, later we will throw exception and do return in ScopeNode::Execute ();
+            NumberType value = child_->Execute ();
+            throw ReturnPerformer (value);
+        }
+        void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
+
+        //  CTOR
+        ReturnNode (NodeInterface* child):
+            NodeInterface (NodeType::PRINT),
+            child_ (child)
+            {}
+
+        //  DTOR
+        ~ReturnNode () { delete child_; }
 };
 
 class BinaryOpNode final : public NodeInterface {
@@ -344,7 +384,12 @@ class BinaryOpNode final : public NodeInterface {
             {}
         
         //  DTOR
-        ~BinaryOpNode () { delete leftChild_; delete rightChild_; }
+        ~BinaryOpNode () { 
+            delete leftChild_;
+            if (type_ != NodeType::BINARY_OP_FUNCTION_ASSIGN) {
+                delete rightChild_; 
+            }
+        }
 };
 
 class IfNode final : public NodeInterface {

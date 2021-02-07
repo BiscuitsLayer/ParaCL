@@ -82,7 +82,8 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void AddNode (NodeInterface* node) = 0;
         virtual NumberType GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, NumberType value) = 0;
-        virtual NumberType GetFunctionVariable (const std::string& variableName) const = 0;
+        virtual void GetFunctionVariable (const std::string& variableName) const = 0;
+        virtual NumberType ExecuteFunctionVariable (const std::string& variableName) const = 0;
         virtual void SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
         virtual void Entry () const = 0;
         virtual void Return () const = 0;

@@ -35,13 +35,16 @@ bool VariableSymTable::AddVariable (const std::string& name, NumberType value) {
 
 NumberType ScopeNode::Execute () const {
     NumberType returnValue = 0;
-    for (auto branch : branches_) {
+    for (int i = 0; i < branches_.size (); ++i) {
         try {
-            returnValue = branch->Execute ();
-        } 
+            returnValue = branches_[i]->Execute ();
+        }
+        catch (ReturnPerformer &returnPerformer) {
+            return returnPerformer.value_;
+        }
         catch (std::overflow_error& ex) {
             ERRSTREAM << ex.what () << std::endl;
-            branch->Dump (OUTSTREAM);
+            branches_[i]->Dump (OUTSTREAM);
             OUTSTREAM << std::endl;
             exit (ErrorCodes::ERROR_OVF);
         }
@@ -111,8 +114,9 @@ NumberType BinaryOpNode::Execute () const {
         }
         case NodeType::BINARY_OP_FUNCTION_ASSIGN: {
             FunctionVariableNode* leftChildAsFunctionVariable = static_cast <FunctionVariableNode*> (leftChild_);
-            //leftChildAsFunctionVariable->Assign ();
-            //You need to get scope, hasName and functionName from right child
+            ScopeNodeInterface* rightChildAsScopeInterface = static_cast <ScopeNodeInterface*> (rightChild_);
+            leftChildAsFunctionVariable->Assign (rightChildAsScopeInterface);
+            //You need to get hasName and functionName from right child later
             return 0;
             break;
         }
@@ -196,7 +200,12 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
             break;
         }
         case NodeType::BINARY_OP_FUNCTION_ASSIGN: {
-            //TODO
+            stream << "(";
+            leftChild_->Dump (stream);
+            stream << " = ";
+            rightChild_->Dump (stream);
+            stream << ")";
+            break;
         }
         case NodeType::BINARY_OP_GREATER: {
             stream << "(";

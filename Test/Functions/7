@@ -3,4 +3,15 @@ f1 = func () {
     y = 2;
     x + y;
 }
+f2 = func () : f2Name {
+    x = 2;
+    y = 2;
+    return 7;
+    x + y;
+}
+print 500;
 print f1 ();
+print 500;
+print f2 ();
+print 500;
+print f2Name ();

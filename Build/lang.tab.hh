@@ -396,11 +396,8 @@ namespace yy {
       // scope
       char dummy3[sizeof (ScopeNodeInterface*)];
 
-      // function_header
-      char dummy4[sizeof (std::string)];
-
       // TEXT
-      char dummy5[sizeof (std::string*)];
+      char dummy4[sizeof (std::string*)];
     };
 
     /// The size of the largest semantic type.
@@ -537,16 +534,15 @@ namespace yy {
         S_condition = 40,                        // condition
         S_assignment = 41,                       // assignment
         S_function_assignment = 42,              // function_assignment
-        S_function_header = 43,                  // function_header
-        S_arg_list = 44,                         // arg_list
-        S_arg_list_inside = 45,                  // arg_list_inside
-        S_return = 46,                           // return
-        S_syscall = 47,                          // syscall
-        S_exprLvl1 = 48,                         // exprLvl1
-        S_exprLvl2 = 49,                         // exprLvl2
-        S_exprLvl3 = 50,                         // exprLvl3
-        S_call_arg_list = 51,                    // call_arg_list
-        S_call_arg_list_inside = 52              // call_arg_list_inside
+        S_arg_list = 43,                         // arg_list
+        S_arg_list_inside = 44,                  // arg_list_inside
+        S_return = 45,                           // return
+        S_syscall = 46,                          // syscall
+        S_exprLvl1 = 47,                         // exprLvl1
+        S_exprLvl2 = 48,                         // exprLvl2
+        S_exprLvl3 = 49,                         // exprLvl3
+        S_call_arg_list = 50,                    // call_arg_list
+        S_call_arg_list_inside = 51              // call_arg_list_inside
       };
     };
 
@@ -602,10 +598,6 @@ namespace yy {
 
       case symbol_kind::S_scope: // scope
         value.move< ScopeNodeInterface* > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_function_header: // function_header
-        value.move< std::string > (std::move (that.value));
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -678,20 +670,6 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::string&& v, location_type&& l)
-        : Base (t)
-        , value (std::move (v))
-        , location (std::move (l))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::string& v, const location_type& l)
-        : Base (t)
-        , value (v)
-        , location (l)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::string*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -746,10 +724,6 @@ switch (yykind)
 
       case symbol_kind::S_scope: // scope
         value.template destroy< ScopeNodeInterface* > ();
-        break;
-
-      case symbol_kind::S_function_header: // function_header
-        value.template destroy< std::string > ();
         break;
 
       case symbol_kind::S_TEXT: // TEXT
@@ -1685,8 +1659,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 101,     ///< Last index in yytable_.
-      yynnts_ = 19,  ///< Number of nonterminal symbols.
+      yylast_ = 95,     ///< Last index in yytable_.
+      yynnts_ = 18,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
 
@@ -1698,7 +1672,7 @@ switch (yykind)
 
 
 } // yy
-#line 1702 "lang.tab.hh"
+#line 1676 "lang.tab.hh"
 
 
 

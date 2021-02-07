@@ -76,7 +76,6 @@
 %nterm <NodeInterface*> exprLvl1 exprLvl2 exprLvl3
 %nterm <NodeInterface*> assignment
 %nterm <NodeInterface*> function_assignment
-%nterm <std::string> function_header
 %nterm <NodeInterface*> return
 %nterm <NodeInterface*> syscall
 %nterm <NodeInterface*> condition
@@ -150,19 +149,19 @@ assignment:
 ;
 
 function_assignment:
-	TEXT ASSIGN function_header scope				{ 
-														NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1));
-														delete $1;
-														$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, nullptr);
-													}
-;
-
-function_header:
-	FUNC arg_list 									{ /* TODO */ }
-|	FUNC arg_list COLON	TEXT						{ 
-														$$ = *($4);
-														delete $4;
-													}
+	TEXT ASSIGN FUNC arg_list scope				{ 
+													globalCurrentScope->SetFunctionVariable (*($1), nullptr);
+													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1));
+													delete $1;
+													$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, $5);
+												}
+|	TEXT ASSIGN FUNC arg_list COLON	TEXT scope	{ 
+													globalCurrentScope->SetFunctionVariable (*($1), nullptr, true, *($6));
+													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1));
+													delete $1;
+													delete $6;
+													$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, $7);
+												}
 ;
 
 arg_list:
@@ -209,7 +208,16 @@ exprLvl3:
 											delete $1; 
 										}
 |	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
-|	TEXT call_arg_list					{ /* TODO */ }
+|	TEXT call_arg_list					{ 
+											try {
+												globalCurrentScope->GetFunctionVariable (*($1));
+											}
+											catch (std::invalid_argument& ex) {
+												driver->PrintErrorAndExit (@1, "Undefined function variable!");
+											}
+											$$ = NodeInterface::CreateFunctionVariableNode (*($1));
+											delete $1; 
+										}
 ;
 
 call_arg_list:
