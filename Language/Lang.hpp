@@ -330,7 +330,46 @@ class FunctionVariableNode final : public NodeInterface {
         ~FunctionVariableNode () = default;
 };
 
-class ReturnPerformer {
+template <typename T>
+class ArgumentsListElement final {
+    private:
+        ArgumentsListElement <T>* previous_ = nullptr;
+        T data_ = T {};
+    public:
+        ArgumentsListElement (T& data, ArgumentsListElement <T>* previous):
+            previous_ (previous),
+            data_ (data)
+            {}
+        ArgumentsListElement <T>* GetPrevious () const {
+            return previous_;
+        }
+        T GetData () const {
+            return data_;
+        }
+};
+
+//TODO переместить или нет?
+using ALE_string = ArgumentsListElement <std::string>;
+using ALE_expression = ArgumentsListElement <NodeInterface*>;
+
+class FunctionBodyNode final : public NodeInterface {
+    private:
+        ALE_expression* arguments_ = nullptr;
+        ScopeNodeInterface* scope_ = nullptr;
+    public:
+        //  METHODS FROM NODE INTERFACE
+        NumberType Execute () const override {
+            while (arguments_->GetPrevious ()) {
+                //  execute arguments and push in scope's symtable
+            }
+        }
+        void Dump (std::ostream &stream) const override {  }
+
+        //CTOR
+
+};
+
+class ReturnPerformer final {
     private:
         /* empty */
     public:
@@ -346,9 +385,6 @@ class ReturnNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override {
-            //  FIXME
-            // NumberType returnValue = child_->Execute ();
-            // now skip, later we will throw exception and do return in ScopeNode::Execute ();
             NumberType value = child_->Execute ();
             throw ReturnPerformer (value);
         }

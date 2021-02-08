@@ -80,8 +80,15 @@
 %nterm <NodeInterface*> syscall
 %nterm <NodeInterface*> condition
 %nterm <NodeInterface*> if_while
+
 %nterm <ScopeNodeInterface*> scope
 %nterm <NodeInterface*> inside_scope
+
+%nterm <ALE_string*> arg_list
+%nterm <ALE_string*> arg_list_inside
+
+%nterm <ALE_expression*> call_arg_list
+%nterm <ALE_expression*> call_arg_list_inside
 
 /* Левоассоциативные и правоассоциативные лексемы */
 %left '+' '-'
@@ -165,13 +172,19 @@ function_assignment:
 ;
 
 arg_list:
-	LPARENTHESES arg_list_inside RPARENTHESES		{ /* TODO */ }
-|	LPARENTHESES RPARENTHESES						{ /* TODO */ }
+	LPARENTHESES arg_list_inside RPARENTHESES		{ $$ = $2; }
+|	LPARENTHESES RPARENTHESES						{ /* empty */ }
 ;
 
 arg_list_inside:
-	TEXT 											{ /* TODO */ }
-|	TEXT COMMA arg_list_inside						{ /* TODO */ }
+	TEXT 											{ 	
+														$$ = new ALE_string (*($1), nullptr);
+														delete $1;
+													}
+|	TEXT COMMA arg_list_inside						{ 	
+														$$ = new ALE_string (*($1), $3);
+														delete $1;
+													}
 ;
 
 return:
@@ -221,13 +234,13 @@ exprLvl3:
 ;
 
 call_arg_list:
-	LPARENTHESES call_arg_list_inside RPARENTHESES	{ /* TODO */ }
-|	LPARENTHESES RPARENTHESES						{ /* TODO */ }
+	LPARENTHESES call_arg_list_inside RPARENTHESES	{ $$ = $2; }
+|	LPARENTHESES RPARENTHESES						{ /* empty */ }
 ;
 
 call_arg_list_inside:
-	exprLvl1 										{ /* TODO */ }
-|	exprLvl1 COMMA arg_list_inside					{ /* TODO */ }
+	exprLvl1 										{ $$ = new ALE_expression ($1, nullptr); }
+|	exprLvl1 COMMA call_arg_list_inside				{ $$ = new ALE_expression ($1, $3); }
 ;	
 
 %%

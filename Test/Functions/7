@@ -3,7 +3,7 @@ f1 = func () {
     y = 2;
     x + y;
 }
-f2 = func () : f2Name {
+f2 = func (x, y, z) : f2Name {
     x = 2;
     y = 2;
     return 7;

@@ -378,6 +378,14 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // call_arg_list
+      // call_arg_list_inside
+      char dummy1[sizeof (ALE_expression*)];
+
+      // arg_list
+      // arg_list_inside
+      char dummy2[sizeof (ALE_string*)];
+
       // inside_scope
       // if_while
       // condition
@@ -388,16 +396,16 @@ namespace yy {
       // exprLvl1
       // exprLvl2
       // exprLvl3
-      char dummy1[sizeof (NodeInterface*)];
+      char dummy3[sizeof (NodeInterface*)];
 
       // NUMBER
-      char dummy2[sizeof (NumberType)];
+      char dummy4[sizeof (NumberType)];
 
       // scope
-      char dummy3[sizeof (ScopeNodeInterface*)];
+      char dummy5[sizeof (ScopeNodeInterface*)];
 
       // TEXT
-      char dummy4[sizeof (std::string*)];
+      char dummy6[sizeof (std::string*)];
     };
 
     /// The size of the largest semantic type.
@@ -579,6 +587,16 @@ namespace yy {
       {
         switch (this->kind ())
     {
+      case symbol_kind::S_call_arg_list: // call_arg_list
+      case symbol_kind::S_call_arg_list_inside: // call_arg_list_inside
+        value.move< ALE_expression* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_arg_list: // arg_list
+      case symbol_kind::S_arg_list_inside: // arg_list_inside
+        value.move< ALE_string* > (std::move (that.value));
+        break;
+
       case symbol_kind::S_inside_scope: // inside_scope
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
@@ -623,6 +641,34 @@ namespace yy {
 #else
       basic_symbol (typename Base::kind_type t, const location_type& l)
         : Base (t)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, ALE_expression*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const ALE_expression*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, ALE_string*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const ALE_string*& v, const location_type& l)
+        : Base (t)
+        , value (v)
         , location (l)
       {}
 #endif
@@ -705,6 +751,16 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
+      case symbol_kind::S_call_arg_list: // call_arg_list
+      case symbol_kind::S_call_arg_list_inside: // call_arg_list_inside
+        value.template destroy< ALE_expression* > ();
+        break;
+
+      case symbol_kind::S_arg_list: // arg_list
+      case symbol_kind::S_arg_list_inside: // arg_list_inside
+        value.template destroy< ALE_string* > ();
+        break;
+
       case symbol_kind::S_inside_scope: // inside_scope
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
@@ -1659,7 +1715,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 95,     ///< Last index in yytable_.
+      yylast_ = 96,     ///< Last index in yytable_.
       yynnts_ = 18,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
@@ -1672,7 +1728,7 @@ switch (yykind)
 
 
 } // yy
-#line 1676 "lang.tab.hh"
+#line 1732 "lang.tab.hh"
 
 
 
