@@ -13,8 +13,8 @@ NodeInterface* NodeInterface::CreateVariableNode (const std::string& name) {
     return new VariableNode (name);
 }
 
-NodeInterface* NodeInterface::CreateFunctionVariableNode (const std::string& variableName) { 
-    return new FunctionVariableNode (variableName); 
+NodeInterface* NodeInterface::CreateFunctionVariableNode (const std::string& variableName, ArgumentsListElement* arguments) { 
+    return new FunctionVariableNode (variableName, arguments); 
 }
 
 NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild) {

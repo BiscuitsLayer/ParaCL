@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <variant>
-#include <unordered_map>
+#include <map>
 #include <exception>
 
 //  INTERFACE
@@ -13,9 +13,15 @@
 extern ScopeNodeInterface* globalCurrentScope;
 const int poisonFunctionIdx = -1;
 
+using PairIS = std::pair <int, std::string>;
+using VariantIS = std::variant <int, std::string>;
+
+template <typename T, typename U>
+using VectorOfPair = std::vector <std::pair <T, U>>;
+
 class VariableSymTable final {
     private:
-        std::unordered_map <std::string, NumberType> data_ {};
+        std::map <std::string, NumberType> data_ {};
     public:
         //  METHODS
         bool GetVariableValue (const std::string& name, NumberType& value) const;
@@ -33,12 +39,13 @@ class VariableSymTable final {
 
 class FunctionSymTable final {
     private:
-        std::unordered_map <std::string, ScopeNodeInterface*> namedData_ {};
-        std::vector <ScopeNodeInterface*> unnamedData_ {};
+        std::map <PairIS, ScopeNodeInterface*> namedData_ {};
+        // first idx = id, second idx = arguments count
+        VectorOfPair <int, ScopeNodeInterface*> unnamedData_ {};
     public:
         //  METHODS
-        bool GetFunction (const std::string& functionName) const {
-            auto search = namedData_.find (functionName);
+        bool GetFunction (const std::string& functionName, int argumentsCount) const {
+            auto search = namedData_.find ({ argumentsCount, functionName });
             if (search == namedData_.end ()) {
                 return false;
             }
@@ -46,9 +53,10 @@ class FunctionSymTable final {
                 return true;
             }
         }
-        bool ExecuteFunction (const std::variant <int, std::string>& id, NumberType& result) const {
+        bool ExecuteFunction (const VariantIS& id, ArgumentsListElement* arguments, NumberType& result) const {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
             if (std::holds_alternative <std::string> (id)) {
-                auto search = namedData_.find (std::get <std::string> (id));
+                auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
                 if (search == namedData_.end ()) {
                     return false;
                 }
@@ -58,46 +66,47 @@ class FunctionSymTable final {
                 }
             }
             else {
-                if (unnamedData_.size () <= std::get <int> (id)) {
+                int numberId = std::get <int> (id);
+                if (unnamedData_.size () <= numberId || unnamedData_[numberId].first != argumentsCount) {
                     return false;
                 }
                 else {
-                    result = unnamedData_[std::get <int> (id)]->Execute ();
+                    result = unnamedData_[numberId].second->Execute ();
                     return true;
                 }
             }
         }
-        bool SetFunction (const std::variant <int, std::string>& id, ScopeNodeInterface* scope) {
+        bool SetFunction (const VariantIS& id, int argumentsCount, ScopeNodeInterface* scope) {
             if (std::holds_alternative <std::string> (id)) {
-                auto search = namedData_.find (std::get <std::string> (id));
+                auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
                 if (search == namedData_.end ()) {
                     return false;
                 }
                 else {
-                    namedData_[std::get <std::string> (id)] = scope;
+                    namedData_[{ argumentsCount, std::get <std::string> (id) }] = scope;
                     return true;
                 }
             }
             else {
-                unnamedData_[std::get <int> (id)] = scope;
+                unnamedData_[std::get <int> (id)].second = scope;
                 return true;
             }
         }
-        bool AddFunction (std::variant <int, std::string>& id, ScopeNodeInterface* scope) {
+        bool AddFunction (VariantIS& id, int argumentsCount, ScopeNodeInterface* scope) {
             if (std::holds_alternative <std::string> (id)) {
-                auto search = namedData_.find (std::get <std::string> (id));
+                auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
                 if (search != namedData_.end ()) {
                     return false;
                 }
                 else {
-                    namedData_[std::get <std::string> (id)] = scope;
+                    namedData_[{ argumentsCount, std::get <std::string> (id) }] = scope;
                     return true;
                 }
             }
             else {
                 static int unnamedIdx = 0;
                 id = unnamedIdx++;
-                unnamedData_.push_back (scope);
+                unnamedData_.push_back ({argumentsCount, scope});
                 return true;
             }
         }
@@ -113,8 +122,8 @@ class FunctionSymTable final {
             for (auto nameToScope : namedData_) {
                 delete nameToScope.second;
             }
-            for (auto scope : unnamedData_) {
-                delete scope;
+            for (auto pair : unnamedData_) {
+                delete pair.second;
             }
         }
 };
@@ -123,60 +132,64 @@ extern FunctionSymTable* globalFunctionSymTable;
 
 class FunctionVariableSymTable final {
     private:
-        std::unordered_map <std::string, std::variant <int, std::string>> data_ {};
+        std::map <PairIS, VariantIS> data_ {};
     public:
         //  METHODS
-        bool GetFunctionVariable (const std::string& name) const {
-            auto search = data_.find (name);
-            if (search == data_.end () && !globalFunctionSymTable->GetFunction (name)) {
+        bool GetFunctionVariable (const std::string& name, ArgumentsListElement* arguments) const {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            auto search = data_.find ({ argumentsCount, name });
+            if (search == data_.end () && !globalFunctionSymTable->GetFunction (name, argumentsCount)) {
                 return false;
             }
             else {
                 return true;
             }
         }
-        bool ExecuteFunctionVariable (const std::string& name, NumberType& value) const {
-            auto search = data_.find (name);
+        bool ExecuteFunctionVariable (const std::string& name, ArgumentsListElement* arguments, NumberType& value) const {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            auto search = data_.find ({ argumentsCount, name });
             if (search != data_.end ()) {
-                globalFunctionSymTable->ExecuteFunction (search->second, value);
+                globalFunctionSymTable->ExecuteFunction (search->second, arguments, value);
                 return true;
             }
-            else if (globalFunctionSymTable->GetFunction (name)) {
-                globalFunctionSymTable->ExecuteFunction ({ name }, value);
+            else if (globalFunctionSymTable->GetFunction (name, argumentsCount)) {
+                globalFunctionSymTable->ExecuteFunction ({ name }, arguments, value);
                 return true;
             }
             else {
                 return false;
             }
         }
-        bool SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") {
-            auto search = data_.find (variableName);
+        bool SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            auto search = data_.find ({ argumentsCount, variableName });
             if (search == data_.end ()) {
                 return false;
             }
             else {
                 std::variant <int, std::string> ans {};
                 ans = search->second;
-                globalFunctionSymTable->SetFunction (ans, scope);
+                globalFunctionSymTable->SetFunction (ans, argumentsCount, scope);
                 search->second = ans;
                 return true;
             }
         }
-        bool AddFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") {
-            auto search = data_.find (variableName);
+        bool AddFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            auto search = data_.find ({ argumentsCount, variableName });
             if (search != data_.end ()) {
                 return false;
             }
             else {
-                std::variant <int, std::string> ans {};
+                VariantIS ans {};
                 if (hasFunctionName) {
                     ans = functionName;
                 }
                 else {
                     ans = poisonFunctionIdx;
                 }
-                globalFunctionSymTable->AddFunction (ans, scope);
-                data_[variableName] = ans;
+                globalFunctionSymTable->AddFunction (ans, argumentsCount, scope);
+                data_[{ argumentsCount, variableName }] = ans;
                 return true;
             }
         }
@@ -204,10 +217,10 @@ class ScopeNode final : public ScopeNodeInterface {
         void AddNode (NodeInterface* node) override { branches_.push_back (node); }
         NumberType GetVariable (const std::string& name) const override;
         void SetVariable (const std::string& name, NumberType value) override;
-        void GetFunctionVariable (const std::string& variableName) const override {
+        void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const override {
             const ScopeNode* cur = this;
             NumberType value = 0;
-            while (!cur->functionVariableTable_.GetFunctionVariable (variableName)) {
+            while (!cur->functionVariableTable_.GetFunctionVariable (variableName, arguments)) {
                 if (cur->previous_) {
                     cur = static_cast <ScopeNode*> (cur->previous_);
                 }
@@ -216,10 +229,10 @@ class ScopeNode final : public ScopeNodeInterface {
                 }
             }
         }
-        NumberType ExecuteFunctionVariable (const std::string& variableName) const override {
+        NumberType ExecuteFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const override {
             const ScopeNode* cur = this;
             NumberType value = 0;
-            while (!cur->functionVariableTable_.ExecuteFunctionVariable (variableName, value)) {
+            while (!cur->functionVariableTable_.ExecuteFunctionVariable (variableName, arguments, value)) {
                 if (cur->previous_) {
                     cur = static_cast <ScopeNode*> (cur->previous_);
                 }
@@ -229,14 +242,14 @@ class ScopeNode final : public ScopeNodeInterface {
             }
             return value;
         }
-        void SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override {
+        void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override {
             ScopeNode* cur = this;
-            while (!cur->functionVariableTable_.SetFunctionVariable (variableName, scope, hasFunctionName, functionName)) {
+            while (!cur->functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, hasFunctionName, functionName)) {
                 if (cur->previous_) {
                     cur = static_cast <ScopeNode*> (cur->previous_);
                 }
                 else {
-                    functionVariableTable_.AddFunctionVariable (variableName, scope, hasFunctionName, functionName);
+                    functionVariableTable_.AddFunctionVariable (variableName, arguments, scope, hasFunctionName, functionName);
                     break;
                 }
             }
@@ -291,6 +304,7 @@ class VariableNode final : public NodeInterface {
 
         //  EXTRA METHOD
         void Assign (NumberType value) { value_ = value; globalCurrentScope->SetVariable (name_, value); }
+        const std::string& GetName () const { return name_; }
 
         //  CTOR
         VariableNode (const std::string& name):
@@ -306,67 +320,30 @@ class VariableNode final : public NodeInterface {
 class FunctionVariableNode final : public NodeInterface {
     private:
         std::string variableName_ {};
+        ArgumentsListElement* argumentsList_ = nullptr;
 
         //  mutable because it only changes the way this node dumps
         mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_); return value_; }
-        void Dump (std::ostream &stream) const override { stream << variableName_ << " () {" << value_ << "}"; }
+        NumberType Execute () const override { value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_, argumentsList_); return value_; }
+        void Dump (std::ostream &stream) const override { stream << variableName_ << " {" << value_ << "}"; }
 
         //  EXTRA METHOD
         void Assign (ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") { 
-            globalCurrentScope->SetFunctionVariable (variableName_, scope, hasFunctionName, functionName);
+            globalCurrentScope->SetFunctionVariable (variableName_, argumentsList_, scope, hasFunctionName, functionName);
         }
 
         //  CTOR
-        FunctionVariableNode (const std::string& variableName):
+        FunctionVariableNode (const std::string& variableName, ArgumentsListElement* argumentsList):
             NodeInterface (NodeType::FUNCTION_VARIABLE),
             variableName_ (variableName),
+            argumentsList_ (argumentsList),
             value_ (0)
             {}
 
         //  DTOR
         ~FunctionVariableNode () = default;
-};
-
-template <typename T>
-class ArgumentsListElement final {
-    private:
-        ArgumentsListElement <T>* previous_ = nullptr;
-        T data_ = T {};
-    public:
-        ArgumentsListElement (T& data, ArgumentsListElement <T>* previous):
-            previous_ (previous),
-            data_ (data)
-            {}
-        ArgumentsListElement <T>* GetPrevious () const {
-            return previous_;
-        }
-        T GetData () const {
-            return data_;
-        }
-};
-
-//TODO переместить или нет?
-using ALE_string = ArgumentsListElement <std::string>;
-using ALE_expression = ArgumentsListElement <NodeInterface*>;
-
-class FunctionBodyNode final : public NodeInterface {
-    private:
-        ALE_expression* arguments_ = nullptr;
-        ScopeNodeInterface* scope_ = nullptr;
-    public:
-        //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override {
-            while (arguments_->GetPrevious ()) {
-                //  execute arguments and push in scope's symtable
-            }
-        }
-        void Dump (std::ostream &stream) const override {  }
-
-        //CTOR
-
 };
 
 class ReturnPerformer final {

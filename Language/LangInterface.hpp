@@ -38,6 +38,7 @@ enum class NodeType {
 
 class NodeInterface;
 class ScopeNodeInterface;
+class ArgumentsListElement;
 
 class NodeInterface {
     private:
@@ -61,7 +62,7 @@ class NodeInterface {
         static NodeInterface* CreateReturnNode (NodeInterface* child);
         static NodeInterface* CreateValueNode (NumberType value);
         static NodeInterface* CreateVariableNode (const std::string& name);
-        static NodeInterface* CreateFunctionVariableNode (const std::string& variableName);
+        static NodeInterface* CreateFunctionVariableNode (const std::string& variableName, ArgumentsListElement* arguments);
         static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
         static NodeInterface* CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope);
         static NodeInterface* CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
@@ -82,9 +83,9 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void AddNode (NodeInterface* node) = 0;
         virtual NumberType GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, NumberType value) = 0;
-        virtual void GetFunctionVariable (const std::string& variableName) const = 0;
-        virtual NumberType ExecuteFunctionVariable (const std::string& variableName) const = 0;
-        virtual void SetFunctionVariable (const std::string& variableName, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
+        virtual void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
+        virtual NumberType ExecuteFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
+        virtual void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
         virtual void Entry () const = 0;
         virtual void Return () const = 0;
 
@@ -100,4 +101,27 @@ class ScopeNodeInterface : public NodeInterface {
 
         //  DERIVED CLASS CTOR
         static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr, ScopeNodeInterface* next = nullptr);
+};
+
+class ArgumentsListElement final {
+    private:
+        ArgumentsListElement* previous_ = nullptr;
+        NodeInterface* node_ = nullptr;
+    public:
+        ArgumentsListElement (NodeInterface* node, ArgumentsListElement* previous):
+            previous_ (previous),
+            node_ (node)
+            {}
+        ArgumentsListElement* GetPrevious () const {
+            return previous_;
+        }
+        NumberType ExecuteNode () const {
+            return node_->Execute ();
+        }
+        int GetListLength () {
+            if (previous_) {
+                return previous_->GetListLength () + 1;
+            }
+            return 1;
+        }
 };

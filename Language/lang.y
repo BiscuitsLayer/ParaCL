@@ -84,11 +84,10 @@
 %nterm <ScopeNodeInterface*> scope
 %nterm <NodeInterface*> inside_scope
 
-%nterm <ALE_string*> arg_list
-%nterm <ALE_string*> arg_list_inside
-
-%nterm <ALE_expression*> call_arg_list
-%nterm <ALE_expression*> call_arg_list_inside
+%nterm <ArgumentsListElement*> arg_list
+%nterm <ArgumentsListElement*> arg_list_inside
+%nterm <ArgumentsListElement*> call_arg_list
+%nterm <ArgumentsListElement*> call_arg_list_inside
 
 /* Левоассоциативные и правоассоциативные лексемы */
 %left '+' '-'
@@ -157,14 +156,14 @@ assignment:
 
 function_assignment:
 	TEXT ASSIGN FUNC arg_list scope				{ 
-													globalCurrentScope->SetFunctionVariable (*($1), nullptr);
-													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1));
+													globalCurrentScope->SetFunctionVariable (*($1), $4, nullptr);
+													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 													$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, $5);
 												}
 |	TEXT ASSIGN FUNC arg_list COLON	TEXT scope	{ 
-													globalCurrentScope->SetFunctionVariable (*($1), nullptr, true, *($6));
-													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1));
+													globalCurrentScope->SetFunctionVariable (*($1), $4, nullptr, true, *($6));
+													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 													delete $6;
 													$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, $7);
@@ -178,11 +177,13 @@ arg_list:
 
 arg_list_inside:
 	TEXT 											{ 	
-														$$ = new ALE_string (*($1), nullptr);
+														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
+														$$ = new ArgumentsListElement (temp, nullptr);
 														delete $1;
 													}
 |	TEXT COMMA arg_list_inside						{ 	
-														$$ = new ALE_string (*($1), $3);
+														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
+														$$ = new ArgumentsListElement (temp, $3);
 														delete $1;
 													}
 ;
@@ -223,12 +224,12 @@ exprLvl3:
 |	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
 |	TEXT call_arg_list					{ 
 											try {
-												globalCurrentScope->GetFunctionVariable (*($1));
+												globalCurrentScope->GetFunctionVariable (*($1), $2);
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (@1, "Undefined function variable!");
 											}
-											$$ = NodeInterface::CreateFunctionVariableNode (*($1));
+											$$ = NodeInterface::CreateFunctionVariableNode (*($1), $2);
 											delete $1; 
 										}
 ;
@@ -239,8 +240,8 @@ call_arg_list:
 ;
 
 call_arg_list_inside:
-	exprLvl1 										{ $$ = new ALE_expression ($1, nullptr); }
-|	exprLvl1 COMMA call_arg_list_inside				{ $$ = new ALE_expression ($1, $3); }
+	exprLvl1 										{ $$ = new ArgumentsListElement ($1, nullptr); }
+|	exprLvl1 COMMA call_arg_list_inside				{ $$ = new ArgumentsListElement ($1, $3); }
 ;	
 
 %%

@@ -378,13 +378,11 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // call_arg_list
-      // call_arg_list_inside
-      char dummy1[sizeof (ALE_expression*)];
-
       // arg_list
       // arg_list_inside
-      char dummy2[sizeof (ALE_string*)];
+      // call_arg_list
+      // call_arg_list_inside
+      char dummy1[sizeof (ArgumentsListElement*)];
 
       // inside_scope
       // if_while
@@ -396,16 +394,16 @@ namespace yy {
       // exprLvl1
       // exprLvl2
       // exprLvl3
-      char dummy3[sizeof (NodeInterface*)];
+      char dummy2[sizeof (NodeInterface*)];
 
       // NUMBER
-      char dummy4[sizeof (NumberType)];
+      char dummy3[sizeof (NumberType)];
 
       // scope
-      char dummy5[sizeof (ScopeNodeInterface*)];
+      char dummy4[sizeof (ScopeNodeInterface*)];
 
       // TEXT
-      char dummy6[sizeof (std::string*)];
+      char dummy5[sizeof (std::string*)];
     };
 
     /// The size of the largest semantic type.
@@ -587,14 +585,11 @@ namespace yy {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_call_arg_list: // call_arg_list
-      case symbol_kind::S_call_arg_list_inside: // call_arg_list_inside
-        value.move< ALE_expression* > (std::move (that.value));
-        break;
-
       case symbol_kind::S_arg_list: // arg_list
       case symbol_kind::S_arg_list_inside: // arg_list_inside
-        value.move< ALE_string* > (std::move (that.value));
+      case symbol_kind::S_call_arg_list: // call_arg_list
+      case symbol_kind::S_call_arg_list_inside: // call_arg_list_inside
+        value.move< ArgumentsListElement* > (std::move (that.value));
         break;
 
       case symbol_kind::S_inside_scope: // inside_scope
@@ -646,27 +641,13 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, ALE_expression*&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, ArgumentsListElement*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const ALE_expression*& v, const location_type& l)
-        : Base (t)
-        , value (v)
-        , location (l)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, ALE_string*&& v, location_type&& l)
-        : Base (t)
-        , value (std::move (v))
-        , location (std::move (l))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const ALE_string*& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const ArgumentsListElement*& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -751,14 +732,11 @@ namespace yy {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_call_arg_list: // call_arg_list
-      case symbol_kind::S_call_arg_list_inside: // call_arg_list_inside
-        value.template destroy< ALE_expression* > ();
-        break;
-
       case symbol_kind::S_arg_list: // arg_list
       case symbol_kind::S_arg_list_inside: // arg_list_inside
-        value.template destroy< ALE_string* > ();
+      case symbol_kind::S_call_arg_list: // call_arg_list
+      case symbol_kind::S_call_arg_list_inside: // call_arg_list_inside
+        value.template destroy< ArgumentsListElement* > ();
         break;
 
       case symbol_kind::S_inside_scope: // inside_scope
@@ -1728,7 +1706,7 @@ switch (yykind)
 
 
 } // yy
-#line 1732 "lang.tab.hh"
+#line 1710 "lang.tab.hh"
 
 
 
