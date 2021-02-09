@@ -81,6 +81,8 @@ class ScopeNodeInterface : public NodeInterface {
 
         //  METHODS
         virtual void AddNode (NodeInterface* node) = 0;
+        virtual void SetArgumentsNames (const std::vector <std::string>& name) = 0;
+        virtual const std::vector <std::string>& GetArgumentsNames () const = 0;
         virtual NumberType GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, NumberType value) = 0;
         virtual void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
@@ -115,6 +117,7 @@ class ArgumentsListElement final {
         ArgumentsListElement* GetPrevious () const {
             return previous_;
         }
+        const std::string& GetArgumentName () const;
         NumberType ExecuteNode () const {
             return node_->Execute ();
         }

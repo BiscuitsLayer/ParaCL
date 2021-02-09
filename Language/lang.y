@@ -171,7 +171,7 @@ function_assignment:
 ;
 
 arg_list:
-	LPARENTHESES arg_list_inside RPARENTHESES		{ $$ = $2; }
+	LPARENTHESES arg_list_inside RPARENTHESES		{ $$ = $2; /*TODO scope push variable names */ }
 |	LPARENTHESES RPARENTHESES						{ /* empty */ }
 ;
 

@@ -40,3 +40,7 @@ NodeInterface* NodeInterface::CreatePrintNode (NodeInterface* child) {
 ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next) {
     return new ScopeNode (previous, next);
 }
+
+const std::string& ArgumentsListElement::GetArgumentName () const {
+    return static_cast <VariableNode*> (node_)->GetName ();
+}

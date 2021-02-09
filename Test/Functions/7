@@ -4,9 +4,6 @@ f1 = func () {
     x + y;
 }
 f2 = func (x, y, z) : f2Name {
-    x = 2;
-    y = 2;
-    return 7;
     x + y;
 }
 print 500;
