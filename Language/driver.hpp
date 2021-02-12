@@ -10,6 +10,7 @@
 
 extern ScopeNodeInterface* globalCurrentScope;
 extern FunctionSymTable* globalFunctionSymTable;
+extern int codePass;
 
 namespace yy {
 

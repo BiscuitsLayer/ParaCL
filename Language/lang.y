@@ -35,7 +35,7 @@
 	}
 
 	extern ScopeNodeInterface* globalCurrentScope;
-	int codePass = 0;
+	extern int codePass;
 }
 
 %token
@@ -76,7 +76,10 @@
 /* Объявление нетерминалов */
 %nterm <NodeInterface*> exprLvl1 exprLvl2 exprLvl3
 %nterm <NodeInterface*> assignment
+
+%nterm <NodeInterface*> function_assignment_entry
 %nterm <NodeInterface*> function_assignment
+
 %nterm <NodeInterface*> return
 %nterm <NodeInterface*> syscall
 %nterm <NodeInterface*> condition
@@ -94,17 +97,13 @@
 %left '+' '-'
 %left '*' '/'
 
-%start program
+%start inside_scope
 
 %%
 
-program:
-	inside_scope									{ codePass++; }
-;
-
 scope:
-	scope_entry inside_scope scope_outro			{ $$ = globalCurrentScope; globalCurrentScope->Return (); }
-|	scope_entry inside_scope scope_outro SCOLON		{ $$ = globalCurrentScope; globalCurrentScope->Return (); }
+	scope_entry inside_scope scope_outro			{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
+|	scope_entry inside_scope scope_outro SCOLON		{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
 ;
 
 scope_entry:
@@ -159,18 +158,25 @@ assignment:
 ;
 
 function_assignment:
-	TEXT ASSIGN FUNC arg_list scope				{ 
-													globalCurrentScope->SetFunctionVariable (*($1), $4, nullptr);
-													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1), $4);
+	function_assignment_entry inside_scope scope_outro 	{	
+															ScopeNodeInterface* scope = globalCurrentScope; globalCurrentScope->Outro ();
+															$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, $1, scope);
+														}
+;
+
+function_assignment_entry:
+	TEXT ASSIGN FUNC arg_list LBRACE			{
+													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
+													globalCurrentScope->previous_->SetFunctionVariable (*($1), $4, globalCurrentScope);
+													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
-													$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, $5);
 												}
-|	TEXT ASSIGN FUNC arg_list COLON	TEXT scope	{ 
-													globalCurrentScope->SetFunctionVariable (*($1), $4, nullptr, true, *($6));
-													NodeInterface* left = NodeInterface::CreateFunctionVariableNode (*($1), $4);
+|	TEXT ASSIGN FUNC arg_list COLON	TEXT LBRACE	{ 
+													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
+													globalCurrentScope->previous_->SetFunctionVariable (*($1), $4, globalCurrentScope, true, *($6));
+													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 													delete $6;
-													$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, left, $7);
 												}
 ;
 
@@ -181,13 +187,11 @@ arg_list:
 
 arg_list_inside:
 	TEXT 											{ 	
-														globalCurrentScope->SetVariable (*($1), 0);
 														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
 														$$ = new ArgumentsListElement (temp, nullptr);
 														delete $1;
 													}
 |	TEXT COMMA arg_list_inside						{ 	
-														globalCurrentScope->SetVariable (*($1), 0);
 														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
 														$$ = new ArgumentsListElement (temp, $3);
 														delete $1;
@@ -219,9 +223,7 @@ exprLvl3:
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
 |	TEXT								{ 	
 											try {
-												if (codePass != 0) { 
-													globalCurrentScope->GetVariable (*($1));
-												}
+												globalCurrentScope->GetVariable (*($1));
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (@1, "Undefined variable!");
@@ -232,9 +234,7 @@ exprLvl3:
 |	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
 |	TEXT call_arg_list					{ 
 											try {
-												if (codePass != 0) { 
-													globalCurrentScope->GetFunctionVariable (*($1), $2);
-												}
+												globalCurrentScope->GetFunctionVariable (*($1), $2);
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (@1, "Undefined function variable!");

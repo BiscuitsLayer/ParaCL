@@ -10,6 +10,7 @@
 
 ScopeNodeInterface* globalCurrentScope = nullptr;
 FunctionSymTable* globalFunctionSymTable = nullptr;
+int codePass = 0;
 
 int main (int argc, char** argv) {
 	std::ifstream infile { argv[1] };

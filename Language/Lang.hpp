@@ -95,7 +95,7 @@ class FunctionSymTable final {
             for (int i = 0; i < argumentsCount; ++i) {
                 globalCurrentScope->SetVariable (argumentsNames[i], oldArgumentValues[i]);
             }
-            globalCurrentScope->Return ();
+            globalCurrentScope->Outro ();
             return true;
         }
         bool SetFunction (const VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope) {
@@ -113,17 +113,16 @@ class FunctionSymTable final {
                 unnamedData_[std::get <int> (id)].second = scope;
             }
             //  Loading arguments to scope
-            std::vector <std::string> argumentsNames = {};
-            while (arguments) {
-                argumentsNames.push_back (arguments->GetArgumentName ());
+            std::vector <std::string> argumentsNames (argumentsCount);
+            for (int i = 0; i < argumentsCount; ++i) {
+                argumentsNames[i] = arguments->GetArgumentName ();
+                scope->SetVariable (argumentsNames[i], 0);
                 arguments = arguments->GetPrevious ();
             }
             if (argumentsNames.size () != argumentsCount) {
                 return false;
             }
-            if (scope) {
-                scope->SetArgumentsNames (argumentsNames);
-            }
+            scope->SetArgumentsNames (argumentsNames);
             return true;
         }
         bool AddFunction (VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope) {
@@ -143,17 +142,16 @@ class FunctionSymTable final {
                 unnamedData_.push_back ({argumentsCount, scope});
             }
             //  Loading arguments to scope
-            std::vector <std::string> argumentsNames = {};
-            while (arguments) {
-                argumentsNames.push_back (arguments->GetArgumentName ());
+            std::vector <std::string> argumentsNames (argumentsCount);
+            for (int i = 0; i < argumentsCount; ++i) {
+                argumentsNames[i] = arguments->GetArgumentName ();
+                scope->SetVariable (argumentsNames[i], 0);
                 arguments = arguments->GetPrevious ();
             }
             if (argumentsNames.size () != argumentsCount) {
                 return false;
             }
-            if (scope) {
-                scope->SetArgumentsNames (argumentsNames);
-            }
+            scope->SetArgumentsNames (argumentsNames);
             return true;
         }
 
@@ -304,7 +302,7 @@ class ScopeNode final : public ScopeNodeInterface {
             }
         }
         void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; }
-        void Return () const override   { globalCurrentScope = globalCurrentScope->previous_; }
+        void Outro () const override   { globalCurrentScope = globalCurrentScope->previous_; }
 
         //  CTOR
         ScopeNode (ScopeNodeInterface* previous):

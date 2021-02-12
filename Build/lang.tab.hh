@@ -389,6 +389,7 @@ namespace yy {
       // condition
       // assignment
       // function_assignment
+      // function_assignment_entry
       // return
       // syscall
       // exprLvl1
@@ -532,15 +533,15 @@ namespace yy {
         S_32_ = 32,                              // '*'
         S_33_ = 33,                              // '/'
         S_YYACCEPT = 34,                         // $accept
-        S_program = 35,                          // program
-        S_scope = 36,                            // scope
-        S_scope_entry = 37,                      // scope_entry
-        S_inside_scope = 38,                     // inside_scope
-        S_scope_outro = 39,                      // scope_outro
-        S_if_while = 40,                         // if_while
-        S_condition = 41,                        // condition
-        S_assignment = 42,                       // assignment
-        S_function_assignment = 43,              // function_assignment
+        S_scope = 35,                            // scope
+        S_scope_entry = 36,                      // scope_entry
+        S_inside_scope = 37,                     // inside_scope
+        S_scope_outro = 38,                      // scope_outro
+        S_if_while = 39,                         // if_while
+        S_condition = 40,                        // condition
+        S_assignment = 41,                       // assignment
+        S_function_assignment = 42,              // function_assignment
+        S_function_assignment_entry = 43,        // function_assignment_entry
         S_arg_list = 44,                         // arg_list
         S_arg_list_inside = 45,                  // arg_list_inside
         S_return = 46,                           // return
@@ -598,6 +599,7 @@ namespace yy {
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
       case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_function_assignment_entry: // function_assignment_entry
       case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
@@ -745,6 +747,7 @@ switch (yykind)
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
       case symbol_kind::S_function_assignment: // function_assignment
+      case symbol_kind::S_function_assignment_entry: // function_assignment_entry
       case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
@@ -1694,9 +1697,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 98,     ///< Last index in yytable_.
+      yylast_ = 97,     ///< Last index in yytable_.
       yynnts_ = 19,  ///< Number of nonterminal symbols.
-      yyfinal_ = 3 ///< Termination state number.
+      yyfinal_ = 2 ///< Termination state number.
     };
 
 
@@ -1707,7 +1710,7 @@ switch (yykind)
 
 
 } // yy
-#line 1711 "lang.tab.hh"
+#line 1714 "lang.tab.hh"
 
 
 

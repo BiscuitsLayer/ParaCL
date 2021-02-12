@@ -262,7 +262,7 @@ NumberType IfNode::Execute () const {
     if (condition_->Execute () > 0) {
         globalCurrentScope->Entry (scope_);
         scope_->Execute ();
-        globalCurrentScope->Return ();
+        globalCurrentScope->Outro ();
     }
     return 0;
 }
@@ -271,7 +271,7 @@ NumberType WhileNode::Execute () const {
     while (condition_->Execute () > 0) {
         globalCurrentScope->Entry (scope_);
         scope_->Execute ();
-        globalCurrentScope->Return ();
+        globalCurrentScope->Outro ();
     }
     return 0;
 }

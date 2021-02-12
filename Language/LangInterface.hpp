@@ -88,7 +88,7 @@ class ScopeNodeInterface : public NodeInterface {
         virtual NumberType ExecuteFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
         virtual void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
         virtual void Entry (ScopeNodeInterface* scope) const = 0;
-        virtual void Return () const = 0;
+        virtual void Outro () const = 0;
 
         //  CTOR
         ScopeNodeInterface (ScopeNodeInterface* previous):

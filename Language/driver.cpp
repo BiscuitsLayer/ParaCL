@@ -27,7 +27,6 @@ bool yy::LangDriver::parse () {
     yy::parser parser (this);
     bool failure = true;
     failure = parser.parse ();
-    //failure = parser.parse ();
     if (!failure) {
         OUTSTREAM << "Parsed successfully!" << std::endl;
     }
