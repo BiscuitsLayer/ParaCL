@@ -75,25 +75,8 @@ class FunctionSymTable final {
                 }
             }
             globalCurrentScope->Entry (foundScope);
-            //  Loading arguments to scope
-            std::vector <std::string> argumentsNames = globalCurrentScope->GetArgumentsNames ();
-            if (argumentsNames.size () != argumentsCount) {
+            if (!foundScope->ExecuteWithArguments (arguments, result)) {
                 return false;
-            }
-            std::vector <NumberType> oldArgumentValues (argumentsCount);
-            for (int i = 0; i < argumentsCount; ++i) {
-                try {
-                    oldArgumentValues[i] = globalCurrentScope->GetVariable (argumentsNames[i]);
-                }
-                catch (std::invalid_argument& ex) {
-                    oldArgumentValues[i] = 0;
-                }
-                globalCurrentScope->SetVariable (argumentsNames[i], arguments->ExecuteNode ());
-                arguments = arguments->GetPrevious ();
-            }
-            result = globalCurrentScope->Execute ();
-            for (int i = 0; i < argumentsCount; ++i) {
-                globalCurrentScope->SetVariable (argumentsNames[i], oldArgumentValues[i]);
             }
             globalCurrentScope->Outro ();
             return true;
@@ -112,18 +95,7 @@ class FunctionSymTable final {
             else {
                 unnamedData_[std::get <int> (id)].second = scope;
             }
-            //  Loading arguments to scope
-            std::vector <std::string> argumentsNames (argumentsCount);
-            for (int i = 0; i < argumentsCount; ++i) {
-                argumentsNames[i] = arguments->GetArgumentName ();
-                scope->SetVariable (argumentsNames[i], 0);
-                arguments = arguments->GetPrevious ();
-            }
-            if (argumentsNames.size () != argumentsCount) {
-                return false;
-            }
-            scope->SetArgumentsNames (argumentsNames);
-            return true;
+            return scope->SetArgumentsNames (arguments);
         }
         bool AddFunction (VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope) {
             int argumentsCount = (arguments ? arguments->GetListLength () : 0);
@@ -141,18 +113,7 @@ class FunctionSymTable final {
                 id = unnamedIdx++;
                 unnamedData_.push_back ({argumentsCount, scope});
             }
-            //  Loading arguments to scope
-            std::vector <std::string> argumentsNames (argumentsCount);
-            for (int i = 0; i < argumentsCount; ++i) {
-                argumentsNames[i] = arguments->GetArgumentName ();
-                scope->SetVariable (argumentsNames[i], 0);
-                arguments = arguments->GetPrevious ();
-            }
-            if (argumentsNames.size () != argumentsCount) {
-                return false;
-            }
-            scope->SetArgumentsNames (argumentsNames);
-            return true;
+            return scope->SetArgumentsNames (arguments);
         }
 
         //  CTOR
@@ -193,12 +154,10 @@ class FunctionVariableSymTable final {
             int argumentsCount = (arguments ? arguments->GetListLength () : 0);
             auto search = data_.find ({ argumentsCount, name });
             if (search != data_.end ()) {
-                globalFunctionSymTable->ExecuteFunction (search->second, arguments, value);
-                return true;
+                return globalFunctionSymTable->ExecuteFunction (search->second, arguments, value);
             }
             else if (globalFunctionSymTable->GetFunction (name, argumentsCount)) {
-                globalFunctionSymTable->ExecuteFunction ({ name }, arguments, value);
-                return true;
+                return globalFunctionSymTable->ExecuteFunction ({ name }, arguments, value);
             }
             else {
                 return false;
@@ -213,7 +172,9 @@ class FunctionVariableSymTable final {
             else {
                 std::variant <int, std::string> ans {};
                 ans = search->second;
-                globalFunctionSymTable->SetFunction (ans, arguments, scope);
+                if (!globalFunctionSymTable->SetFunction (ans, arguments, scope)) {
+                    return false;
+                }
                 search->second = ans;
                 return true;
             }
@@ -232,7 +193,10 @@ class FunctionVariableSymTable final {
                 else {
                     ans = poisonFunctionIdx;
                 }
-                globalFunctionSymTable->AddFunction (ans, arguments, scope);
+                if (!globalFunctionSymTable->AddFunction (ans, arguments, scope)) {
+                    std::cerr << "U GOT TROLLED" << std::endl;
+                    return false;
+                }
                 data_[{ argumentsCount, variableName }] = ans;
                 return true;
             }
@@ -252,7 +216,7 @@ class ScopeNode final : public ScopeNodeInterface {
         std::vector <NodeInterface*> branches_ {};
         VariableSymTable variableTable_ {};
         FunctionVariableSymTable functionVariableTable_ {};
-        std::vector <std::string> argumentNames_ {};
+        std::vector <std::string> argumentsNames_ {};
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
@@ -260,8 +224,41 @@ class ScopeNode final : public ScopeNodeInterface {
 
         //  METHODS FROM SCOPE INTERFACE
         void AddNode (NodeInterface* node) override { branches_.push_back (node); }
-        void SetArgumentsNames (const std::vector <std::string>& names) override { argumentNames_ = names; }
-        const std::vector <std::string>& GetArgumentsNames () const override { return argumentNames_; }
+        bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) override {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            if (argumentsNames_.size () != argumentsCount) {
+                return false;
+            }
+            std::vector <NumberType> oldArgumentValues (argumentsCount);
+            for (int i = 0; i < argumentsCount; ++i) {
+                try {
+                    oldArgumentValues[i] = globalCurrentScope->GetVariable (argumentsNames_[i]);
+                }
+                catch (std::invalid_argument& ex) {
+                    oldArgumentValues[i] = 0;
+                }
+                globalCurrentScope->SetVariable (argumentsNames_[i], arguments->ExecuteNode ());
+                arguments = arguments->GetPrevious ();
+            }
+            result = globalCurrentScope->Execute ();
+            for (int i = 0; i < argumentsCount; ++i) {
+                globalCurrentScope->SetVariable (argumentsNames_[i], oldArgumentValues[i]);
+            }
+            return true;
+        }
+        bool SetArgumentsNames (ArgumentsListElement* arguments) override { 
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            argumentsNames_.resize (argumentsCount);
+            for (int i = 0; i < argumentsCount; ++i) {
+                argumentsNames_[i] = arguments->GetArgumentName ();
+                SetVariable (argumentsNames_[i], 0);
+                arguments = arguments->GetPrevious ();
+            }
+            if (argumentsNames_.size () != argumentsCount) {
+                return false;
+            }
+            return true;
+        }
         NumberType GetVariable (const std::string& name) const override;
         void SetVariable (const std::string& name, NumberType value) override;
         void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const override {
@@ -301,8 +298,8 @@ class ScopeNode final : public ScopeNodeInterface {
                 }
             }
         }
-        void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; }
-        void Outro () const override   { globalCurrentScope = globalCurrentScope->previous_; }
+        void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; std::cerr << "e" << std::endl; }
+        void Outro () const override   { globalCurrentScope = globalCurrentScope->previous_; std::cerr << "o" << std::endl; }
 
         //  CTOR
         ScopeNode (ScopeNodeInterface* previous):
@@ -310,7 +307,7 @@ class ScopeNode final : public ScopeNodeInterface {
             branches_ ({}),
             variableTable_ ({}),
             functionVariableTable_ ({}),
-            argumentNames_ ({})
+            argumentsNames_ ({})
             {}
 
         //  DTOR
@@ -319,6 +316,39 @@ class ScopeNode final : public ScopeNodeInterface {
                 delete branch;
             }
         }
+};
+
+class ReturnPerformer final {
+    private:
+        /* empty */
+    public:
+        NumberType value_ = 0;
+        ReturnPerformer (NumberType value):
+            value_ (value)
+            {}
+};
+
+class ReturnNode final : public NodeInterface {
+    private:
+        NodeInterface* child_ = nullptr;
+    public:
+        //  METHODS FROM NODE INTERFACE
+        NumberType Execute () const override {
+            NumberType value = child_->Execute ();
+            //TODO
+            //? may be we need to restore old variables there, not sure
+            throw ReturnPerformer (value);
+        }
+        void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
+
+        //  CTOR
+        ReturnNode (NodeInterface* child):
+            NodeInterface (NodeType::PRINT),
+            child_ (child)
+            {}
+
+        //  DTOR
+        ~ReturnNode () { delete child_; }
 };
 
 class ValueNode final : public NodeInterface {
@@ -374,7 +404,15 @@ class FunctionVariableNode final : public NodeInterface {
         mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_, argumentsList_); return value_; }
+        NumberType Execute () const override { 
+            try {
+                value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_, argumentsList_);
+            }
+            catch (ReturnPerformer& performer) {
+                value_ = performer.value_;
+            }
+            return value_; 
+        }
         void Dump (std::ostream &stream) const override { stream << variableName_ << " {" << value_ << "}"; }
 
         //  EXTRA METHOD
@@ -394,37 +432,6 @@ class FunctionVariableNode final : public NodeInterface {
         ~FunctionVariableNode () {
             delete argumentsList_;
         }
-};
-
-class ReturnPerformer final {
-    private:
-        /* empty */
-    public:
-        NumberType value_ = 0;
-        ReturnPerformer (NumberType value):
-            value_ (value)
-            {}
-};
-
-class ReturnNode final : public NodeInterface {
-    private:
-        NodeInterface* child_ = nullptr;
-    public:
-        //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override {
-            NumberType value = child_->Execute ();
-            throw ReturnPerformer (value);
-        }
-        void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
-
-        //  CTOR
-        ReturnNode (NodeInterface* child):
-            NodeInterface (NodeType::PRINT),
-            child_ (child)
-            {}
-
-        //  DTOR
-        ~ReturnNode () { delete child_; }
 };
 
 class BinaryOpNode final : public NodeInterface {

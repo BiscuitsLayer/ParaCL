@@ -39,9 +39,6 @@ NumberType ScopeNode::Execute () const {
         try {
             returnValue = branches_[i]->Execute ();
         }
-        catch (ReturnPerformer &returnPerformer) {
-            return returnPerformer.value_;
-        }
         catch (std::overflow_error& ex) {
             ERRSTREAM << ex.what () << std::endl;
             branches_[i]->Dump (OUTSTREAM);
@@ -116,7 +113,6 @@ NumberType BinaryOpNode::Execute () const {
             FunctionVariableNode* leftChildAsFunctionVariable = static_cast <FunctionVariableNode*> (leftChild_);
             ScopeNodeInterface* rightChildAsScopeInterface = static_cast <ScopeNodeInterface*> (rightChild_);
             leftChildAsFunctionVariable->Assign (rightChildAsScopeInterface);
-            //You need to get hasName and functionName from right child later
             return 0;
             break;
         }
@@ -259,21 +255,23 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
 }
 
 NumberType IfNode::Execute () const {
+    NumberType result = 0;
     if (condition_->Execute () > 0) {
         globalCurrentScope->Entry (scope_);
-        scope_->Execute ();
+        result = scope_->Execute ();
         globalCurrentScope->Outro ();
     }
-    return 0;
+    return result;
 }
 
 NumberType WhileNode::Execute () const {
+    NumberType result = 0;
     while (condition_->Execute () > 0) {
         globalCurrentScope->Entry (scope_);
-        scope_->Execute ();
+        result = scope_->Execute ();
         globalCurrentScope->Outro ();
     }
-    return 0;
+    return result;
 }
 
 NumberType ScanNode::Execute () const {
@@ -304,5 +302,5 @@ NumberType PrintNode::Execute () const {
         OUTSTREAM << "Out[" << outputCounter++ << "]: " ;
     }
     OUTSTREAM << outputValue << std::endl;
-    return 0;
+    return outputValue;
 }

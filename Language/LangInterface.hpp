@@ -80,8 +80,8 @@ class ScopeNodeInterface : public NodeInterface {
 
         //  METHODS
         virtual void AddNode (NodeInterface* node) = 0;
-        virtual void SetArgumentsNames (const std::vector <std::string>& name) = 0;
-        virtual const std::vector <std::string>& GetArgumentsNames () const = 0;
+        virtual bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) = 0;
+        virtual bool SetArgumentsNames (ArgumentsListElement* arguments) = 0;
         virtual NumberType GetVariable (const std::string& name) const = 0;
         virtual void SetVariable (const std::string& name, NumberType value) = 0;
         virtual void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
