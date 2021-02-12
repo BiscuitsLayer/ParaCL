@@ -25,7 +25,9 @@ yy::parser::token_type yy::LangDriver::yylex (yy::parser::semantic_type* yylval,
 
 bool yy::LangDriver::parse () {
     yy::parser parser (this);
-    bool failure = parser.parse ();   
+    bool failure = true;
+    failure = parser.parse ();
+    //failure = parser.parse ();
     if (!failure) {
         OUTSTREAM << "Parsed successfully!" << std::endl;
     }

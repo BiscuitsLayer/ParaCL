@@ -1,0 +1,9 @@
+temp = func (x) : factorial {
+    if (x == 1) {
+        print x;
+    }
+    return x * factorial (x - 1);
+}
+
+print factorial (5);
+print x;

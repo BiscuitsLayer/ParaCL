@@ -77,7 +77,6 @@ class ScopeNodeInterface : public NodeInterface {
         /* empty */
     public:
         ScopeNodeInterface* previous_ = nullptr;
-        ScopeNodeInterface* next_ = nullptr;
 
         //  METHODS
         virtual void AddNode (NodeInterface* node) = 0;
@@ -88,21 +87,20 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
         virtual NumberType ExecuteFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
         virtual void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
-        virtual void Entry () const = 0;
+        virtual void Entry (ScopeNodeInterface* scope) const = 0;
         virtual void Return () const = 0;
 
         //  CTOR
-        ScopeNodeInterface (ScopeNodeInterface* previous, ScopeNodeInterface* next):
+        ScopeNodeInterface (ScopeNodeInterface* previous):
             NodeInterface (NodeType::SCOPE),
-            previous_ (previous),
-            next_ (next)
+            previous_ (previous)
             {}
 
         //  DTOR
         virtual ~ScopeNodeInterface () = default;
 
         //  DERIVED CLASS CTOR
-        static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr, ScopeNodeInterface* next = nullptr);
+        static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr);
 };
 
 class ArgumentsListElement final {
@@ -114,6 +112,10 @@ class ArgumentsListElement final {
             previous_ (previous),
             node_ (node)
             {}
+        ~ArgumentsListElement () {
+            delete previous_;
+            delete node_;
+        }
         ArgumentsListElement* GetPrevious () const {
             return previous_;
         }

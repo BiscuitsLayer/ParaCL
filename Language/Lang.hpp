@@ -63,7 +63,6 @@ class FunctionSymTable final {
                 }
                 else {
                     foundScope = search->second;
-                    result = foundScope->Execute ();
                 }
             }
             else {
@@ -73,19 +72,30 @@ class FunctionSymTable final {
                 }
                 else {
                     foundScope = unnamedData_[numberId].second;
-                    result = foundScope->Execute ();
                 }
             }
+            globalCurrentScope->Entry (foundScope);
             //  Loading arguments to scope
-            std::vector <std::string> argumentsNames = foundScope->GetArgumentsNames ();
+            std::vector <std::string> argumentsNames = globalCurrentScope->GetArgumentsNames ();
             if (argumentsNames.size () != argumentsCount) {
                 return false;
             }
-            int i = 0;
-            while (arguments) {
-                foundScope->SetVariable (argumentsNames[i++], arguments->ExecuteNode ());
+            std::vector <NumberType> oldArgumentValues (argumentsCount);
+            for (int i = 0; i < argumentsCount; ++i) {
+                try {
+                    oldArgumentValues[i] = globalCurrentScope->GetVariable (argumentsNames[i]);
+                }
+                catch (std::invalid_argument& ex) {
+                    oldArgumentValues[i] = 0;
+                }
+                globalCurrentScope->SetVariable (argumentsNames[i], arguments->ExecuteNode ());
                 arguments = arguments->GetPrevious ();
             }
+            result = globalCurrentScope->Execute ();
+            for (int i = 0; i < argumentsCount; ++i) {
+                globalCurrentScope->SetVariable (argumentsNames[i], oldArgumentValues[i]);
+            }
+            globalCurrentScope->Return ();
             return true;
         }
         bool SetFunction (const VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope) {
@@ -293,12 +303,12 @@ class ScopeNode final : public ScopeNodeInterface {
                 }
             }
         }
-        void Entry () const override    { globalCurrentScope = next_; }
+        void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; }
         void Return () const override   { globalCurrentScope = globalCurrentScope->previous_; }
 
         //  CTOR
-        ScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next):
-            ScopeNodeInterface (previous, next),
+        ScopeNode (ScopeNodeInterface* previous):
+            ScopeNodeInterface (previous),
             branches_ ({}),
             variableTable_ ({}),
             functionVariableTable_ ({}),
@@ -383,7 +393,9 @@ class FunctionVariableNode final : public NodeInterface {
             {}
 
         //  DTOR
-        ~FunctionVariableNode () = default;
+        ~FunctionVariableNode () {
+            delete argumentsList_;
+        }
 };
 
 class ReturnPerformer final {

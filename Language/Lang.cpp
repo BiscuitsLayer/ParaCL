@@ -260,8 +260,7 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
 
 NumberType IfNode::Execute () const {
     if (condition_->Execute () > 0) {
-        globalCurrentScope->next_ = scope_;
-        globalCurrentScope->Entry ();
+        globalCurrentScope->Entry (scope_);
         scope_->Execute ();
         globalCurrentScope->Return ();
     }
@@ -270,8 +269,7 @@ NumberType IfNode::Execute () const {
 
 NumberType WhileNode::Execute () const {
     while (condition_->Execute () > 0) {
-        globalCurrentScope->next_ = scope_;
-        globalCurrentScope->Entry ();
+        globalCurrentScope->Entry (scope_);
         scope_->Execute ();
         globalCurrentScope->Return ();
     }

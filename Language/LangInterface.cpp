@@ -37,8 +37,8 @@ NodeInterface* NodeInterface::CreatePrintNode (NodeInterface* child) {
     return new PrintNode (child);
 }
 
-ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous, ScopeNodeInterface* next) {
-    return new ScopeNode (previous, next);
+ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode (ScopeNodeInterface* previous) {
+    return new ScopeNode (previous);
 }
 
 const std::string& ArgumentsListElement::GetArgumentName () const {

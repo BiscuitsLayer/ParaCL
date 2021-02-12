@@ -532,23 +532,24 @@ namespace yy {
         S_32_ = 32,                              // '*'
         S_33_ = 33,                              // '/'
         S_YYACCEPT = 34,                         // $accept
-        S_scope = 35,                            // scope
-        S_scope_entry = 36,                      // scope_entry
-        S_inside_scope = 37,                     // inside_scope
-        S_scope_outro = 38,                      // scope_outro
-        S_if_while = 39,                         // if_while
-        S_condition = 40,                        // condition
-        S_assignment = 41,                       // assignment
-        S_function_assignment = 42,              // function_assignment
-        S_arg_list = 43,                         // arg_list
-        S_arg_list_inside = 44,                  // arg_list_inside
-        S_return = 45,                           // return
-        S_syscall = 46,                          // syscall
-        S_exprLvl1 = 47,                         // exprLvl1
-        S_exprLvl2 = 48,                         // exprLvl2
-        S_exprLvl3 = 49,                         // exprLvl3
-        S_call_arg_list = 50,                    // call_arg_list
-        S_call_arg_list_inside = 51              // call_arg_list_inside
+        S_program = 35,                          // program
+        S_scope = 36,                            // scope
+        S_scope_entry = 37,                      // scope_entry
+        S_inside_scope = 38,                     // inside_scope
+        S_scope_outro = 39,                      // scope_outro
+        S_if_while = 40,                         // if_while
+        S_condition = 41,                        // condition
+        S_assignment = 42,                       // assignment
+        S_function_assignment = 43,              // function_assignment
+        S_arg_list = 44,                         // arg_list
+        S_arg_list_inside = 45,                  // arg_list_inside
+        S_return = 46,                           // return
+        S_syscall = 47,                          // syscall
+        S_exprLvl1 = 48,                         // exprLvl1
+        S_exprLvl2 = 49,                         // exprLvl2
+        S_exprLvl3 = 50,                         // exprLvl3
+        S_call_arg_list = 51,                    // call_arg_list
+        S_call_arg_list_inside = 52              // call_arg_list_inside
       };
     };
 
@@ -1693,9 +1694,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 96,     ///< Last index in yytable_.
-      yynnts_ = 18,  ///< Number of nonterminal symbols.
-      yyfinal_ = 2 ///< Termination state number.
+      yylast_ = 98,     ///< Last index in yytable_.
+      yynnts_ = 19,  ///< Number of nonterminal symbols.
+      yyfinal_ = 3 ///< Termination state number.
     };
 
 
@@ -1706,7 +1707,7 @@ switch (yykind)
 
 
 } // yy
-#line 1710 "lang.tab.hh"
+#line 1711 "lang.tab.hh"
 
 
 

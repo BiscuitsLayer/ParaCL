@@ -38,8 +38,8 @@ namespace yy {
 
             //  DTOR
             ~LangDriver () {
-                delete globalCurrentScope;
                 delete globalFunctionSymTable;
+                delete globalCurrentScope;
                 delete lexer_;
             }
     };

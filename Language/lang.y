@@ -35,6 +35,7 @@
 	}
 
 	extern ScopeNodeInterface* globalCurrentScope;
+	int codePass = 0;
 }
 
 %token
@@ -93,9 +94,13 @@
 %left '+' '-'
 %left '*' '/'
 
-%start inside_scope
+%start program
 
 %%
+
+program:
+	inside_scope									{ codePass++; }
+;
 
 scope:
 	scope_entry inside_scope scope_outro			{ $$ = globalCurrentScope; globalCurrentScope->Return (); }
@@ -104,8 +109,7 @@ scope:
 
 scope_entry:
 	LBRACE											{ 
-														globalCurrentScope->next_ = ScopeNodeInterface::CreateScopeNode (globalCurrentScope, nullptr);
-														globalCurrentScope->Entry ();
+														globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
 													}
 ;
 
@@ -171,17 +175,19 @@ function_assignment:
 ;
 
 arg_list:
-	LPARENTHESES arg_list_inside RPARENTHESES		{ $$ = $2; /*TODO scope push variable names */ }
+	LPARENTHESES arg_list_inside RPARENTHESES		{ $$ = $2; }
 |	LPARENTHESES RPARENTHESES						{ /* empty */ }
 ;
 
 arg_list_inside:
 	TEXT 											{ 	
+														globalCurrentScope->SetVariable (*($1), 0);
 														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
 														$$ = new ArgumentsListElement (temp, nullptr);
 														delete $1;
 													}
 |	TEXT COMMA arg_list_inside						{ 	
+														globalCurrentScope->SetVariable (*($1), 0);
 														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
 														$$ = new ArgumentsListElement (temp, $3);
 														delete $1;
@@ -213,7 +219,9 @@ exprLvl3:
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
 |	TEXT								{ 	
 											try {
-												globalCurrentScope->GetVariable (*($1));
+												if (codePass != 0) { 
+													globalCurrentScope->GetVariable (*($1));
+												}
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (@1, "Undefined variable!");
@@ -224,7 +232,9 @@ exprLvl3:
 |	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
 |	TEXT call_arg_list					{ 
 											try {
-												globalCurrentScope->GetFunctionVariable (*($1), $2);
+												if (codePass != 0) { 
+													globalCurrentScope->GetFunctionVariable (*($1), $2);
+												}
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (@1, "Undefined function variable!");
