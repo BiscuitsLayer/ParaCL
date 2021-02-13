@@ -34,10 +34,13 @@ bool VariableSymTable::AddVariable (const std::string& name, NumberType value) {
 }
 
 NumberType ScopeNode::Execute () const {
-    NumberType returnValue = 0;
+    NumberType result = 0;
     for (int i = 0; i < branches_.size (); ++i) {
         try {
-            returnValue = branches_[i]->Execute ();
+            result = branches_[i]->Execute ();
+            if (branches_[i]->GetType () == NodeType::RETURN) {
+                return result;
+            }
         }
         catch (std::overflow_error& ex) {
             ERRSTREAM << ex.what () << std::endl;
@@ -46,7 +49,7 @@ NumberType ScopeNode::Execute () const {
             exit (ErrorCodes::ERROR_OVF);
         }
     }
-    return returnValue;
+    return result;
 }
 
 NumberType ScopeNode::GetVariable (const std::string& name) const {

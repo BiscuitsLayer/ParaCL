@@ -74,6 +74,8 @@ class FunctionSymTable final {
                     foundScope = unnamedData_[numberId].second;
                 }
             }
+            //TODO
+            //? what if previous scope in here is the same as globalCurrentScope
             globalCurrentScope->Entry (foundScope);
             if (!foundScope->ExecuteWithArguments (arguments, result)) {
                 return false;
@@ -298,8 +300,8 @@ class ScopeNode final : public ScopeNodeInterface {
                 }
             }
         }
-        void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; std::cerr << "e" << std::endl; }
-        void Outro () const override   { globalCurrentScope = globalCurrentScope->previous_; std::cerr << "o" << std::endl; }
+        void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; }
+        void Outro () const override   { globalCurrentScope = globalCurrentScope->previous_; }
 
         //  CTOR
         ScopeNode (ScopeNodeInterface* previous):
@@ -318,32 +320,17 @@ class ScopeNode final : public ScopeNodeInterface {
         }
 };
 
-class ReturnPerformer final {
-    private:
-        /* empty */
-    public:
-        NumberType value_ = 0;
-        ReturnPerformer (NumberType value):
-            value_ (value)
-            {}
-};
-
 class ReturnNode final : public NodeInterface {
     private:
         NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override {
-            NumberType value = child_->Execute ();
-            //TODO
-            //? may be we need to restore old variables there, not sure
-            throw ReturnPerformer (value);
-        }
+        NumberType Execute () const override { return child_->Execute (); }
         void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
 
         //  CTOR
         ReturnNode (NodeInterface* child):
-            NodeInterface (NodeType::PRINT),
+            NodeInterface (NodeType::RETURN),
             child_ (child)
             {}
 
@@ -405,12 +392,7 @@ class FunctionVariableNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override { 
-            try {
-                value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_, argumentsList_);
-            }
-            catch (ReturnPerformer& performer) {
-                value_ = performer.value_;
-            }
+            value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_, argumentsList_);
             return value_; 
         }
         void Dump (std::ostream &stream) const override { stream << variableName_ << " {" << value_ << "}"; }

@@ -7,8 +7,11 @@
 #include "../Settings/Settings.hpp"
 
 enum class NodeType {
-    VALUE = 0,
-    VARIABLE = 1,
+    RETURN,
+
+    VALUE,
+    VARIABLE,
+    FUNCTION_VARIABLE,
 
     BINARY_OP_ADD,
     BINARY_OP_SUB,
@@ -31,8 +34,6 @@ enum class NodeType {
     PRINT,
     SCOPE,
 
-    FUNCTION,
-    FUNCTION_VARIABLE,
     ERROR
 };
 
@@ -47,6 +48,7 @@ class NodeInterface {
         NodeType type_ = NodeType::ERROR;
     public:
         //  METHODS
+        NodeType GetType () const { return type_; }
         virtual NumberType Execute () const = 0;
         virtual void Dump (std::ostream &stream) const = 0;
 
