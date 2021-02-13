@@ -167,13 +167,13 @@ function_assignment:
 function_assignment_entry:
 	TEXT ASSIGN FUNC arg_list LBRACE			{
 													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
-													globalCurrentScope->previous_->SetFunctionVariable (*($1), $4, globalCurrentScope);
+													globalCurrentScope->Previous ()->SetFunctionVariable (*($1), $4, globalCurrentScope);
 													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 												}
 |	TEXT ASSIGN FUNC arg_list COLON	TEXT LBRACE	{ 
 													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
-													globalCurrentScope->previous_->SetFunctionVariable (*($1), $4, globalCurrentScope, true, *($6));
+													globalCurrentScope->Previous ()->SetFunctionVariable (*($1), $4, globalCurrentScope, true, *($6));
 													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 													delete $6;

@@ -1,11 +1,8 @@
 temp = func (x) : factorial {
     if (x == 1) {
-        ?;
         return 1;
     }
-    y = factorial (x - 1) * x;
-    print y;
-    return y;
+    return factorial (x - 1) * x;
 }
 
-print factorial (5);
+print factorial (?);

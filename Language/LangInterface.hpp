@@ -2,6 +2,7 @@
 
 //  SYSTEM
 #include <iostream>
+#include <stack>
 
 //  SETTINGS
 #include "../Settings/Settings.hpp"
@@ -48,7 +49,6 @@ class NodeInterface {
         NodeType type_ = NodeType::ERROR;
     public:
         //  METHODS
-        NodeType GetType () const { return type_; }
         virtual NumberType Execute () const = 0;
         virtual void Dump (std::ostream &stream) const = 0;
 
@@ -78,7 +78,7 @@ class ScopeNodeInterface : public NodeInterface {
     protected:
         /* empty */
     public:
-        ScopeNodeInterface* previous_ = nullptr;
+        std::stack <ScopeNodeInterface*> previousStack_ {};
 
         //  METHODS
         virtual void AddNode (NodeInterface* node) = 0;
@@ -89,14 +89,17 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
         virtual NumberType ExecuteFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
         virtual void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
-        virtual void Entry (ScopeNodeInterface* scope) const = 0;
-        virtual void Outro () const = 0;
+        virtual void Entry (ScopeNodeInterface* scope) = 0;
+        virtual ScopeNodeInterface* Previous () const = 0;
+        virtual void Outro () = 0;
 
         //  CTOR
         ScopeNodeInterface (ScopeNodeInterface* previous):
             NodeInterface (NodeType::SCOPE),
-            previous_ (previous)
-            {}
+            previousStack_ ()
+            {
+                previousStack_.push (previous);
+            }
 
         //  DTOR
         virtual ~ScopeNodeInterface () = default;

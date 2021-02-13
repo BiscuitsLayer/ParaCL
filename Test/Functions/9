@@ -1,21 +1,11 @@
-temp0 = func (x) : testFunc0 {
-    print x;
+temp2 = func (x) : testFunc2 {
     if (x > 0) {
         return 1;
-        print 500;
     }
-    print 600;
-    return 1;
-    return 2;
 }
 
-temp = func (x) : testFunc {
-    print x;
-    if (x > 0) {
-        print 500;
-    }
-    return 3 * temp0 (1);
-    return 2;
+temp1 = func (x) : testFunc1 {
+    return 3 * temp2 (1);
 }
 
-print testFunc (5);
+print testFunc1 (5);

@@ -38,9 +38,10 @@ NumberType ScopeNode::Execute () const {
     for (int i = 0; i < branches_.size (); ++i) {
         try {
             result = branches_[i]->Execute ();
-            if (branches_[i]->GetType () == NodeType::RETURN) {
-                return result;
-            }
+        }
+        catch (ReturnPerformer& performer) {
+            globalCurrentScope->Outro ();
+            throw performer;
         }
         catch (std::overflow_error& ex) {
             ERRSTREAM << ex.what () << std::endl;
@@ -56,8 +57,8 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
     const ScopeNode* cur = this;
     NumberType value = 0;
     while (!cur->variableTable_.GetVariableValue (name, value)) {
-        if (cur->previous_) {
-            cur = static_cast <ScopeNode*> (cur->previous_);
+        if (cur->Previous ()) {
+            cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
             throw std::invalid_argument ("Wrong name of variable!");
@@ -69,8 +70,8 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
 void ScopeNode::SetVariable (const std::string& name, NumberType value) {
     ScopeNode* cur = this;
     while (!cur->variableTable_.SetVariableValue (name, value)) {
-        if (cur->previous_) {
-            cur = static_cast <ScopeNode*> (cur->previous_);
+        if (cur->Previous ()) {
+            cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
             variableTable_.AddVariable (name, value);

@@ -10,6 +10,13 @@
 //  INTERFACE
 #include "LangInterface.hpp"
 
+//TODO list
+/* 1) придумать как лучше у scope смотреть, сделал он return или нет, и возвращаться
+2) возвращать старые значения переменных при return-е (чтобы факториал работал правильно)
+3) разделить код по файлам))) и исправить ошибки с 1 уровня
+4) поменьше работать с globalCurrentScope
+*/
+
 extern ScopeNodeInterface* globalCurrentScope;
 const int poisonFunctionIdx = -1;
 
@@ -74,13 +81,9 @@ class FunctionSymTable final {
                     foundScope = unnamedData_[numberId].second;
                 }
             }
-            //TODO
-            //? what if previous scope in here is the same as globalCurrentScope
-            globalCurrentScope->Entry (foundScope);
             if (!foundScope->ExecuteWithArguments (arguments, result)) {
                 return false;
             }
-            globalCurrentScope->Outro ();
             return true;
         }
         bool SetFunction (const VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope) {
@@ -196,7 +199,6 @@ class FunctionVariableSymTable final {
                     ans = poisonFunctionIdx;
                 }
                 if (!globalFunctionSymTable->AddFunction (ans, arguments, scope)) {
-                    std::cerr << "U GOT TROLLED" << std::endl;
                     return false;
                 }
                 data_[{ argumentsCount, variableName }] = ans;
@@ -213,6 +215,35 @@ class FunctionVariableSymTable final {
         ~FunctionVariableSymTable () = default;
 };
 
+class ReturnPerformer final {
+    public:
+        NumberType value_ = 0;
+        ReturnPerformer (NumberType value):
+            value_ (value)
+            {}
+};
+
+class ReturnNode final : public NodeInterface {
+    private:
+        NodeInterface* child_ = nullptr;
+    public:
+        //  METHODS FROM NODE INTERFACE
+        NumberType Execute () const override { 
+            NumberType result = child_->Execute ();
+            throw ReturnPerformer (result);
+        }
+        void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
+
+        //  CTOR
+        ReturnNode (NodeInterface* child):
+            NodeInterface (NodeType::RETURN),
+            child_ (child)
+            {}
+
+        //  DTOR
+        ~ReturnNode () { delete child_; }
+};
+
 class ScopeNode final : public ScopeNodeInterface {
     private:
         std::vector <NodeInterface*> branches_ {};
@@ -227,6 +258,7 @@ class ScopeNode final : public ScopeNodeInterface {
         //  METHODS FROM SCOPE INTERFACE
         void AddNode (NodeInterface* node) override { branches_.push_back (node); }
         bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) override {
+            globalCurrentScope->Entry (this);
             int argumentsCount = (arguments ? arguments->GetListLength () : 0);
             if (argumentsNames_.size () != argumentsCount) {
                 return false;
@@ -242,10 +274,18 @@ class ScopeNode final : public ScopeNodeInterface {
                 globalCurrentScope->SetVariable (argumentsNames_[i], arguments->ExecuteNode ());
                 arguments = arguments->GetPrevious ();
             }
-            result = globalCurrentScope->Execute ();
+            try {
+                result = globalCurrentScope->Execute ();
+            }
+            catch (ReturnPerformer& performer) {
+                result = performer.value_;
+                //  Returning back to function's scope
+                globalCurrentScope->Entry (this);
+            }
             for (int i = 0; i < argumentsCount; ++i) {
                 globalCurrentScope->SetVariable (argumentsNames_[i], oldArgumentValues[i]);
             }
+            globalCurrentScope->Outro ();
             return true;
         }
         bool SetArgumentsNames (ArgumentsListElement* arguments) override { 
@@ -267,8 +307,8 @@ class ScopeNode final : public ScopeNodeInterface {
             const ScopeNode* cur = this;
             NumberType value = 0;
             while (!cur->functionVariableTable_.GetFunctionVariable (variableName, arguments)) {
-                if (cur->previous_) {
-                    cur = static_cast <ScopeNode*> (cur->previous_);
+                if (cur->Previous ()) {
+                    cur = static_cast <ScopeNode*> (cur->Previous ());
                 }
                 else {
                     throw std::invalid_argument ("Wrong name of function variable!");
@@ -279,8 +319,8 @@ class ScopeNode final : public ScopeNodeInterface {
             const ScopeNode* cur = this;
             NumberType value = 0;
             while (!cur->functionVariableTable_.ExecuteFunctionVariable (variableName, arguments, value)) {
-                if (cur->previous_) {
-                    cur = static_cast <ScopeNode*> (cur->previous_);
+                if (cur->Previous ()) {
+                    cur = static_cast <ScopeNode*> (cur->Previous ());
                 }
                 else {
                     throw std::invalid_argument ("Wrong name of function variable!");
@@ -291,8 +331,8 @@ class ScopeNode final : public ScopeNodeInterface {
         void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override {
             ScopeNode* cur = this;
             while (!cur->functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, hasFunctionName, functionName)) {
-                if (cur->previous_) {
-                    cur = static_cast <ScopeNode*> (cur->previous_);
+                if (cur->Previous ()) {
+                    cur = static_cast <ScopeNode*> (cur->Previous ());
                 }
                 else {
                     functionVariableTable_.AddFunctionVariable (variableName, arguments, scope, hasFunctionName, functionName);
@@ -300,8 +340,22 @@ class ScopeNode final : public ScopeNodeInterface {
                 }
             }
         }
-        void Entry (ScopeNodeInterface* scope) const override    { globalCurrentScope = scope; }
-        void Outro () const override   { globalCurrentScope = globalCurrentScope->previous_; }
+        void Entry (ScopeNodeInterface* scope) override {
+            //TODO а чё тут везде делает globalCurrentScope?
+            scope->previousStack_.push (globalCurrentScope);
+            globalCurrentScope = scope; 
+            //std::cerr << "e" << std::endl; 
+        }
+        ScopeNodeInterface* Previous () const override {
+            return previousStack_.top ();
+        }
+        void Outro () override {
+            //TODO а чё тут везде делает globalCurrentScope?
+            ScopeNodeInterface* previous = globalCurrentScope->Previous ();
+            globalCurrentScope->previousStack_.pop ();
+            globalCurrentScope = previous;
+            //std::cerr << "o" << std::endl; 
+        }
 
         //  CTOR
         ScopeNode (ScopeNodeInterface* previous):
@@ -318,24 +372,6 @@ class ScopeNode final : public ScopeNodeInterface {
                 delete branch;
             }
         }
-};
-
-class ReturnNode final : public NodeInterface {
-    private:
-        NodeInterface* child_ = nullptr;
-    public:
-        //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { return child_->Execute (); }
-        void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
-
-        //  CTOR
-        ReturnNode (NodeInterface* child):
-            NodeInterface (NodeType::RETURN),
-            child_ (child)
-            {}
-
-        //  DTOR
-        ~ReturnNode () { delete child_; }
 };
 
 class ValueNode final : public NodeInterface {
