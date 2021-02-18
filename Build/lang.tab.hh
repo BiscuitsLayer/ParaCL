@@ -32,7 +32,7 @@
 
 
 /**
- ** \file lang.tab.hh
+ ** \file Build/lang.tab.hh
  ** Define the yy::parser class.
  */
 
@@ -42,10 +42,10 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_LANG_TAB_HH_INCLUDED
-# define YY_YY_LANG_TAB_HH_INCLUDED
+#ifndef YY_YY_BUILD_LANG_TAB_HH_INCLUDED
+# define YY_YY_BUILD_LANG_TAB_HH_INCLUDED
 // "%code requires" blocks.
-#line 12 "../Language/lang.y"
+#line 12 "Language/lang.y"
 
 	//	SYSTEM
 	#include <algorithm>
@@ -58,7 +58,7 @@
 	// forward declaration of argument to parser
 	namespace yy { class LangDriver; }
 
-#line 62 "lang.tab.hh"
+#line 62 "Build/lang.tab.hh"
 
 
 # include <cstdlib> // std::abort
@@ -187,7 +187,7 @@
 #endif
 
 namespace yy {
-#line 191 "lang.tab.hh"
+#line 191 "Build/lang.tab.hh"
 
 
 
@@ -1710,9 +1710,9 @@ switch (yykind)
 
 
 } // yy
-#line 1714 "lang.tab.hh"
+#line 1714 "Build/lang.tab.hh"
 
 
 
 
-#endif // !YY_YY_LANG_TAB_HH_INCLUDED
+#endif // !YY_YY_BUILD_LANG_TAB_HH_INCLUDED

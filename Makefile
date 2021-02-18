@@ -1,8 +1,22 @@
-all:	fb b r
-fb:
-		$(MAKE) -C Build
-b:
-		g++ main.cpp -std=c++2a Language/driver.cpp Build/lex.yy.cc Build/lang.tab.cc \
-		Language/Lang.cpp Language/LangInterface.cpp Language/SyntaxCheck.cpp -ggdb3 -o main
-r:
-		./main Test/Functions/10
+CC = g++
+LDFLAGS = -std=c++2a
+CXXFLAGS = -MMD -std=c++2a
+TEST = Functions/10
+
+all: main run
+
+main: main.o Language/driver.o Build/lex.yy.cc Build/lang.tab.cc \
+	Language/Lang.o Language/LangInterface.o Language/SyntaxCheck.o
+
+run:
+	./main Test/$(TEST)
+
+Build/lang.tab.cc: Language/lang.y
+	bison -o Build/lang.tab.cc Language/lang.y
+
+Build/lex.yy.cc: Language/lang.l
+	flex -o Build/lex.yy.cc Language/lang.l
+
+.PHONY = all clean
+
+-include *.d
