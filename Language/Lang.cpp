@@ -61,6 +61,7 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
             cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
+            std::cerr << "kek " << name << std::endl;
             throw std::invalid_argument ("Wrong name of variable!");
         }
     }

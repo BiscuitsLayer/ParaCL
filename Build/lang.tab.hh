@@ -385,6 +385,7 @@ namespace yy {
       char dummy1[sizeof (ArgumentsListElement*)];
 
       // inside_scope
+      // action
       // if_while
       // condition
       // assignment
@@ -536,21 +537,22 @@ namespace yy {
         S_scope = 35,                            // scope
         S_scope_entry = 36,                      // scope_entry
         S_inside_scope = 37,                     // inside_scope
-        S_scope_outro = 38,                      // scope_outro
-        S_if_while = 39,                         // if_while
-        S_condition = 40,                        // condition
-        S_assignment = 41,                       // assignment
-        S_function_assignment = 42,              // function_assignment
-        S_function_assignment_entry = 43,        // function_assignment_entry
-        S_arg_list = 44,                         // arg_list
-        S_arg_list_inside = 45,                  // arg_list_inside
-        S_return = 46,                           // return
-        S_syscall = 47,                          // syscall
-        S_exprLvl1 = 48,                         // exprLvl1
-        S_exprLvl2 = 49,                         // exprLvl2
-        S_exprLvl3 = 50,                         // exprLvl3
-        S_call_arg_list = 51,                    // call_arg_list
-        S_call_arg_list_inside = 52              // call_arg_list_inside
+        S_action = 38,                           // action
+        S_scope_outro = 39,                      // scope_outro
+        S_if_while = 40,                         // if_while
+        S_condition = 41,                        // condition
+        S_assignment = 42,                       // assignment
+        S_function_assignment = 43,              // function_assignment
+        S_function_assignment_entry = 44,        // function_assignment_entry
+        S_arg_list = 45,                         // arg_list
+        S_arg_list_inside = 46,                  // arg_list_inside
+        S_return = 47,                           // return
+        S_syscall = 48,                          // syscall
+        S_exprLvl1 = 49,                         // exprLvl1
+        S_exprLvl2 = 50,                         // exprLvl2
+        S_exprLvl3 = 51,                         // exprLvl3
+        S_call_arg_list = 52,                    // call_arg_list
+        S_call_arg_list_inside = 53              // call_arg_list_inside
       };
     };
 
@@ -595,6 +597,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_inside_scope: // inside_scope
+      case symbol_kind::S_action: // action
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
@@ -743,6 +746,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_inside_scope: // inside_scope
+      case symbol_kind::S_action: // action
       case symbol_kind::S_if_while: // if_while
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
@@ -1470,7 +1474,7 @@ switch (yykind)
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const unsigned char yyrline_[];
+    static const short yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -1697,8 +1701,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 97,     ///< Last index in yytable_.
-      yynnts_ = 19,  ///< Number of nonterminal symbols.
+      yylast_ = 105,     ///< Last index in yytable_.
+      yynnts_ = 20,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
 
@@ -1710,7 +1714,7 @@ switch (yykind)
 
 
 } // yy
-#line 1714 "Build/lang.tab.hh"
+#line 1718 "Build/lang.tab.hh"
 
 
 

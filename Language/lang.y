@@ -87,6 +87,7 @@
 
 %nterm <ScopeNodeInterface*> scope
 %nterm <NodeInterface*> inside_scope
+%nterm <NodeInterface*> action
 
 %nterm <ArgumentsListElement*> arg_list
 %nterm <ArgumentsListElement*> arg_list_inside
@@ -102,34 +103,50 @@
 %%
 
 scope:
-	scope_entry inside_scope scope_outro			{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
-|	scope_entry inside_scope scope_outro SCOLON		{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
+	scope_entry inside_scope scope_outro				{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
+|	scope_entry inside_scope scope_outro SCOLON			{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
 ;
 
 scope_entry:
-	LBRACE											{ 
-														globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
-													}
+	LBRACE												{ 
+															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
+														}
 ;
 
 inside_scope:
-	inside_scope assignment 						{ globalCurrentScope->AddNode ($2); }
-|	inside_scope function_assignment				{ globalCurrentScope->AddNode ($2); }
-|	inside_scope return								{ globalCurrentScope->AddNode ($2); }
-|	inside_scope exprLvl1 SCOLON					{ globalCurrentScope->AddNode ($2); }
-|	inside_scope syscall 							{ globalCurrentScope->AddNode ($2); }
-|	inside_scope if_while							{ globalCurrentScope->AddNode ($2); }
-|	inside_scope scope								{ globalCurrentScope->AddNode ($2); }
-|													{ /* empty */ }
+	inside_scope action									{ globalCurrentScope->AddNode ($2); }
+|														{ /* empty */ }
+;
+
+action:
+	assignment 											{ $$ = $1; }
+|	function_assignment									{ $$ = $1; }
+|	return												{ $$ = $1; }
+|	exprLvl1 SCOLON										{ $$ = $1; }
+|	syscall 											{ $$ = $1; }
+|	if_while											{ $$ = $1; }
+|	scope												{ $$ = $1; }
 ;
 
 scope_outro:
-	RBRACE											{ /* empty */ }
+	RBRACE												{ /* empty */ }
 ;
 
 if_while:
-	IF LPARENTHESES condition RPARENTHESES scope	{ $$ = NodeInterface::CreateIfNode ($3, $5); }
-|	WHILE LPARENTHESES condition RPARENTHESES scope	{ $$ = NodeInterface::CreateWhileNode ($3, $5); }
+	IF LPARENTHESES condition RPARENTHESES action 		{ 
+															ScopeNodeInterface* scope = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
+															globalCurrentScope->Entry (scope);
+															globalCurrentScope->AddNode ($5);
+															globalCurrentScope->Outro ();
+															$$ = NodeInterface::CreateIfNode ($3, scope);
+														}
+|	WHILE LPARENTHESES condition RPARENTHESES action	{ 
+															ScopeNodeInterface* scope = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
+															globalCurrentScope->Entry (scope);
+															globalCurrentScope->AddNode ($5);
+															globalCurrentScope->Outro ();
+															$$ = NodeInterface::CreateWhileNode ($3, scope);
+														}
 ;
 
 condition:
@@ -181,41 +198,41 @@ function_assignment_entry:
 ;
 
 arg_list:
-	LPARENTHESES arg_list_inside RPARENTHESES		{ $$ = $2; }
-|	LPARENTHESES RPARENTHESES						{ /* empty */ }
+	LPARENTHESES arg_list_inside RPARENTHESES	{ $$ = $2; }
+|	LPARENTHESES RPARENTHESES					{ /* empty */ }
 ;
 
 arg_list_inside:
-	TEXT 											{ 	
-														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
-														$$ = new ArgumentsListElement (temp, nullptr);
-														delete $1;
-													}
-|	TEXT COMMA arg_list_inside						{ 	
-														NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
-														$$ = new ArgumentsListElement (temp, $3);
-														delete $1;
-													}
+	TEXT 								{ 	
+											NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
+											$$ = new ArgumentsListElement (temp, nullptr);
+											delete $1;
+										}
+|	TEXT COMMA arg_list_inside			{ 	
+											NodeInterface* temp = NodeInterface::CreateVariableNode (*($1));
+											$$ = new ArgumentsListElement (temp, $3);
+											delete $1;
+										}
 ;
 
 return:
-	RETURN exprLvl1 SCOLON							{ $$ = NodeInterface::CreateReturnNode ($2); }
+	RETURN exprLvl1 SCOLON				{ $$ = NodeInterface::CreateReturnNode ($2); }
 ;
 
 syscall:
-	PRINT exprLvl1 SCOLON							{ $$ = NodeInterface::CreatePrintNode ($2); }
+	PRINT exprLvl1 SCOLON				{ $$ = NodeInterface::CreatePrintNode ($2); }
 ;
 
 exprLvl1:
-	exprLvl2 ADD exprLvl1  	{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, $1, $3); }
-| 	exprLvl2 SUB exprLvl1 	{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, $1, $3); }
-| 	exprLvl2				{ $$ = $1; }
+	exprLvl2 ADD exprLvl1  				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, $1, $3); }
+| 	exprLvl2 SUB exprLvl1 				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, $1, $3); }
+| 	exprLvl2							{ $$ = $1; }
 ;
 
 exprLvl2:
-	exprLvl3 MUL exprLvl2  	{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, $1, $3); }
-| 	exprLvl3 DIV exprLvl2 	{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, $1, $3); }
-| 	exprLvl3				{ $$ = $1; }
+	exprLvl3 MUL exprLvl2  				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, $1, $3); }
+| 	exprLvl3 DIV exprLvl2 				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, $1, $3); }
+| 	exprLvl3							{ $$ = $1; }
 ;
 
 exprLvl3:
