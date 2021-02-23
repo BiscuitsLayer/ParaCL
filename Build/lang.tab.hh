@@ -183,7 +183,7 @@
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 
 namespace yy {
@@ -386,7 +386,10 @@ namespace yy {
 
       // inside_scope
       // action
-      // if_while
+      // if
+      // if_condition
+      // while
+      // while_condition
       // condition
       // assignment
       // function_assignment
@@ -539,20 +542,23 @@ namespace yy {
         S_inside_scope = 37,                     // inside_scope
         S_action = 38,                           // action
         S_scope_outro = 39,                      // scope_outro
-        S_if_while = 40,                         // if_while
-        S_condition = 41,                        // condition
-        S_assignment = 42,                       // assignment
-        S_function_assignment = 43,              // function_assignment
-        S_function_assignment_entry = 44,        // function_assignment_entry
-        S_arg_list = 45,                         // arg_list
-        S_arg_list_inside = 46,                  // arg_list_inside
-        S_return = 47,                           // return
-        S_syscall = 48,                          // syscall
-        S_exprLvl1 = 49,                         // exprLvl1
-        S_exprLvl2 = 50,                         // exprLvl2
-        S_exprLvl3 = 51,                         // exprLvl3
-        S_call_arg_list = 52,                    // call_arg_list
-        S_call_arg_list_inside = 53              // call_arg_list_inside
+        S_if = 40,                               // if
+        S_if_condition = 41,                     // if_condition
+        S_while = 42,                            // while
+        S_while_condition = 43,                  // while_condition
+        S_condition = 44,                        // condition
+        S_assignment = 45,                       // assignment
+        S_function_assignment = 46,              // function_assignment
+        S_function_assignment_entry = 47,        // function_assignment_entry
+        S_arg_list = 48,                         // arg_list
+        S_arg_list_inside = 49,                  // arg_list_inside
+        S_return = 50,                           // return
+        S_syscall = 51,                          // syscall
+        S_exprLvl1 = 52,                         // exprLvl1
+        S_exprLvl2 = 53,                         // exprLvl2
+        S_exprLvl3 = 54,                         // exprLvl3
+        S_call_arg_list = 55,                    // call_arg_list
+        S_call_arg_list_inside = 56              // call_arg_list_inside
       };
     };
 
@@ -598,7 +604,10 @@ namespace yy {
 
       case symbol_kind::S_inside_scope: // inside_scope
       case symbol_kind::S_action: // action
-      case symbol_kind::S_if_while: // if_while
+      case symbol_kind::S_if: // if
+      case symbol_kind::S_if_condition: // if_condition
+      case symbol_kind::S_while: // while
+      case symbol_kind::S_while_condition: // while_condition
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
       case symbol_kind::S_function_assignment: // function_assignment
@@ -747,7 +756,10 @@ switch (yykind)
 
       case symbol_kind::S_inside_scope: // inside_scope
       case symbol_kind::S_action: // action
-      case symbol_kind::S_if_while: // if_while
+      case symbol_kind::S_if: // if
+      case symbol_kind::S_if_condition: // if_condition
+      case symbol_kind::S_while: // while
+      case symbol_kind::S_while_condition: // while_condition
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
       case symbol_kind::S_function_assignment: // function_assignment
@@ -1701,8 +1713,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 105,     ///< Last index in yytable_.
-      yynnts_ = 20,  ///< Number of nonterminal symbols.
+      yylast_ = 108,     ///< Last index in yytable_.
+      yynnts_ = 23,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
 
@@ -1714,7 +1726,7 @@ switch (yykind)
 
 
 } // yy
-#line 1718 "Build/lang.tab.hh"
+#line 1730 "Build/lang.tab.hh"
 
 
 

@@ -1,6 +1,6 @@
 CC = g++
 LDFLAGS = -std=c++2a
-CXXFLAGS = -MMD -std=c++2a
+CXXFLAGS = -MMD -ggdb3 -std=c++2a
 TEST = Functions/10
 
 all: main run
@@ -12,11 +12,11 @@ run:
 	./main Test/$(TEST)
 
 Build/lang.tab.cc: Language/lang.y
-	bison -o Build/lang.tab.cc Language/lang.y
+	bison --debug -o Build/lang.tab.cc Language/lang.y
 
 Build/lex.yy.cc: Language/lang.l
 	flex -o Build/lex.yy.cc Language/lang.l
 
 .PHONY = all clean
 
--include *.d
+include *.d Language/*.d

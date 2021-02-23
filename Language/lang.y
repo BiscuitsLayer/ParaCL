@@ -83,7 +83,10 @@
 %nterm <NodeInterface*> return
 %nterm <NodeInterface*> syscall
 %nterm <NodeInterface*> condition
-%nterm <NodeInterface*> if_while
+%nterm <NodeInterface*> if
+%nterm <NodeInterface*> if_condition
+%nterm <NodeInterface*> while
+%nterm <NodeInterface*> while_condition
 
 %nterm <ScopeNodeInterface*> scope
 %nterm <NodeInterface*> inside_scope
@@ -109,7 +112,7 @@ scope:
 
 scope_entry:
 	LBRACE												{ 
-															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
+															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
 														}
 ;
 
@@ -124,7 +127,8 @@ action:
 |	return												{ $$ = $1; }
 |	exprLvl1 SCOLON										{ $$ = $1; }
 |	syscall 											{ $$ = $1; }
-|	if_while											{ $$ = $1; }
+|	if													{ $$ = $1; }
+|	while												{ $$ = $1; }
 |	scope												{ $$ = $1; }
 ;
 
@@ -132,20 +136,35 @@ scope_outro:
 	RBRACE												{ /* empty */ }
 ;
 
-if_while:
-	IF LPARENTHESES condition RPARENTHESES action 		{ 
-															ScopeNodeInterface* scope = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
-															globalCurrentScope->Entry (scope);
-															globalCurrentScope->AddNode ($5);
+if:
+	if_condition action									{
+															globalCurrentScope->AddNode ($2);
+															ScopeNodeInterface* scope = globalCurrentScope;
 															globalCurrentScope->Outro ();
-															$$ = NodeInterface::CreateIfNode ($3, scope);
+															$$ = NodeInterface::CreateIfNode ($1, scope);
 														}
-|	WHILE LPARENTHESES condition RPARENTHESES action	{ 
-															ScopeNodeInterface* scope = ScopeNodeInterface::CreateScopeNode (globalCurrentScope);
-															globalCurrentScope->Entry (scope);
-															globalCurrentScope->AddNode ($5);
+;
+
+if_condition:
+	IF LPARENTHESES condition RPARENTHESES				{
+															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
+															$$ = $3;
+														}
+;
+
+while:
+	while_condition action								{
+															globalCurrentScope->AddNode ($2);
+															ScopeNodeInterface* scope = globalCurrentScope;
 															globalCurrentScope->Outro ();
-															$$ = NodeInterface::CreateWhileNode ($3, scope);
+															$$ = NodeInterface::CreateWhileNode ($1, scope);
+														}
+;
+
+while_condition:
+	WHILE LPARENTHESES condition RPARENTHESES			{
+															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
+															$$ = $3;
 														}
 ;
 
@@ -183,13 +202,13 @@ function_assignment:
 
 function_assignment_entry:
 	TEXT ASSIGN FUNC arg_list LBRACE			{
-													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
+													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
 													globalCurrentScope->Previous ()->SetFunctionVariable (*($1), $4, globalCurrentScope);
 													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 												}
 |	TEXT ASSIGN FUNC arg_list COLON	TEXT LBRACE	{ 
-													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode (globalCurrentScope));
+													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
 													globalCurrentScope->Previous ()->SetFunctionVariable (*($1), $4, globalCurrentScope, true, *($6));
 													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;

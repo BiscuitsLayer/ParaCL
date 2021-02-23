@@ -35,6 +35,7 @@ bool VariableSymTable::AddVariable (const std::string& name, NumberType value) {
 
 NumberType ScopeNode::Execute () const {
     NumberType result = 0;
+    globalCurrentScope->Entry (const_cast <ScopeNode *> (this));
     for (int i = 0; i < branches_.size (); ++i) {
         try {
             result = branches_[i]->Execute ();
@@ -50,6 +51,7 @@ NumberType ScopeNode::Execute () const {
             exit (ErrorCodes::ERROR_OVF);
         }
     }
+    globalCurrentScope->Outro ();
     return result;
 }
 
@@ -61,7 +63,6 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
             cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
-            std::cerr << "kek " << name << std::endl;
             throw std::invalid_argument ("Wrong name of variable!");
         }
     }
@@ -262,9 +263,7 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
 NumberType IfNode::Execute () const {
     NumberType result = 0;
     if (condition_->Execute () > 0) {
-        globalCurrentScope->Entry (scope_);
         result = scope_->Execute ();
-        globalCurrentScope->Outro ();
     }
     return result;
 }
@@ -272,9 +271,7 @@ NumberType IfNode::Execute () const {
 NumberType WhileNode::Execute () const {
     NumberType result = 0;
     while (condition_->Execute () > 0) {
-        globalCurrentScope->Entry (scope_);
         result = scope_->Execute ();
-        globalCurrentScope->Outro ();
     }
     return result;
 }

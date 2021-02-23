@@ -272,14 +272,16 @@ class ScopeNode final : public ScopeNodeInterface {
                     oldArgumentValues[i] = 0;
                 }
                 globalCurrentScope->SetVariable (argumentsNames_[i], arguments->ExecuteNode ());
-                arguments = arguments->GetPrevious ();
+                arguments = arguments->GetPreviousArgument ();
             }
+            //  Outro from scope, since arguments are ready
+            globalCurrentScope->Outro ();
             try {
-                result = globalCurrentScope->Execute ();
+                result = Execute ();
             }
             catch (ReturnPerformer& performer) {
                 result = performer.value_;
-                //  Returning back to function's scope
+                //  Returning back to function's scope (to set variables back)
                 globalCurrentScope->Entry (this);
             }
             for (int i = 0; i < argumentsCount; ++i) {
@@ -294,7 +296,7 @@ class ScopeNode final : public ScopeNodeInterface {
             for (int i = 0; i < argumentsCount; ++i) {
                 argumentsNames_[i] = arguments->GetArgumentName ();
                 SetVariable (argumentsNames_[i], 0);
-                arguments = arguments->GetPrevious ();
+                arguments = arguments->GetPreviousArgument ();
             }
             if (argumentsNames_.size () != argumentsCount) {
                 return false;
@@ -343,23 +345,21 @@ class ScopeNode final : public ScopeNodeInterface {
         void Entry (ScopeNodeInterface* scope) override {
             //TODO а чё тут везде делает globalCurrentScope?
             scope->previousStack_.push (globalCurrentScope);
-            globalCurrentScope = scope; 
-            //std::cerr << "e" << std::endl; 
+            globalCurrentScope = scope;
         }
         ScopeNodeInterface* Previous () const override {
-            return previousStack_.top ();
+            return (previousStack_.empty () ? nullptr : previousStack_.top ());
         }
         void Outro () override {
             //TODO а чё тут везде делает globalCurrentScope?
             ScopeNodeInterface* previous = globalCurrentScope->Previous ();
             globalCurrentScope->previousStack_.pop ();
             globalCurrentScope = previous;
-            //std::cerr << "o" << std::endl; 
         }
 
         //  CTOR
-        ScopeNode (ScopeNodeInterface* previous):
-            ScopeNodeInterface (previous),
+        ScopeNode ():
+            ScopeNodeInterface (),
             branches_ ({}),
             variableTable_ ({}),
             functionVariableTable_ ({}),

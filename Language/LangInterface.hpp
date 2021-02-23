@@ -94,18 +94,15 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void Outro () = 0;
 
         //  CTOR
-        ScopeNodeInterface (ScopeNodeInterface* previous):
-            NodeInterface (NodeType::SCOPE),
-            previousStack_ ()
-            {
-                previousStack_.push (previous);
-            }
+        ScopeNodeInterface ():
+            NodeInterface (NodeType::SCOPE)
+            {}
 
         //  DTOR
         virtual ~ScopeNodeInterface () = default;
 
         //  DERIVED CLASS CTOR
-        static ScopeNodeInterface* CreateScopeNode (ScopeNodeInterface* previous = nullptr);
+        static ScopeNodeInterface* CreateScopeNode ();
 };
 
 class ArgumentsListElement final {
@@ -121,7 +118,7 @@ class ArgumentsListElement final {
             delete previous_;
             delete node_;
         }
-        ArgumentsListElement* GetPrevious () const {
+        ArgumentsListElement* GetPreviousArgument () const {
             return previous_;
         }
         const std::string& GetArgumentName () const;
