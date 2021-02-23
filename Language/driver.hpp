@@ -17,15 +17,15 @@ namespace yy {
         private:
             //  LEXER
             SyntaxCheck* lexer_ {};
-            ScopeNodeInterface* executableScope_ = nullptr;
         public:
             //  METHODS
             parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location);
             bool parse ();
             void execute () {
-                executableScope_ = ScopeNodeInterface::CreateScopeNode ();
-                executableScope_->AddNode (globalCurrentScope);
-                executableScope_->Execute ();
+                ScopeNodeInterface* scope = globalCurrentScope;
+                //  Outro to external scope
+                globalCurrentScope->Outro ();
+                scope->Execute ();
             }
 
             //  ERROR HANDLING METHODS
@@ -34,10 +34,14 @@ namespace yy {
 
             //  CTOR
             LangDriver (std::ifstream& infile):
-                lexer_ (new SyntaxCheck),
-                executableScope_ (nullptr)
+                lexer_ (new SyntaxCheck)
                 {
+                    //  External scope
                     globalCurrentScope = ScopeNodeInterface::CreateScopeNode ();
+                    //  The main scope with code
+                    ScopeNodeInterface* mainScope = ScopeNodeInterface::CreateScopeNode ();
+                    globalCurrentScope->AddNode (mainScope);
+                    globalCurrentScope->Entry (mainScope);
                     globalFunctionSymTable = new FunctionSymTable ();
                     lexer_->switch_streams (infile, OUTSTREAM);
                 }
@@ -45,7 +49,6 @@ namespace yy {
             //  DTOR
             ~LangDriver () {
                 delete globalFunctionSymTable;
-                delete executableScope_;
                 delete lexer_;
             }
     };

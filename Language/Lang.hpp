@@ -12,7 +12,6 @@
 
 //TODO list
 /* 1) придумать как лучше у scope смотреть, сделал он return или нет, и возвращаться
-2) возвращать старые значения переменных при return-е (чтобы факториал работал правильно)
 3) разделить код по файлам))) и исправить ошибки с 1 уровня
 4) поменьше работать с globalCurrentScope
 */
@@ -281,9 +280,9 @@ class ScopeNode final : public ScopeNodeInterface {
             }
             catch (ReturnPerformer& performer) {
                 result = performer.value_;
-                //  Returning back to function's scope (to set variables back)
-                globalCurrentScope->Entry (this);
             }
+            //  Returning back to function's scope (to set variables back)
+            globalCurrentScope->Entry (this);
             for (int i = 0; i < argumentsCount; ++i) {
                 globalCurrentScope->SetVariable (argumentsNames_[i], oldArgumentValues[i]);
             }
@@ -343,17 +342,17 @@ class ScopeNode final : public ScopeNodeInterface {
             }
         }
         void Entry (ScopeNodeInterface* scope) override {
-            //TODO а чё тут везде делает globalCurrentScope?
             scope->previousStack_.push (globalCurrentScope);
+            //std::cout << "entry from " << globalCurrentScope << " to " << scope << std::endl;
             globalCurrentScope = scope;
         }
         ScopeNodeInterface* Previous () const override {
             return (previousStack_.empty () ? nullptr : previousStack_.top ());
         }
         void Outro () override {
-            //TODO а чё тут везде делает globalCurrentScope?
             ScopeNodeInterface* previous = globalCurrentScope->Previous ();
             globalCurrentScope->previousStack_.pop ();
+            //std::cout << "outro from " << globalCurrentScope << " to " << previous << std::endl;
             globalCurrentScope = previous;
         }
 
