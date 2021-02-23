@@ -125,6 +125,13 @@ class ArgumentsListElement final {
         NumberType ExecuteNode () const {
             return node_->Execute ();
         }
+        void Dump (std::ostream &stream) const {
+            node_->Dump (stream);
+            if (previous_) {
+                stream << ", ";
+                previous_->Dump (stream);
+            }
+        }
         int GetListLength () {
             if (previous_) {
                 return previous_->GetListLength () + 1;

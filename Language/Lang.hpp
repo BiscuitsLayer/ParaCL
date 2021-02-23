@@ -5,15 +5,16 @@
 #include <vector>
 #include <variant>
 #include <map>
+#include <set>
 #include <exception>
 
 //  INTERFACE
 #include "LangInterface.hpp"
 
 //TODO list
-/* 1) придумать как лучше у scope смотреть, сделал он return или нет, и возвращаться
-3) разделить код по файлам))) и исправить ошибки с 1 уровня
-4) поменьше работать с globalCurrentScope
+/*
+1) разделить код по файлам
+2) исправить ошибки с 1 уровня
 */
 
 extern ScopeNodeInterface* globalCurrentScope;
@@ -45,9 +46,11 @@ class VariableSymTable final {
 
 class FunctionSymTable final {
     private:
+        //  in pair -> first = arguments count, second = function name
         std::map <PairIS, ScopeNodeInterface*> namedData_ {};
-        // first idx = id, second idx = arguments count
+        //  first idx = id, second idx = arguments count
         VectorOfPair <int, ScopeNodeInterface*> unnamedData_ {};
+        std::set <PairIS> missingFunctions_ {};
     public:
         //  METHODS
         bool GetFunction (const std::string& functionName, int argumentsCount) const {
@@ -110,6 +113,10 @@ class FunctionSymTable final {
                 }
                 else {
                     namedData_[{ argumentsCount, std::get <std::string> (id) }] = scope;
+                    auto searchInMissing = missingFunctions_.find ({ argumentsCount, std::get <std::string> (id) });
+                    if (searchInMissing != missingFunctions_.end ()) {
+                        missingFunctions_.erase (searchInMissing);
+                    }
                 }
             }
             else {
@@ -119,11 +126,26 @@ class FunctionSymTable final {
             }
             return scope->SetArgumentsNames (arguments);
         }
+        void AddMissingFunction (const std::string& name, ArgumentsListElement* arguments) {
+            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
+            missingFunctions_.insert ({ argumentsCount, name });
+        }
+        bool CheckMissingFunctions () const {
+            if (!missingFunctions_.empty ()) {
+                ERRSTREAM << "Functions' scopes missing:" << std::endl;
+                for (auto& miss : missingFunctions_) {
+                    OUTSTREAM << miss.second << " (" << miss.first << (miss.first == 1 ? " argument)" : " arguments)") << std::endl;
+                }
+                return false;
+            }
+            return true;
+        }
 
         //  CTOR
         FunctionSymTable ():
             namedData_ ({}),
-            unnamedData_ ({})
+            unnamedData_ ({}),
+            missingFunctions_ ({})
             {}
 
         //  DTOR
@@ -430,7 +452,11 @@ class FunctionVariableNode final : public NodeInterface {
             value_ = globalCurrentScope->ExecuteFunctionVariable (variableName_, argumentsList_);
             return value_; 
         }
-        void Dump (std::ostream &stream) const override { stream << variableName_ << " {" << value_ << "}"; }
+        void Dump (std::ostream &stream) const override { 
+            stream << variableName_ << " (";
+            argumentsList_->Dump (stream);
+            stream << ") {" << value_ << "}";
+        }
 
         //  EXTRA METHOD
         void Assign (ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") { 

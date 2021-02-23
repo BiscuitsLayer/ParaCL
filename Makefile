@@ -1,7 +1,7 @@
 CC = g++
 LDFLAGS = -std=c++2a
 CXXFLAGS = -MMD -ggdb3 -std=c++2a
-TEST = Functions/6
+TEST = Functions/10_reverse_order
 
 all: main run
 

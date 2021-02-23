@@ -55,7 +55,7 @@
 	}
 
 	extern ScopeNodeInterface* globalCurrentScope;
-	extern int codePass;
+	extern FunctionSymTable* globalFunctionSymTable;
 
 #line 61 "Build/lang.tab.cc"
 
@@ -1230,7 +1230,7 @@ namespace yy {
 												globalCurrentScope->GetFunctionVariable (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
 											}
 											catch (std::invalid_argument& ex) {
-												driver->PrintErrorAndExit (yystack_[1].location, "Undefined function variable!");
+												globalFunctionSymTable->AddMissingFunction (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
 											}
 											yylhs.value.as < NodeInterface* > () = NodeInterface::CreateFunctionVariableNode (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
 											delete yystack_[1].value.as < std::string* > (); 

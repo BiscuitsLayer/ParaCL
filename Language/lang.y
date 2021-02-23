@@ -35,7 +35,7 @@
 	}
 
 	extern ScopeNodeInterface* globalCurrentScope;
-	extern int codePass;
+	extern FunctionSymTable* globalFunctionSymTable;
 }
 
 %token
@@ -273,7 +273,7 @@ exprLvl3:
 												globalCurrentScope->GetFunctionVariable (*($1), $2);
 											}
 											catch (std::invalid_argument& ex) {
-												driver->PrintErrorAndExit (@1, "Undefined function variable!");
+												globalFunctionSymTable->AddMissingFunction (*($1), $2);
 											}
 											$$ = NodeInterface::CreateFunctionVariableNode (*($1), $2);
 											delete $1; 
