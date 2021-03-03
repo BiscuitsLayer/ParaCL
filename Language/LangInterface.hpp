@@ -49,6 +49,7 @@ class NodeInterface {
         NodeType type_ = NodeType::ERROR;
     public:
         //  METHODS
+        NodeType GetType () const { return type_; }
         virtual NumberType Execute () const = 0;
         virtual void Dump (std::ostream &stream) const = 0;
 
@@ -81,6 +82,7 @@ class ScopeNodeInterface : public NodeInterface {
         std::stack <ScopeNodeInterface*> previousStack_ {};
 
         //  METHODS
+        virtual NumberType ExecuteFrom (int startBranch = 0) const = 0;
         virtual void AddNode (NodeInterface* node) = 0;
         virtual bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) = 0;
         virtual bool SetArgumentsNames (ArgumentsListElement* arguments) = 0;

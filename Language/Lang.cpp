@@ -33,10 +33,10 @@ bool VariableSymTable::AddVariable (const std::string& name, NumberType value) {
     }
 }
 
-NumberType ScopeNode::Execute () const {
+NumberType ScopeNode::ExecuteFrom (int startBranch) const {
     NumberType result = 0;
     globalCurrentScope->Entry (const_cast <ScopeNode *> (this));
-    for (int i = 0; i < branches_.size (); ++i) {
+    for (int i = startBranch; i < branches_.size (); ++i) {
         try {
             result = branches_[i]->Execute ();
         }

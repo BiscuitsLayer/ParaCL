@@ -19,4 +19,4 @@ Build/lex.yy.cc: Language/lang.l
 
 .PHONY = all clean
 
-include *.d Language/*.d
+-include *.d Language/*.d

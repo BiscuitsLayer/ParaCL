@@ -238,9 +238,9 @@ class FunctionVariableSymTable final {
 
 class ReturnPerformer final {
     public:
-        NumberType value_ = 0;
-        ReturnPerformer (NumberType value):
-            value_ (value)
+        NodeInterface* child_ = 0;
+        ReturnPerformer (NodeInterface* child):
+            child_ (child)
             {}
 };
 
@@ -250,8 +250,7 @@ class ReturnNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override { 
-            NumberType result = child_->Execute ();
-            throw ReturnPerformer (result);
+            throw ReturnPerformer (child_);
         }
         void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
 
@@ -273,10 +272,11 @@ class ScopeNode final : public ScopeNodeInterface {
         std::vector <std::string> argumentsNames_ {};
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
         void Dump (std::ostream &stream) const override { stream << "{ ... }"; }   
 
         //  METHODS FROM SCOPE INTERFACE
+        NumberType ExecuteFrom (int startBranch = 0) const override;
+        NumberType Execute () const override { return ExecuteFrom (0); }
         void AddNode (NodeInterface* node) override { branches_.push_back (node); }
         bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) override {
             globalCurrentScope->Entry (this);
@@ -301,7 +301,9 @@ class ScopeNode final : public ScopeNodeInterface {
                 result = Execute ();
             }
             catch (ReturnPerformer& performer) {
-                result = performer.value_;
+                globalCurrentScope->Entry (this);
+                result = performer.child_->Execute ();
+                globalCurrentScope->Outro ();
             }
             //  Returning back to function's scope (to set variables back)
             globalCurrentScope->Entry (this);
