@@ -60,6 +60,7 @@
 
   QMARK			"?"
   IF			"if"
+  ELSE			"else"
   WHILE			"while"
   PRINT			"print"
 
@@ -129,7 +130,6 @@ action:
 |	syscall 											{ $$ = $1; }
 |	if													{ $$ = $1; }
 |	while												{ $$ = $1; }
-|	scope												{ $$ = $1; }
 ;
 
 scope_outro:
@@ -139,9 +139,19 @@ scope_outro:
 if:
 	if_condition action									{
 															globalCurrentScope->AddNode ($2);
-															ScopeNodeInterface* scope = globalCurrentScope;
+															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
-															$$ = NodeInterface::CreateIfNode ($1, scope);
+															$$ = NodeInterface::CreateIfNode ($1, scopeTrue, nullptr);
+														}
+|	if_condition action	ELSE action						{
+															globalCurrentScope->AddNode ($2);
+															ScopeNodeInterface* scopeTrue = globalCurrentScope;
+															globalCurrentScope->Outro ();
+															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
+															globalCurrentScope->AddNode ($4);
+															ScopeNodeInterface* scopeFalse = globalCurrentScope;
+															globalCurrentScope->Outro ();
+															$$ = NodeInterface::CreateIfNode ($1, scopeTrue, scopeFalse);
 														}
 ;
 
@@ -256,6 +266,7 @@ exprLvl2:
 
 exprLvl3:
 	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
+|	scope  								{ $$ = $1; }
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
 |	TEXT								{ 	
 											try {

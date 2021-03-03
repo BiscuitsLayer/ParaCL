@@ -1,0 +1,15 @@
+global = 0;
+
+bar = func(x) {
+y = 10;
+x + y;
+}
+
+if (1 > 0) {
+    print (500);
+}
+else {
+    print (600);
+}
+
+print bar({if (global) return 1; else return 2;});

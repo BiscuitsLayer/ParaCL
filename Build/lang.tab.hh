@@ -475,15 +475,16 @@ namespace yy {
     NOT_EQ = 273,                  // "!="
     QMARK = 274,                   // "?"
     IF = 275,                      // "if"
-    WHILE = 276,                   // "while"
-    PRINT = 277,                   // "print"
-    FUNC = 278,                    // "func"
-    RETURN = 279,                  // "return"
-    COLON = 280,                   // ":"
-    COMMA = 281,                   // ","
-    ERROR = 282,                   // ERROR
-    NUMBER = 283,                  // NUMBER
-    TEXT = 284                     // TEXT
+    ELSE = 276,                    // "else"
+    WHILE = 277,                   // "while"
+    PRINT = 278,                   // "print"
+    FUNC = 279,                    // "func"
+    RETURN = 280,                  // "return"
+    COLON = 281,                   // ":"
+    COMMA = 282,                   // ","
+    ERROR = 283,                   // ERROR
+    NUMBER = 284,                  // NUMBER
+    TEXT = 285                     // TEXT
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -500,7 +501,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 34, ///< Number of tokens.
+        YYNTOKENS = 35, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -523,42 +524,43 @@ namespace yy {
         S_NOT_EQ = 18,                           // "!="
         S_QMARK = 19,                            // "?"
         S_IF = 20,                               // "if"
-        S_WHILE = 21,                            // "while"
-        S_PRINT = 22,                            // "print"
-        S_FUNC = 23,                             // "func"
-        S_RETURN = 24,                           // "return"
-        S_COLON = 25,                            // ":"
-        S_COMMA = 26,                            // ","
-        S_ERROR = 27,                            // ERROR
-        S_NUMBER = 28,                           // NUMBER
-        S_TEXT = 29,                             // TEXT
-        S_30_ = 30,                              // '+'
-        S_31_ = 31,                              // '-'
-        S_32_ = 32,                              // '*'
-        S_33_ = 33,                              // '/'
-        S_YYACCEPT = 34,                         // $accept
-        S_scope = 35,                            // scope
-        S_scope_entry = 36,                      // scope_entry
-        S_inside_scope = 37,                     // inside_scope
-        S_action = 38,                           // action
-        S_scope_outro = 39,                      // scope_outro
-        S_if = 40,                               // if
-        S_if_condition = 41,                     // if_condition
-        S_while = 42,                            // while
-        S_while_condition = 43,                  // while_condition
-        S_condition = 44,                        // condition
-        S_assignment = 45,                       // assignment
-        S_function_assignment = 46,              // function_assignment
-        S_function_assignment_entry = 47,        // function_assignment_entry
-        S_arg_list = 48,                         // arg_list
-        S_arg_list_inside = 49,                  // arg_list_inside
-        S_return = 50,                           // return
-        S_syscall = 51,                          // syscall
-        S_exprLvl1 = 52,                         // exprLvl1
-        S_exprLvl2 = 53,                         // exprLvl2
-        S_exprLvl3 = 54,                         // exprLvl3
-        S_call_arg_list = 55,                    // call_arg_list
-        S_call_arg_list_inside = 56              // call_arg_list_inside
+        S_ELSE = 21,                             // "else"
+        S_WHILE = 22,                            // "while"
+        S_PRINT = 23,                            // "print"
+        S_FUNC = 24,                             // "func"
+        S_RETURN = 25,                           // "return"
+        S_COLON = 26,                            // ":"
+        S_COMMA = 27,                            // ","
+        S_ERROR = 28,                            // ERROR
+        S_NUMBER = 29,                           // NUMBER
+        S_TEXT = 30,                             // TEXT
+        S_31_ = 31,                              // '+'
+        S_32_ = 32,                              // '-'
+        S_33_ = 33,                              // '*'
+        S_34_ = 34,                              // '/'
+        S_YYACCEPT = 35,                         // $accept
+        S_scope = 36,                            // scope
+        S_scope_entry = 37,                      // scope_entry
+        S_inside_scope = 38,                     // inside_scope
+        S_action = 39,                           // action
+        S_scope_outro = 40,                      // scope_outro
+        S_if = 41,                               // if
+        S_if_condition = 42,                     // if_condition
+        S_while = 43,                            // while
+        S_while_condition = 44,                  // while_condition
+        S_condition = 45,                        // condition
+        S_assignment = 46,                       // assignment
+        S_function_assignment = 47,              // function_assignment
+        S_function_assignment_entry = 48,        // function_assignment_entry
+        S_arg_list = 49,                         // arg_list
+        S_arg_list_inside = 50,                  // arg_list_inside
+        S_return = 51,                           // return
+        S_syscall = 52,                          // syscall
+        S_exprLvl1 = 53,                         // exprLvl1
+        S_exprLvl2 = 54,                         // exprLvl2
+        S_exprLvl3 = 55,                         // exprLvl3
+        S_call_arg_list = 56,                    // call_arg_list
+        S_call_arg_list_inside = 57              // call_arg_list_inside
       };
     };
 
@@ -1260,6 +1262,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_ELSE (location_type l)
+      {
+        return symbol_type (token::ELSE, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_ELSE (const location_type& l)
+      {
+        return symbol_type (token::ELSE, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_WHILE (location_type l)
       {
         return symbol_type (token::WHILE, std::move (l));
@@ -1713,7 +1730,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 108,     ///< Last index in yytable_.
+      yylast_ = 114,     ///< Last index in yytable_.
       yynnts_ = 23,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
@@ -1726,7 +1743,7 @@ switch (yykind)
 
 
 } // yy
-#line 1730 "Build/lang.tab.hh"
+#line 1747 "Build/lang.tab.hh"
 
 
 

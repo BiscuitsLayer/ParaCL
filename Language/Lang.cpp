@@ -263,7 +263,12 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
 NumberType IfNode::Execute () const {
     NumberType result = 0;
     if (condition_->Execute () > 0) {
-        result = scope_->Execute ();
+        result = scopeTrue_->Execute ();
+    }
+    else {
+        if (scopeFalse_) {
+            result = scopeFalse_->Execute ();
+        }
     }
     return result;
 }

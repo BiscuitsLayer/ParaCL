@@ -20,10 +20,11 @@
 WS              [ \t]+
 CR              [\n\v]+
 DOT             [.]
+MINUS           [-]
 DIGIT           [0-9]
 DIGIT_NON_ZERO  [1-9]
-DOUBLE          {DIGIT}+{DOT}?{DIGIT}*
-INT             {DIGIT}{DIGIT}*
+DOUBLE          {MINUS}?{DIGIT}+{DOT}?{DIGIT}*
+INT             {MINUS}?{DIGIT}{DIGIT}*
 NUMBER          {DOUBLE}
 LETTER          [a-zA-Z_]
 LETTER_OR_DIGIT [a-zA-Z0-9_]
@@ -53,6 +54,7 @@ TEXT            {LETTER}{LETTER_OR_DIGIT}*
 
 "?"                         return yy::parser::token_type::QMARK;
 "if"                        return yy::parser::token_type::IF;
+"else"                      return yy::parser::token_type::ELSE;
 "while"                     return yy::parser::token_type::WHILE;
 "print"                     return yy::parser::token_type::PRINT;
 

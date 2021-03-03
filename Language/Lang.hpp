@@ -510,7 +510,8 @@ class BinaryOpNode final : public NodeInterface {
 class IfNode final : public NodeInterface {
     private:
        NodeInterface* condition_ = nullptr;
-       ScopeNodeInterface* scope_ = nullptr;
+       ScopeNodeInterface* scopeTrue_ = nullptr;
+       ScopeNodeInterface* scopeFalse_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
@@ -518,18 +519,23 @@ class IfNode final : public NodeInterface {
             stream << "if ";
             condition_->Dump (stream);
             stream << " ";
-            scope_->Dump (stream);
+            scopeTrue_->Dump (stream);
+            if (scopeFalse_) {
+                stream << " else ";
+                scopeFalse_->Dump (stream);
+            }
         }
 
         //  CTOR
-        IfNode (NodeInterface* condition, ScopeNodeInterface* scope):
+        IfNode (NodeInterface* condition, ScopeNodeInterface* scopeTrue, ScopeNodeInterface* scopeFalse):
             NodeInterface (NodeType::IF),
             condition_ (condition),
-            scope_ (scope)
+            scopeTrue_ (scopeTrue),
+            scopeFalse_ (scopeFalse)
             {}
 
         //  DTOR
-        ~IfNode () { delete condition_; delete scope_; }
+        ~IfNode () { delete condition_; delete scopeTrue_; delete scopeFalse_; }
 };
 
 class WhileNode final : public NodeInterface {

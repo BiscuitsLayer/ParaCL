@@ -67,7 +67,7 @@ class NodeInterface {
         static NodeInterface* CreateVariableNode (const std::string& name);
         static NodeInterface* CreateFunctionVariableNode (const std::string& variableName, ArgumentsListElement* arguments);
         static NodeInterface* CreateBinaryOpNode (NodeType type, NodeInterface* leftChild, NodeInterface* rightChild);
-        static NodeInterface* CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scope);
+        static NodeInterface* CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scopeTrue, ScopeNodeInterface* scopeFalse);
         static NodeInterface* CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
         static NodeInterface* CreateScanNode ();
         static NodeInterface* CreatePrintNode (NodeInterface* child);
