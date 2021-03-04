@@ -14,7 +14,7 @@ FunctionSymTable* globalFunctionSymTable = nullptr;
 int main (int argc, char** argv) {
 	std::ifstream infile { argv[1] };
 	if (!infile) {
-		ERRSTREAM << "Error opening file!" << std::endl;
+		*ERRSTREAM << "Error opening file!" << std::endl;
 		return 0;
 	}
 	
@@ -22,6 +22,5 @@ int main (int argc, char** argv) {
 	if (driver.parse ()) {
 		driver.execute ();
 	}
-	
 	return 0;
 }

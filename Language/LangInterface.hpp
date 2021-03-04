@@ -79,13 +79,12 @@ class ScopeNodeInterface : public NodeInterface {
     protected:
         /* empty */
     public:
-        std::stack <ScopeNodeInterface*> previousStack_ {};
-
         //  METHODS
-        virtual NumberType ExecuteFrom (int startBranch = 0) const = 0;
-        virtual void AddNode (NodeInterface* node) = 0;
-        virtual bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) = 0;
+        virtual void AddBranch (NodeInterface* node) = 0;
+        
+        //  ARGUMENTS
         virtual bool SetArgumentsNames (ArgumentsListElement* arguments) = 0;
+        virtual NumberType ExecuteWithArguments (ArgumentsListElement* arguments) = 0;
         
         //  VARIABLES
         virtual NumberType GetVariableValue (const std::string& name) const = 0;
@@ -117,30 +116,23 @@ class ArgumentsListElement final {
         ArgumentsListElement* previous_ = nullptr;
         NodeInterface* node_ = nullptr;
     public:
+        // METHODS
+        ArgumentsListElement* GetPreviousArgument () const { return previous_; }
+        const std::string& GetArgumentName () const;
+        NumberType ExecuteNode () const;
+        void Dump (std::ostream &stream) const;
+        int GetListLength ();
+
+        //  CTOR
         ArgumentsListElement (NodeInterface* node, ArgumentsListElement* previous):
             previous_ (previous),
             node_ (node)
             {}
+
+        //  DTOR
         ~ArgumentsListElement () {
             delete previous_;
             delete node_;
         }
-        ArgumentsListElement* GetPreviousArgument () const {
-            return previous_;
-        }
-        const std::string& GetArgumentName () const;
-        NumberType ExecuteNode () const;
-        void Dump (std::ostream &stream) const {
-            node_->Dump (stream);
-            if (previous_) {
-                stream << ", ";
-                previous_->Dump (stream);
-            }
-        }
-        int GetListLength () {
-            if (previous_) {
-                return previous_->GetListLength () + 1;
-            }
-            return 1;
-        }
+
 };

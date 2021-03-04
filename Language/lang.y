@@ -119,7 +119,7 @@ scope_entry:
 ;
 
 inside_scope:
-	inside_scope action									{ globalCurrentScope->AddNode ($2); }
+	inside_scope action									{ globalCurrentScope->AddBranch ($2); }
 |														{ /* empty */ }
 ;
 
@@ -140,17 +140,17 @@ scope_outro:
 
 if:
 	if_condition action			%prec "then"			{
-															globalCurrentScope->AddNode ($2);
+															globalCurrentScope->AddBranch ($2);
 															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															$$ = NodeInterface::CreateIfNode ($1, scopeTrue, nullptr);
 														}
 |	if_condition action	ELSE action						{
-															globalCurrentScope->AddNode ($2);
+															globalCurrentScope->AddBranch ($2);
 															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
-															globalCurrentScope->AddNode ($4);
+															globalCurrentScope->AddBranch ($4);
 															ScopeNodeInterface* scopeFalse = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															$$ = NodeInterface::CreateIfNode ($1, scopeTrue, scopeFalse);
@@ -166,7 +166,7 @@ if_condition:
 
 while:
 	while_condition action								{
-															globalCurrentScope->AddNode ($2);
+															globalCurrentScope->AddBranch ($2);
 															ScopeNodeInterface* scope = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															$$ = NodeInterface::CreateWhileNode ($1, scope);

@@ -55,3 +55,18 @@ NumberType ArgumentsListElement::ExecuteNode () const {
     }
     return result;
 }
+
+void ArgumentsListElement::Dump (std::ostream &stream) const {
+    node_->Dump (stream);
+    if (previous_) {
+        stream << ", ";
+        previous_->Dump (stream);
+    }
+}
+
+int ArgumentsListElement::GetListLength () {
+    if (previous_) {
+        return previous_->GetListLength () + 1;
+    }
+    return 1;
+}

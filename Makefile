@@ -1,15 +1,18 @@
 CC = g++
 LDFLAGS = -std=c++2a
 CXXFLAGS = -MMD -ggdb3 -std=c++2a
-TEST = Functions/10
+TEST = Level_1/Correct/4.cl
 
-all: main run
+all: test run
 
-main: main.o Language/driver.o Build/lex.yy.cc Build/lang.tab.cc \
+main: main.o Language/driver.o Settings/Settings.o Build/lex.yy.cc Build/lang.tab.cc \
 	Language/Lang.o Language/LangInterface.o Language/SyntaxCheck.o
 
+test: test.o Language/driver.o Settings/Settings.o Build/lex.yy.cc Build/lang.tab.cc \
+	Language/Lang.o Language/LangInterface.o Language/SyntaxCheck.o -lgtest -lpthread
+
 run:
-	./main Test/$(TEST)
+	./test Test/$(TEST)
 
 Build/lang.tab.cc: Language/lang.y
 	bison --debug -o Build/lang.tab.cc Language/lang.y

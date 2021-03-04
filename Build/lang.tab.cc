@@ -904,7 +904,7 @@ namespace yy {
 
   case 4: // inside_scope: inside_scope action
 #line 122 "Language/lang.y"
-                                                                                                { globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ()); }
+                                                                                                { globalCurrentScope->AddBranch (yystack_[0].value.as < NodeInterface* > ()); }
 #line 909 "Build/lang.tab.cc"
     break;
 
@@ -971,7 +971,7 @@ namespace yy {
   case 15: // if: if_condition action
 #line 142 "Language/lang.y"
                                                                                 {
-															globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ());
+															globalCurrentScope->AddBranch (yystack_[0].value.as < NodeInterface* > ());
 															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															yylhs.value.as < NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[1].value.as < NodeInterface* > (), scopeTrue, nullptr);
@@ -982,11 +982,11 @@ namespace yy {
   case 16: // if: if_condition action "else" action
 #line 148 "Language/lang.y"
                                                                                         {
-															globalCurrentScope->AddNode (yystack_[2].value.as < NodeInterface* > ());
+															globalCurrentScope->AddBranch (yystack_[2].value.as < NodeInterface* > ());
 															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
-															globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ());
+															globalCurrentScope->AddBranch (yystack_[0].value.as < NodeInterface* > ());
 															ScopeNodeInterface* scopeFalse = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															yylhs.value.as < NodeInterface* > () = NodeInterface::CreateIfNode (yystack_[3].value.as < NodeInterface* > (), scopeTrue, scopeFalse);
@@ -1006,7 +1006,7 @@ namespace yy {
   case 18: // while: while_condition action
 #line 168 "Language/lang.y"
                                                                                         {
-															globalCurrentScope->AddNode (yystack_[0].value.as < NodeInterface* > ());
+															globalCurrentScope->AddBranch (yystack_[0].value.as < NodeInterface* > ());
 															ScopeNodeInterface* scope = globalCurrentScope;
 															globalCurrentScope->Outro ();
 															yylhs.value.as < NodeInterface* > () = NodeInterface::CreateWhileNode (yystack_[1].value.as < NodeInterface* > (), scope);

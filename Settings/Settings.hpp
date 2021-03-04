@@ -7,9 +7,10 @@ using NumberType = int;
 const double EPS = 1e-3;
 
 //  INSTREAM, OUTSTREAM
-#define INSTREAM std::cin
-#define OUTSTREAM std::cout
-#define ERRSTREAM std::cerr
+//#define INSTREAM std::cin
+extern std::istream* INSTREAM;
+extern std::ostream* OUTSTREAM;
+extern std::ostream* ERRSTREAM;
 
 //  PYTHON-STYLE INPUT, OUTPUT
 const bool pythonStyleIO = false;

@@ -29,7 +29,7 @@ bool yy::LangDriver::parse () {
     failure = parser.parse ();
     bool success = !failure && globalFunctionSymTable->CheckMissingFunctions ();
     if (success) {
-        OUTSTREAM << "Parsed successfully!" << std::endl;
+        *OUTSTREAM << "Parsed successfully!" << std::endl;
     }
     return success;
 }
@@ -39,11 +39,11 @@ void yy::LangDriver::PrintErrorAndExit (yy::location location, const std::string
     trueString = wholeString.substr (0, location.begin.column - 1),
     falseString = wholeString.substr (location.begin.column - 1, location.end.column - location.begin.column);
     
-    ERRSTREAM << message << std::endl;
-    OUTSTREAM << "Line: " << location.begin.line << ", Columns: " << location.begin.column << " - " << location.end.column << ":" << std::endl;
-    OUTSTREAM << trueString;
-    ERRSTREAM << falseString;
-    OUTSTREAM << " ..." << std::endl;
+    *ERRSTREAM << message << std::endl;
+    *OUTSTREAM << "Line: " << location.begin.line << ", Columns: " << location.begin.column << " - " << location.end.column << ":" << std::endl;
+    *OUTSTREAM << trueString;
+    *ERRSTREAM << falseString;
+    *OUTSTREAM << " ..." << std::endl;
 
     exit (ErrorCodes::ERROR_SYNTAX);
 }

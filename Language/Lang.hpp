@@ -11,12 +11,6 @@
 //  INTERFACE
 #include "LangInterface.hpp"
 
-//TODO list
-/*
-1) разделить код по файлам
-2) исправить ошибки с 1 уровня
-*/
-
 extern ScopeNodeInterface* globalCurrentScope;
 const int poisonFunctionIdx = -1;
 
@@ -32,8 +26,7 @@ class VariableSymTable final {
     public:
         //  METHODS
         bool GetVariableValue (const std::string& name, NumberType& value) const;
-        bool SetVariableValue (const std::string& name, NumberType value);
-        bool AddVariable (const std::string& name, NumberType value);
+        bool SetVariableValue (const std::string& name, NumberType value, bool mustExist);
 
         //  CTOR
         VariableSymTable ():
@@ -53,80 +46,10 @@ class FunctionSymTable final {
         std::set <PairIS> missingFunctions_ {};
     public:
         //  METHODS
-        ScopeNodeInterface* GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const {
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            ScopeNodeInterface* foundScope = nullptr;
-            if (std::holds_alternative <std::string> (id)) {
-                auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
-                if (search == namedData_.end ()) {
-                    return nullptr;
-                }
-                else {
-                    foundScope = search->second;
-                }
-            }
-            else {
-                int numberId = std::get <int> (id);
-                if (unnamedData_.size () <= numberId || unnamedData_[numberId].first != argumentsCount) {
-                    return nullptr;
-                }
-                else {
-                    foundScope = unnamedData_[numberId].second;
-                }
-            }
-            return foundScope;
-        }
-        bool SetFunctionScope (VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist) {
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            if (std::holds_alternative <std::string> (id)) {
-                auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
-                if (search == namedData_.end ()) {
-                    if (mustExist) {
-                        return false;
-                    }
-                    else {
-                        namedData_[{ argumentsCount, std::get <std::string> (id) }] = scope;
-                        auto searchInMissing = missingFunctions_.find ({ argumentsCount, std::get <std::string> (id) });
-                        if (searchInMissing != missingFunctions_.end ()) {
-                            missingFunctions_.erase (searchInMissing);
-                        }
-                    }
-                }
-                else {
-                    namedData_[{ argumentsCount, std::get <std::string> (id) }] = scope;
-                }
-            }
-            else {
-                if (unnamedData_.size () <= std::get <int> (id)) {
-                    if (mustExist) {
-                        return false;
-                    }
-                    else {
-                        static int unnamedIdx = 0;
-                        id = unnamedIdx++;
-                        unnamedData_.push_back ({ argumentsCount, scope });
-                    }
-                }
-                else {
-                    unnamedData_[std::get <int> (id)].second = scope;
-                }
-            }
-            return scope->SetArgumentsNames (arguments);
-        }
-        void AddMissingFunction (const std::string& name, ArgumentsListElement* arguments) {
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            missingFunctions_.insert ({ argumentsCount, name });
-        }
-        bool CheckMissingFunctions () const {
-            if (!missingFunctions_.empty ()) {
-                ERRSTREAM << "Functions' scopes missing:" << std::endl;
-                for (auto& miss : missingFunctions_) {
-                    OUTSTREAM << miss.second << " (" << miss.first << (miss.first == 1 ? " argument)" : " arguments)") << std::endl;
-                }
-                return false;
-            }
-            return true;
-        }
+        ScopeNodeInterface* GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const;
+        bool SetFunctionScope (VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist);
+        void AddMissingFunction (const std::string& name, ArgumentsListElement* arguments);
+        bool CheckMissingFunctions () const;
 
         //  CTOR
         FunctionSymTable ():
@@ -153,48 +76,8 @@ class FunctionVariableSymTable final {
         std::map <PairIS, VariantIS> data_ {};
     public:
         //  METHODS
-        ScopeNodeInterface* GetFunctionVariableScope (const std::string& name, ArgumentsListElement* arguments) const {
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            auto search = data_.find ({ argumentsCount, name });
-            if (search != data_.end ()) {
-                return globalFunctionSymTable->GetFunctionScope (search->second, arguments);
-            }
-            else {
-                return globalFunctionSymTable->GetFunctionScope ({ name }, arguments);
-            }
-        }
-        bool SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist, bool hasFunctionName = false, const std::string& functionName = "") {
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            auto search = data_.find ({ argumentsCount, variableName });
-            if (search == data_.end ()) {
-                if (mustExist) {
-                    return false;
-                }
-                else {
-                    VariantIS ans {};
-                    if (hasFunctionName) {
-                        ans = functionName;
-                    }
-                    else {
-                        ans = poisonFunctionIdx;
-                    }
-                    if (!globalFunctionSymTable->SetFunctionScope (ans, arguments, scope, false)) {
-                        return false;
-                    }
-                    data_[{ argumentsCount, variableName }] = ans;
-                    return true;
-                }
-            }
-            else {
-                std::variant <int, std::string> ans {};
-                ans = search->second;
-                if (!globalFunctionSymTable->SetFunctionScope (ans, arguments, scope, true)) {
-                    return false;
-                }
-                search->second = ans;
-                return true;
-            }
-        }
+        ScopeNodeInterface* GetFunctionVariableScope (const std::string& name, ArgumentsListElement* arguments) const;
+        bool SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist, bool hasFunctionName = false, const std::string& functionName = "");
         
         //  CTOR
         FunctionVariableSymTable ():
@@ -218,9 +101,7 @@ class ReturnNode final : public NodeInterface {
         NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { 
-            throw ReturnPerformer (child_->Execute ());
-        }
+        NumberType Execute () const override { throw ReturnPerformer (child_->Execute ()); }
         void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
 
         //  CTOR
@@ -235,6 +116,7 @@ class ReturnNode final : public NodeInterface {
 
 class ScopeNode final : public ScopeNodeInterface {
     private:
+        std::stack <ScopeNodeInterface*> previousStack_ {};
         std::vector <NodeInterface*> branches_ {};
         VariableSymTable variableTable_ {};
         FunctionVariableSymTable functionVariableTable_ {};
@@ -242,103 +124,32 @@ class ScopeNode final : public ScopeNodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         void Dump (std::ostream &stream) const override { stream << "{ ... }"; }   
+        NumberType Execute () const override;
 
         //  METHODS FROM SCOPE INTERFACE
-        NumberType ExecuteFrom (int startBranch = 0) const override;
-        NumberType Execute () const override { return ExecuteFrom (0); }
-        void AddNode (NodeInterface* node) override { branches_.push_back (node); }
-        bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) override {
-            globalCurrentScope->Entry (this);
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            if (argumentsNames_.size () != argumentsCount) {
-                return false;
-            }
-            std::vector <NumberType> oldArgumentValues (argumentsCount);
-            for (int i = 0; i < argumentsCount; ++i) {
-                try {
-                    oldArgumentValues[i] = globalCurrentScope->GetVariableValue (argumentsNames_[i]);
-                }
-                catch (std::invalid_argument& ex) {
-                    oldArgumentValues[i] = 0;
-                }
-                globalCurrentScope->SetVariableValue (argumentsNames_[i], arguments->ExecuteNode ());
-                arguments = arguments->GetPreviousArgument ();
-            }
-            //  Outro from scope, since arguments are ready
-            globalCurrentScope->Outro ();
-            try {
-                result = Execute ();
-            }
-            catch (ReturnPerformer& performer) {
-                result = performer.value_;
-            }
-            //  Returning back to function's scope (to set variables back)
-            globalCurrentScope->Entry (this);
-            for (int i = 0; i < argumentsCount; ++i) {
-                globalCurrentScope->SetVariableValue (argumentsNames_[i], oldArgumentValues[i]);
-            }
-            globalCurrentScope->Outro ();
-            return true;
-        }
-        bool SetArgumentsNames (ArgumentsListElement* arguments) override { 
-            int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-            argumentsNames_.resize (argumentsCount);
-            for (int i = 0; i < argumentsCount; ++i) {
-                argumentsNames_[i] = arguments->GetArgumentName ();
-                SetVariableValue (argumentsNames_[i], 0);
-                arguments = arguments->GetPreviousArgument ();
-            }
-            if (argumentsNames_.size () != argumentsCount) {
-                return false;
-            }
-            return true;
-        }
+        void AddBranch (NodeInterface* node) override { branches_.push_back (node); }
+
+        //  ARGUMENTS
+        bool SetArgumentsNames (ArgumentsListElement* arguments) override;
+        NumberType ExecuteWithArguments (ArgumentsListElement* arguments) override;
+
+        //  VARIABLES
         NumberType GetVariableValue (const std::string& name) const override;
         void SetVariableValue (const std::string& name, NumberType value) override;
-        ScopeNodeInterface* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const override {
-            const ScopeNode* cur = this;
-            ScopeNodeInterface* foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
-            while (!foundScope) {
-                if (cur->Previous ()) {
-                    cur = static_cast <ScopeNode*> (cur->Previous ());
-                    foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
-                }
-                else {
-                    throw std::invalid_argument ("Wrong name of function variable!");
-                }
-            }
-            return foundScope;
-        }
-        void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override {
-            ScopeNode* cur = this;
-            while (!cur->functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, true, hasFunctionName, functionName)) {
-                if (cur->Previous ()) {
-                    cur = static_cast <ScopeNode*> (cur->Previous ());
-                }
-                else {
-                    functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, false, hasFunctionName, functionName);
-                    break;
-                }
-            }
-        }
-        void Entry (ScopeNodeInterface* scope) override {
-            scope->previousStack_.push (globalCurrentScope);
-            //std::cout << "entry from " << globalCurrentScope << " to " << scope << std::endl;
-            globalCurrentScope = scope;
-        }
-        ScopeNodeInterface* Previous () const override {
-            return (previousStack_.empty () ? nullptr : previousStack_.top ());
-        }
-        void Outro () override {
-            ScopeNodeInterface* previous = globalCurrentScope->Previous ();
-            globalCurrentScope->previousStack_.pop ();
-            //std::cout << "outro from " << globalCurrentScope << " to " << previous << std::endl;
-            globalCurrentScope = previous;
-        }
+
+        //  FUNCTION VARIABLES
+        ScopeNodeInterface* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const override;
+        void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override;
+        
+        //  SCOPE MOVES
+        void Entry (ScopeNodeInterface* scope) override;
+        ScopeNodeInterface* Previous () const override { return (previousStack_.empty () ? nullptr : previousStack_.top ()); }
+        void Outro () override;
 
         //  CTOR
         ScopeNode ():
             ScopeNodeInterface (),
+            previousStack_ (),
             branches_ ({}),
             variableTable_ ({}),
             functionVariableTable_ ({}),
@@ -406,16 +217,8 @@ class FunctionVariableNode final : public NodeInterface {
         mutable NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { 
-            ScopeNodeInterface* foundScope = globalCurrentScope->GetFunctionVariableScope (variableName_, argumentsList_);
-            foundScope->ExecuteWithArguments (argumentsList_, value_);
-            return value_; 
-        }
-        void Dump (std::ostream &stream) const override { 
-            stream << variableName_ << " (";
-            argumentsList_->Dump (stream);
-            stream << ") {" << value_ << "}";
-        }
+        NumberType Execute () const override;
+        void Dump (std::ostream &stream) const override;
 
         //  EXTRA METHOD
         void Assign (ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") { 
@@ -472,16 +275,7 @@ class IfNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override {
-            stream << "if ";
-            condition_->Dump (stream);
-            stream << " ";
-            scopeTrue_->Dump (stream);
-            if (scopeFalse_) {
-                stream << " else ";
-                scopeFalse_->Dump (stream);
-            }
-        }
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR
         IfNode (NodeInterface* condition, ScopeNodeInterface* scopeTrue, ScopeNodeInterface* scopeFalse):
@@ -502,12 +296,7 @@ class WhileNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override {
-            stream << "while ";
-            condition_->Dump (stream);
-            stream << " ";
-            scope_->Dump (stream);
-        }
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR
         WhileNode (NodeInterface* condition, ScopeNodeInterface* scope):
@@ -528,14 +317,7 @@ class ScanNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override;
-        void Dump (std::ostream &stream) const override {
-            if (isScanned_) {
-                stream << "{" << value_ << "}";
-            }
-            else {
-                stream << "{not scanned}";
-            }
-        }
+        void Dump (std::ostream &stream) const override;
 
         //  CTOR
         ScanNode ():

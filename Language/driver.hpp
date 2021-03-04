@@ -15,7 +15,6 @@ namespace yy {
 
     class LangDriver {
         private:
-            //  LEXER
             SyntaxCheck* lexer_ {};
         public:
             //  METHODS
@@ -43,10 +42,10 @@ namespace yy {
                     globalCurrentScope = ScopeNodeInterface::CreateScopeNode ();
                     //  The main scope with code
                     ScopeNodeInterface* mainScope = ScopeNodeInterface::CreateScopeNode ();
-                    globalCurrentScope->AddNode (mainScope);
+                    globalCurrentScope->AddBranch (mainScope);
                     globalCurrentScope->Entry (mainScope);
                     globalFunctionSymTable = new FunctionSymTable ();
-                    lexer_->switch_streams (infile, OUTSTREAM);
+                    lexer_->switch_streams (infile, *OUTSTREAM);
                 }
 
             //  DTOR
