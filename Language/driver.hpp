@@ -35,7 +35,7 @@ namespace yy {
             std::string GetCurrentString () const { return lexer_->GetCurrentString (); }
 
             //  CTOR
-            LangDriver (std::ifstream& infile):
+            LangDriver (std::ifstream& programStream):
                 lexer_ (new SyntaxCheck)
                 {
                     //  External scope
@@ -45,7 +45,7 @@ namespace yy {
                     globalCurrentScope->AddBranch (mainScope);
                     globalCurrentScope->Entry (mainScope);
                     globalFunctionSymTable = new FunctionSymTable ();
-                    lexer_->switch_streams (infile, *OUTSTREAM);
+                    lexer_->switch_streams (programStream, *OUTSTREAM);
                 }
 
             //  DTOR

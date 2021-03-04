@@ -28,9 +28,6 @@ bool yy::LangDriver::parse () {
     bool failure = true;
     failure = parser.parse ();
     bool success = !failure && globalFunctionSymTable->CheckMissingFunctions ();
-    if (success) {
-        *OUTSTREAM << "Parsed successfully!" << std::endl;
-    }
     return success;
 }
 

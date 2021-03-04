@@ -12,13 +12,13 @@ ScopeNodeInterface* globalCurrentScope = nullptr;
 FunctionSymTable* globalFunctionSymTable = nullptr;
 
 int main (int argc, char** argv) {
-	std::ifstream infile { argv[1] };
-	if (!infile) {
-		*ERRSTREAM << "Error opening file!" << std::endl;
+	std::ifstream programStream { argv[1] };
+	if (!programStream) {
+		std::cerr << "Error opening file!" << std::endl;
 		return 0;
 	}
 	
-	yy::LangDriver driver { infile };
+	yy::LangDriver driver { programStream };
 	if (driver.parse ()) {
 		driver.execute ();
 	}

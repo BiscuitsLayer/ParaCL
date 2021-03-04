@@ -8,7 +8,7 @@
             "name": "(gdb) Запустить",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/main",
+            "program": "${workspaceFolder}/test",
             "args": ["Test/Functions/14"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

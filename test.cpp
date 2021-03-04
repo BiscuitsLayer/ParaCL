@@ -17,46 +17,59 @@ const int level2Correct = 13;
 ScopeNodeInterface* globalCurrentScope = nullptr;
 FunctionSymTable* globalFunctionSymTable = nullptr;
 
-class Level1 : public ::testing::Test {
+class ParaCLTest : public ::testing::Test {
+	public:
+		void DoTest (int testLevel, int testIdx) {
+			std::stringstream path {};
+			path << "Test/Level_" << testLevel << "/Correct/";
+    	    std::stringstream filename {};
+    	    filename << path.str () << testIdx << ".cl";
 	
+    	    std::ifstream programStream { filename.str () };
+		    ASSERT_TRUE (programStream);
+	
+		    yy::LangDriver driver { programStream };
+
+			bool parserResult = driver.parse ();
+			ASSERT_TRUE (parserResult);
+
+			filename.clear ();
+			filename.str (std::string {});
+			filename << path.str () << testIdx << ".in";
+
+			std::ifstream inputStream { filename.str () };
+			ASSERT_TRUE (inputStream);
+
+			filename.clear ();
+			filename.str (std::string {});
+			filename << path.str () << testIdx << ".out";
+
+			std::ifstream outputStream { filename.str () };
+			ASSERT_TRUE (outputStream);
+
+			std::stringstream outputStreamTrue {};
+			outputStreamTrue << outputStream.rdbuf ();
+			std::stringstream outputStreamGot {};
+
+			INSTREAM = &inputStream;
+			OUTSTREAM = &outputStreamGot;
+			ERRSTREAM = &outputStreamGot;
+
+			driver.execute ();
+
+			ASSERT_STREQ (outputStreamGot.str ().c_str (), outputStreamTrue.str ().c_str ());
+		}
 };
 
-TEST_F(Level1, Correct_All) 
-{
-    std::string path = "Test/Level_1/Correct/";
-    for (int i = 0; i < level1Correct; ++i) {
-        std::stringstream filename {};
-        filename << path << i + 1 << ".cl";
+TEST_F(ParaCLTest, Correct_1) { DoTest (1, 1); }
+TEST_F(ParaCLTest, Correct_2) { DoTest (1, 2); }
+TEST_F(ParaCLTest, Correct_3) { DoTest (1, 3); }
+TEST_F(ParaCLTest, Correct_4) { DoTest (1, 4); }
+TEST_F(ParaCLTest, Correct_5) { DoTest (1, 5); }
+TEST_F(ParaCLTest, Correct_6) { DoTest (1, 6); }
 
-        std::cerr << filename.str () << std::endl;
-
-        std::ifstream infile { filename.str () };
-	    if (!infile) {
-	    	*ERRSTREAM << "Error opening file!" << std::endl;
-	    	return;
-	    }
-    
-	    yy::LangDriver driver { infile };
-	    if (driver.parse ()) {
-	    	driver.execute ();
-	    }
-    }
-}
 
 int main (int argc, char** argv) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
-	/*
-	std::ifstream infile { argv[1] };
-	if (!infile) {
-		ERRSTREAM << "Error opening file!" << std::endl;
-		return 0;
-	}
-	
-	yy::LangDriver driver { infile };
-	if (driver.parse ()) {
-		driver.execute ();
-	}
-	return 0;
-	*/
 }

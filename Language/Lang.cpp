@@ -523,7 +523,7 @@ NumberType ScanNode::Execute () const {
         *OUTSTREAM << "In [" << inputCounter++ << "]: ";
     }
     *INSTREAM >> inputValue;
-    while (!INSTREAM->good ()) {
+    while (INSTREAM->bad ()) {
         INSTREAM->clear ();
         INSTREAM->ignore ();
         *ERRSTREAM << "Please, input a number!" << std::endl;
