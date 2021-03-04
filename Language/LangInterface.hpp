@@ -86,11 +86,16 @@ class ScopeNodeInterface : public NodeInterface {
         virtual void AddNode (NodeInterface* node) = 0;
         virtual bool ExecuteWithArguments (ArgumentsListElement* arguments, NumberType& result) = 0;
         virtual bool SetArgumentsNames (ArgumentsListElement* arguments) = 0;
-        virtual NumberType GetVariable (const std::string& name) const = 0;
-        virtual void SetVariable (const std::string& name, NumberType value) = 0;
-        virtual void GetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
-        virtual NumberType ExecuteFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
-        virtual void SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
+        
+        //  VARIABLES
+        virtual NumberType GetVariableValue (const std::string& name) const = 0;
+        virtual void SetVariableValue (const std::string& name, NumberType value) = 0;
+
+        //  FUNCTION VARIABLES
+        virtual ScopeNodeInterface* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
+        virtual void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
+        
+        //  SCOPE MOVES
         virtual void Entry (ScopeNodeInterface* scope) = 0;
         virtual ScopeNodeInterface* Previous () const = 0;
         virtual void Outro () = 0;

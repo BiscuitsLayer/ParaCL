@@ -55,7 +55,7 @@ NumberType ScopeNode::ExecuteFrom (int startBranch) const {
     return result;
 }
 
-NumberType ScopeNode::GetVariable (const std::string& name) const {
+NumberType ScopeNode::GetVariableValue (const std::string& name) const {
     const ScopeNode* cur = this;
     NumberType value = 0;
     while (!cur->variableTable_.GetVariableValue (name, value)) {
@@ -69,7 +69,7 @@ NumberType ScopeNode::GetVariable (const std::string& name) const {
     return value;
 }
 
-void ScopeNode::SetVariable (const std::string& name, NumberType value) {
+void ScopeNode::SetVariableValue (const std::string& name, NumberType value) {
     ScopeNode* cur = this;
     while (!cur->variableTable_.SetVariableValue (name, value)) {
         if (cur->Previous ()) {

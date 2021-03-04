@@ -1,6 +1,7 @@
 global = 0;
 
 bar = func(x) {
+print (x);
 y = 10;
 x + y;
 }

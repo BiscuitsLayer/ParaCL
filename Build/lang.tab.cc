@@ -1068,7 +1068,7 @@ namespace yy {
   case 27: // assignment: TEXT "=" exprLvl1 ";"
 #line 194 "Language/lang.y"
                                                         { 	
-											globalCurrentScope->SetVariable (*(yystack_[3].value.as < std::string* > ()), 0);
+											globalCurrentScope->SetVariableValue (*(yystack_[3].value.as < std::string* > ()), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[3].value.as < std::string* > ()));
 											delete yystack_[3].value.as < std::string* > ();
 								  			yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[1].value.as < NodeInterface* > ());
@@ -1079,7 +1079,7 @@ namespace yy {
   case 28: // assignment: TEXT "=" scope
 #line 200 "Language/lang.y"
                                                                 { 
-											globalCurrentScope->SetVariable (*(yystack_[2].value.as < std::string* > ()), 0);
+											globalCurrentScope->SetVariableValue (*(yystack_[2].value.as < std::string* > ()), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*(yystack_[2].value.as < std::string* > ()));
 											delete yystack_[2].value.as < std::string* > ();
 								  			yylhs.value.as < NodeInterface* > () = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, yystack_[0].value.as < ScopeNodeInterface* > ());
@@ -1109,7 +1109,7 @@ namespace yy {
 #line 220 "Language/lang.y"
                                                                 {
 													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
-													globalCurrentScope->Previous ()->SetFunctionVariable (*(yystack_[4].value.as < std::string* > ()), yystack_[1].value.as < ArgumentsListElement* > (), globalCurrentScope);
+													globalCurrentScope->Previous ()->SetFunctionVariableScope (*(yystack_[4].value.as < std::string* > ()), yystack_[1].value.as < ArgumentsListElement* > (), globalCurrentScope);
 													yylhs.value.as < NodeInterface* > () = NodeInterface::CreateFunctionVariableNode (*(yystack_[4].value.as < std::string* > ()), yystack_[1].value.as < ArgumentsListElement* > ());
 													delete yystack_[4].value.as < std::string* > ();
 												}
@@ -1120,7 +1120,7 @@ namespace yy {
 #line 226 "Language/lang.y"
                                                         { 
 													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
-													globalCurrentScope->Previous ()->SetFunctionVariable (*(yystack_[6].value.as < std::string* > ()), yystack_[3].value.as < ArgumentsListElement* > (), globalCurrentScope, true, *(yystack_[1].value.as < std::string* > ()));
+													globalCurrentScope->Previous ()->SetFunctionVariableScope (*(yystack_[6].value.as < std::string* > ()), yystack_[3].value.as < ArgumentsListElement* > (), globalCurrentScope, true, *(yystack_[1].value.as < std::string* > ()));
 													yylhs.value.as < NodeInterface* > () = NodeInterface::CreateFunctionVariableNode (*(yystack_[6].value.as < std::string* > ()), yystack_[3].value.as < ArgumentsListElement* > ());
 													delete yystack_[6].value.as < std::string* > ();
 													delete yystack_[1].value.as < std::string* > ();
@@ -1230,7 +1230,7 @@ namespace yy {
 #line 277 "Language/lang.y"
                                                                         { 	
 											try {
-												globalCurrentScope->GetVariable (*(yystack_[0].value.as < std::string* > ()));
+												globalCurrentScope->GetVariableValue (*(yystack_[0].value.as < std::string* > ()));
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (yystack_[0].location, "Undefined variable!");
@@ -1251,7 +1251,7 @@ namespace yy {
 #line 288 "Language/lang.y"
                                                                 { 
 											try {
-												globalCurrentScope->GetFunctionVariable (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
+												globalCurrentScope->GetFunctionVariableScope (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
 											}
 											catch (std::invalid_argument& ex) {
 												globalFunctionSymTable->AddMissingFunction (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());

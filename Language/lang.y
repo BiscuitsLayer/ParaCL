@@ -192,13 +192,13 @@ condition:
 
 assignment:
 	TEXT ASSIGN exprLvl1 SCOLON			{ 	
-											globalCurrentScope->SetVariable (*($1), 0);
+											globalCurrentScope->SetVariableValue (*($1), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 											delete $1;
 								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
 										}
 |	TEXT ASSIGN scope					{ 
-											globalCurrentScope->SetVariable (*($1), 0);
+											globalCurrentScope->SetVariableValue (*($1), 0);
 											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
 											delete $1;
 								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
@@ -219,13 +219,13 @@ function_assignment:
 function_assignment_entry:
 	TEXT ASSIGN FUNC arg_list LBRACE			{
 													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
-													globalCurrentScope->Previous ()->SetFunctionVariable (*($1), $4, globalCurrentScope);
+													globalCurrentScope->Previous ()->SetFunctionVariableScope (*($1), $4, globalCurrentScope);
 													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 												}
 |	TEXT ASSIGN FUNC arg_list COLON	TEXT LBRACE	{ 
 													globalCurrentScope->Entry (ScopeNodeInterface::CreateScopeNode ());
-													globalCurrentScope->Previous ()->SetFunctionVariable (*($1), $4, globalCurrentScope, true, *($6));
+													globalCurrentScope->Previous ()->SetFunctionVariableScope (*($1), $4, globalCurrentScope, true, *($6));
 													$$ = NodeInterface::CreateFunctionVariableNode (*($1), $4);
 													delete $1;
 													delete $6;
@@ -276,7 +276,7 @@ exprLvl3:
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
 |	TEXT								{ 	
 											try {
-												globalCurrentScope->GetVariable (*($1));
+												globalCurrentScope->GetVariableValue (*($1));
 											}
 											catch (std::invalid_argument& ex) {
 												driver->PrintErrorAndExit (@1, "Undefined variable!");
@@ -287,7 +287,7 @@ exprLvl3:
 |	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
 |	TEXT call_arg_list					{ 
 											try {
-												globalCurrentScope->GetFunctionVariable (*($1), $2);
+												globalCurrentScope->GetFunctionVariableScope (*($1), $2);
 											}
 											catch (std::invalid_argument& ex) {
 												globalFunctionSymTable->AddMissingFunction (*($1), $2);
