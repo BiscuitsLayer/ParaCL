@@ -44,3 +44,14 @@ ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode () {
 const std::string& ArgumentsListElement::GetArgumentName () const {
     return static_cast <VariableNode*> (node_)->GetName ();
 }
+
+NumberType ArgumentsListElement::ExecuteNode () const {
+    NumberType result = 0;
+    try {
+        result = node_->Execute ();
+    }
+    catch (ReturnPerformer& performer) {
+        result = performer.value_;
+    }
+    return result;
+}

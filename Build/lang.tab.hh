@@ -501,7 +501,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 35, ///< Number of tokens.
+        YYNTOKENS = 36, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -538,29 +538,30 @@ namespace yy {
         S_32_ = 32,                              // '-'
         S_33_ = 33,                              // '*'
         S_34_ = 34,                              // '/'
-        S_YYACCEPT = 35,                         // $accept
-        S_scope = 36,                            // scope
-        S_scope_entry = 37,                      // scope_entry
-        S_inside_scope = 38,                     // inside_scope
-        S_action = 39,                           // action
-        S_scope_outro = 40,                      // scope_outro
-        S_if = 41,                               // if
-        S_if_condition = 42,                     // if_condition
-        S_while = 43,                            // while
-        S_while_condition = 44,                  // while_condition
-        S_condition = 45,                        // condition
-        S_assignment = 46,                       // assignment
-        S_function_assignment = 47,              // function_assignment
-        S_function_assignment_entry = 48,        // function_assignment_entry
-        S_arg_list = 49,                         // arg_list
-        S_arg_list_inside = 50,                  // arg_list_inside
-        S_return = 51,                           // return
-        S_syscall = 52,                          // syscall
-        S_exprLvl1 = 53,                         // exprLvl1
-        S_exprLvl2 = 54,                         // exprLvl2
-        S_exprLvl3 = 55,                         // exprLvl3
-        S_call_arg_list = 56,                    // call_arg_list
-        S_call_arg_list_inside = 57              // call_arg_list_inside
+        S_35_then_ = 35,                         // "then"
+        S_YYACCEPT = 36,                         // $accept
+        S_scope = 37,                            // scope
+        S_scope_entry = 38,                      // scope_entry
+        S_inside_scope = 39,                     // inside_scope
+        S_action = 40,                           // action
+        S_scope_outro = 41,                      // scope_outro
+        S_if = 42,                               // if
+        S_if_condition = 43,                     // if_condition
+        S_while = 44,                            // while
+        S_while_condition = 45,                  // while_condition
+        S_condition = 46,                        // condition
+        S_assignment = 47,                       // assignment
+        S_function_assignment = 48,              // function_assignment
+        S_function_assignment_entry = 49,        // function_assignment_entry
+        S_arg_list = 50,                         // arg_list
+        S_arg_list_inside = 51,                  // arg_list_inside
+        S_return = 52,                           // return
+        S_syscall = 53,                          // syscall
+        S_exprLvl1 = 54,                         // exprLvl1
+        S_exprLvl2 = 55,                         // exprLvl2
+        S_exprLvl3 = 56,                         // exprLvl3
+        S_call_arg_list = 57,                    // call_arg_list
+        S_call_arg_list_inside = 58              // call_arg_list_inside
       };
     };
 
@@ -1730,7 +1731,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 114,     ///< Last index in yytable_.
+      yylast_ = 129,     ///< Last index in yytable_.
       yynnts_ = 23,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
@@ -1743,7 +1744,7 @@ switch (yykind)
 
 
 } // yy
-#line 1747 "Build/lang.tab.hh"
+#line 1748 "Build/lang.tab.hh"
 
 
 

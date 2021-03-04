@@ -124,9 +124,7 @@ class ArgumentsListElement final {
             return previous_;
         }
         const std::string& GetArgumentName () const;
-        NumberType ExecuteNode () const {
-            return node_->Execute ();
-        }
+        NumberType ExecuteNode () const;
         void Dump (std::ostream &stream) const {
             node_->Dump (stream);
             if (previous_) {

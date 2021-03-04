@@ -238,9 +238,9 @@ class FunctionVariableSymTable final {
 
 class ReturnPerformer final {
     public:
-        NodeInterface* child_ = 0;
-        ReturnPerformer (NodeInterface* child):
-            child_ (child)
+        NumberType value_ = 0;
+        ReturnPerformer (NumberType value):
+            value_ (value)
             {}
 };
 
@@ -250,7 +250,7 @@ class ReturnNode final : public NodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () const override { 
-            throw ReturnPerformer (child_);
+            throw ReturnPerformer (child_->Execute ());
         }
         void Dump (std::ostream &stream) const override { stream << "return "; child_->Dump (stream); }
 
@@ -301,9 +301,7 @@ class ScopeNode final : public ScopeNodeInterface {
                 result = Execute ();
             }
             catch (ReturnPerformer& performer) {
-                globalCurrentScope->Entry (this);
-                result = performer.child_->Execute ();
-                globalCurrentScope->Outro ();
+                result = performer.value_;
             }
             //  Returning back to function's scope (to set variables back)
             globalCurrentScope->Entry (this);

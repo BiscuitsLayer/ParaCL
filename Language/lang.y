@@ -101,6 +101,8 @@
 /* Левоассоциативные и правоассоциативные лексемы */
 %left '+' '-'
 %left '*' '/'
+%nonassoc "then"
+%nonassoc "else"
 
 %start inside_scope
 
@@ -108,7 +110,6 @@
 
 scope:
 	scope_entry inside_scope scope_outro				{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
-|	scope_entry inside_scope scope_outro SCOLON			{ $$ = globalCurrentScope; globalCurrentScope->Outro (); }
 ;
 
 scope_entry:
@@ -130,6 +131,7 @@ action:
 |	syscall 											{ $$ = $1; }
 |	if													{ $$ = $1; }
 |	while												{ $$ = $1; }
+|	scope												{ $$ = $1; }
 ;
 
 scope_outro:
@@ -137,7 +139,7 @@ scope_outro:
 ;
 
 if:
-	if_condition action									{
+	if_condition action			%prec "then"			{
 															globalCurrentScope->AddNode ($2);
 															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
@@ -204,10 +206,14 @@ assignment:
 ;
 
 function_assignment:
-	function_assignment_entry inside_scope scope_outro 	{	
-															ScopeNodeInterface* scope = globalCurrentScope; globalCurrentScope->Outro ();
-															$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, $1, scope);
-														}
+	function_assignment_entry inside_scope scope_outro 			{	
+																	ScopeNodeInterface* scope = globalCurrentScope; globalCurrentScope->Outro ();
+																	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, $1, scope);
+																}
+|	function_assignment_entry inside_scope scope_outro SCOLON	{	
+																	ScopeNodeInterface* scope = globalCurrentScope; globalCurrentScope->Outro ();
+																	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, $1, scope);
+																}
 ;
 
 function_assignment_entry:
@@ -265,8 +271,8 @@ exprLvl2:
 ;
 
 exprLvl3:
-	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
-|	scope  								{ $$ = $1; }
+	scope								{ $$ = $1; }
+|	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }
 |	TEXT								{ 	
 											try {
