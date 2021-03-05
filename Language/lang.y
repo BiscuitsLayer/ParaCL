@@ -286,10 +286,8 @@ exprLvl3:
 										}
 |	QMARK								{ $$ = NodeInterface::CreateScanNode (); }
 |	TEXT call_arg_list					{ 
-											try {
-												globalCurrentScope->GetFunctionVariableScope (*($1), $2);
-											}
-											catch (std::invalid_argument& ex) {
+											
+											if (!globalCurrentScope->GetFunctionVariableScope (*($1), $2)) {
 												globalFunctionSymTable->AddMissingFunction (*($1), $2);
 											}
 											$$ = NodeInterface::CreateFunctionVariableNode (*($1), $2);

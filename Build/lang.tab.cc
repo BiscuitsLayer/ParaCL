@@ -1250,44 +1250,42 @@ namespace yy {
   case 50: // exprLvl3: TEXT call_arg_list
 #line 288 "Language/lang.y"
                                                                 { 
-											try {
-												globalCurrentScope->GetFunctionVariableScope (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
-											}
-											catch (std::invalid_argument& ex) {
+											
+											if (!globalCurrentScope->GetFunctionVariableScope (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ())) {
 												globalFunctionSymTable->AddMissingFunction (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
 											}
 											yylhs.value.as < NodeInterface* > () = NodeInterface::CreateFunctionVariableNode (*(yystack_[1].value.as < std::string* > ()), yystack_[0].value.as < ArgumentsListElement* > ());
 											delete yystack_[1].value.as < std::string* > (); 
 										}
-#line 1263 "Build/lang.tab.cc"
+#line 1261 "Build/lang.tab.cc"
     break;
 
   case 51: // call_arg_list: "(" call_arg_list_inside ")"
-#line 301 "Language/lang.y"
+#line 299 "Language/lang.y"
                                                         { yylhs.value.as < ArgumentsListElement* > () = yystack_[1].value.as < ArgumentsListElement* > (); }
-#line 1269 "Build/lang.tab.cc"
+#line 1267 "Build/lang.tab.cc"
     break;
 
   case 52: // call_arg_list: "(" ")"
-#line 302 "Language/lang.y"
+#line 300 "Language/lang.y"
                                                                                 { /* empty */ }
-#line 1275 "Build/lang.tab.cc"
+#line 1273 "Build/lang.tab.cc"
     break;
 
   case 53: // call_arg_list_inside: exprLvl1
-#line 306 "Language/lang.y"
+#line 304 "Language/lang.y"
                                                                                                 { yylhs.value.as < ArgumentsListElement* > () = new ArgumentsListElement (yystack_[0].value.as < NodeInterface* > (), nullptr); }
-#line 1281 "Build/lang.tab.cc"
+#line 1279 "Build/lang.tab.cc"
     break;
 
   case 54: // call_arg_list_inside: exprLvl1 "," call_arg_list_inside
-#line 307 "Language/lang.y"
+#line 305 "Language/lang.y"
                                                                         { yylhs.value.as < ArgumentsListElement* > () = new ArgumentsListElement (yystack_[2].value.as < NodeInterface* > (), yystack_[0].value.as < ArgumentsListElement* > ()); }
-#line 1287 "Build/lang.tab.cc"
+#line 1285 "Build/lang.tab.cc"
     break;
 
 
-#line 1291 "Build/lang.tab.cc"
+#line 1289 "Build/lang.tab.cc"
 
             default:
               break;
@@ -1662,7 +1660,7 @@ namespace yy {
      184,   185,   186,   187,   188,   189,   190,   194,   200,   209,
      213,   220,   226,   236,   237,   241,   246,   254,   258,   262,
      263,   264,   268,   269,   270,   274,   275,   276,   277,   287,
-     288,   301,   302,   306,   307
+     288,   299,   300,   304,   305
   };
 
   void
@@ -1743,9 +1741,9 @@ namespace yy {
   }
 
 } // yy
-#line 1747 "Build/lang.tab.cc"
+#line 1745 "Build/lang.tab.cc"
 
-#line 310 "Language/lang.y"
+#line 308 "Language/lang.y"
 
 
 namespace yy {

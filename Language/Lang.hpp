@@ -44,6 +44,7 @@ class FunctionSymTable final {
         //  first idx = id, second idx = arguments count
         VectorOfPair <int, ScopeNodeInterface*> unnamedData_ {};
         std::set <PairIS> missingFunctions_ {};
+        int unnamedIdx = 0;
     public:
         //  METHODS
         ScopeNodeInterface* GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const;
@@ -73,6 +74,7 @@ extern FunctionSymTable* globalFunctionSymTable;
 
 class FunctionVariableSymTable final {
     private:
+        //  map: { argumentsCount, variableName } -> std::variant { }
         std::map <PairIS, VariantIS> data_ {};
     public:
         //  METHODS

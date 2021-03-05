@@ -78,7 +78,6 @@ bool FunctionSymTable::SetFunctionScope (VariantIS& id, ArgumentsListElement* ar
                 return false;
             }
             else {
-                static int unnamedIdx = 0;
                 id = unnamedIdx++;
                 unnamedData_.push_back ({ argumentsCount, scope });
             }
@@ -227,7 +226,7 @@ NumberType ScopeNode::GetVariableValue (const std::string& name) const {
             cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
-            throw std::invalid_argument ("Wrong name of variable!");
+            throw std::invalid_argument ("Wrong name of variable: " + name);
         }
     }
     return value;
@@ -255,7 +254,7 @@ ScopeNodeInterface* ScopeNode::GetFunctionVariableScope (const std::string& vari
             foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
         }
         else {
-            throw std::invalid_argument ("Wrong name of function variable!");
+            return nullptr;
         }
     }
     return foundScope;
