@@ -12,6 +12,7 @@ enum class NodeType {
 
     VALUE,
     VARIABLE,
+    ARGUMENT,
     FUNCTION_VARIABLE,
 
     BINARY_OP_ADD,
@@ -39,6 +40,7 @@ enum class NodeType {
 };
 
 class NodeInterface;
+class ReturnGetter;
 class ScopeNodeInterface;
 class ArgumentsListElement;
 
@@ -50,7 +52,7 @@ class NodeInterface {
     public:
         //  METHODS
         NodeType GetType () const { return type_; }
-        virtual NumberType Execute () const = 0;
+        virtual NumberType Execute () = 0;
         virtual void Dump (std::ostream& stream) const = 0;
 
         //  CTOR
@@ -62,7 +64,7 @@ class NodeInterface {
         virtual ~NodeInterface () = default;
 
         //  DERIVED CLASSES CTOR-S
-        static NodeInterface* CreateReturnNode (NodeInterface* child);
+        static NodeInterface* CreateReturnNode (ReturnGetter* returnGetter, NodeInterface* child);
         static NodeInterface* CreateValueNode (NumberType value);
         static NodeInterface* CreateVariableNode (const std::string& name);
         static NodeInterface* CreateFunctionVariableNode (const std::string& variableName, ArgumentsListElement* arguments);
@@ -71,6 +73,22 @@ class NodeInterface {
         static NodeInterface* CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope);
         static NodeInterface* CreateScanNode ();
         static NodeInterface* CreatePrintNode (NodeInterface* child);
+};
+
+class ReturnGetter {
+    private:
+        NodeInterface* returnedNode_ = nullptr;
+    protected:
+        /* empty */
+    public:
+        //  METHODS
+        void SetReturnedNode (NodeInterface* returnedNode) { returnedNode_ = returnedNode; }
+        NodeInterface* GetReturnedNode () const { return returnedNode_; }
+
+        //  CTOR
+        ReturnGetter ():
+            returnedNode_ (nullptr)
+            {}
 };
 
 class ScopeNodeInterface : public NodeInterface {
@@ -111,29 +129,33 @@ class ScopeNodeInterface : public NodeInterface {
         static ScopeNodeInterface* CreateScopeNode ();
 };
 
-class ArgumentsListElement final {
+class ArgumentsListElement final : public NodeInterface, public ReturnGetter {
     private:
         ArgumentsListElement* previous_ = nullptr;
-        NodeInterface* node_ = nullptr;
+        NodeInterface* child_ = nullptr;
     public:
+        //  METHODS FROM NODE INTERFACE
+        NumberType Execute () override;
+        void Dump (std::ostream& stream) const override;
+
         // METHODS
         ArgumentsListElement* GetPreviousArgument () const { return previous_; }
         const std::string& GetArgumentName () const;
-        NumberType ExecuteNode () const;
-        void Dump (std::ostream& stream) const;
         int GetListLength ();
 
         //  CTOR
-        ArgumentsListElement (NodeInterface* node, ArgumentsListElement* previous):
+        ArgumentsListElement (NodeInterface* child, ArgumentsListElement* previous):
+            NodeInterface (NodeType::ARGUMENT),
+            ReturnGetter (),
             previous_ (previous),
-            node_ (node)
+            child_ (child)
             {}
         ArgumentsListElement (const ArgumentsListElement& element) = delete;
 
         //  DTOR
         ~ArgumentsListElement () {
             delete previous_;
-            delete node_;
+            delete child_;
         }
 
         //  OPERATORS

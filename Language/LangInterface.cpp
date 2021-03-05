@@ -1,8 +1,8 @@
 //	LANGUAGE
 #include "../Language/Lang.hpp"
 
-NodeInterface* NodeInterface::CreateReturnNode (NodeInterface* child) {
-    return new ReturnNode (child);
+NodeInterface* NodeInterface::CreateReturnNode (ReturnGetter* returnGetter, NodeInterface* child) {
+    return new ReturnNode (returnGetter, child);
 }
 
 NodeInterface* NodeInterface::CreateValueNode (NumberType value) {
@@ -42,22 +42,18 @@ ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode () {
 }
 
 const std::string& ArgumentsListElement::GetArgumentName () const {
-    return static_cast <VariableNode*> (node_)->GetName ();
+    return static_cast <VariableNode*> (child_)->GetName ();
 }
 
-NumberType ArgumentsListElement::ExecuteNode () const {
+NumberType ArgumentsListElement::Execute () {
     NumberType result = 0;
-    try {
-        result = node_->Execute ();
-    }
-    catch (ReturnPerformer& performer) {
-        result = performer.value_;
-    }
+    result = child_->Execute ();
+    //  TODO Add check for return from argument
     return result;
 }
 
 void ArgumentsListElement::Dump (std::ostream& stream) const {
-    node_->Dump (stream);
+    child_->Dump (stream);
     if (previous_) {
         stream << ", ";
         previous_->Dump (stream);

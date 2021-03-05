@@ -24,10 +24,7 @@ namespace yy {
                 ScopeNodeInterface* scope = globalCurrentScope;
                 //  Outro to external scope
                 globalCurrentScope->Outro ();
-                try {
-                    scope->Execute ();
-                }
-                catch (ReturnPerformer& performer) {}
+                scope->Execute ();
             }
 
             //  ERROR HANDLING METHODS

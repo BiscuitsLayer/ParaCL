@@ -251,7 +251,7 @@ arg_list_inside:
 ;
 
 return:
-	RETURN exprLvl1 SCOLON				{ $$ = NodeInterface::CreateReturnNode ($2); }
+	RETURN exprLvl1 SCOLON				{ $$ = NodeInterface::CreateReturnNode (dynamic_cast <ReturnGetter*> (globalCurrentScope), $2); }
 ;
 
 syscall:

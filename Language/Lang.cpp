@@ -150,22 +150,25 @@ bool FunctionVariableSymTable::SetFunctionVariable (const std::string& variableN
     }
 }
 
-NumberType ScopeNode::Execute () const {
+NumberType ScopeNode::Execute () {
     NumberType result = 0;
     globalCurrentScope->Entry (const_cast <ScopeNode*> (this));
     for (int i = 0; i < branches_.size (); ++i) {
         try {
             result = branches_[i]->Execute ();
         }
-        catch (ReturnPerformer& performer) {
-            globalCurrentScope->Outro ();
-            throw performer;
-        }
         catch (std::overflow_error& ex) {
             *ERRSTREAM << ex.what () << std::endl;
             branches_[i]->Dump (*OUTSTREAM);
             *OUTSTREAM << std::endl;
             exit (ErrorCodes::ERROR_OVF);
+        }
+        
+        if (GetReturnedNode ()) {            
+            dynamic_cast <ReturnGetter*> (Previous ())->SetReturnedNode (GetReturnedNode ());
+            SetReturnedNode (nullptr);
+            globalCurrentScope->Outro ();
+            return 0;
         }
     }
     globalCurrentScope->Outro ();
@@ -197,18 +200,20 @@ NumberType ScopeNode::ExecuteWithArguments (ArgumentsListElement* arguments) {
         catch (std::invalid_argument& ex) {
             oldArgumentValues[i] = 0;
         }
-        globalCurrentScope->SetVariableValue (argumentsNames_[i], arguments->ExecuteNode ());
+        globalCurrentScope->SetVariableValue (argumentsNames_[i], arguments->Execute ());
         arguments = arguments->GetPreviousArgument ();
     }
     //  Outro from scope, since arguments are ready
     globalCurrentScope->Outro ();
+
     NumberType result = 0;
-    try {
-        result = Execute ();
+    result = Execute ();
+    if (GetReturnedNode ()) {
+        globalCurrentScope->Entry (this);
+        result = GetReturnedNode ()->Execute ();
+        globalCurrentScope->Outro ();
     }
-    catch (ReturnPerformer& performer) {
-        result = performer.value_;
-    }
+
     //  Returning back to function's scope (to set variables back)
     globalCurrentScope->Entry (this);
     for (int i = 0; i < argumentsCount; ++i) {
@@ -286,7 +291,7 @@ void ScopeNode::Outro () {
     globalCurrentScope = previous;
 }
 
-NumberType FunctionVariableNode::Execute () const { 
+NumberType FunctionVariableNode::Execute () { 
     ScopeNodeInterface* foundScope = globalCurrentScope->GetFunctionVariableScope (variableName_, argumentsList_);
     value_ = foundScope->ExecuteWithArguments (argumentsList_);
     return value_; 
@@ -298,7 +303,7 @@ void FunctionVariableNode::Dump (std::ostream& stream) const {
     stream << ") {" << value_ << "}";
 }
 
-NumberType BinaryOpNode::Execute () const {
+NumberType BinaryOpNode::Execute () {
     switch (type_) {
         case NodeType::BINARY_OP_ADD: {
             return leftChild_->Execute () + rightChild_->Execute ();
@@ -476,7 +481,7 @@ void BinaryOpNode::Dump (std::ostream& stream) const {
     }
 }
 
-NumberType IfNode::Execute () const {
+NumberType IfNode::Execute () {
     NumberType result = 0;
     if (condition_->Execute () > 0) {
         result = scopeTrue_->Execute ();
@@ -500,7 +505,7 @@ void IfNode::Dump (std::ostream& stream) const {
     }
 }
 
-NumberType WhileNode::Execute () const {
+NumberType WhileNode::Execute () {
     NumberType result = 0;
     while (condition_->Execute () > 0) {
         result = scope_->Execute ();
@@ -515,7 +520,7 @@ void WhileNode::Dump (std::ostream& stream) const {
     scope_->Dump (stream);
 }
 
-NumberType ScanNode::Execute () const {
+NumberType ScanNode::Execute () {
     static size_t inputCounter = 0;
     NumberType inputValue = 0;
     if (pythonStyleIO) {
@@ -545,7 +550,7 @@ void ScanNode::Dump (std::ostream& stream) const {
     }
 }
 
-NumberType PrintNode::Execute () const {
+NumberType PrintNode::Execute () {
     static size_t outputCounter = 0;
     NumberType outputValue = child_->Execute ();
     if (pythonStyleIO) {

@@ -32,9 +32,6 @@ class VariableSymTable final {
         VariableSymTable ():
             data_ ({})
             {}
-
-        //  DTOR
-        ~VariableSymTable () = default;
 };
 
 class FunctionSymTable final {
@@ -89,30 +86,21 @@ class FunctionVariableSymTable final {
         FunctionVariableSymTable ():
             data_ ({})
             {}
-
-        //  DTOR
-        ~FunctionVariableSymTable () = default;
-};
-
-class ReturnPerformer final {
-    public:
-        NumberType value_ = 0;
-        ReturnPerformer (NumberType value):
-            value_ (value)
-            {}
 };
 
 class ReturnNode final : public NodeInterface {
     private:
+        ReturnGetter* returnGetter_ = nullptr;
         NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { throw ReturnPerformer (child_->Execute ()); }
+        NumberType Execute () override { returnGetter_->SetReturnedNode (child_); return 0; }
         void Dump (std::ostream& stream) const override { stream << "return "; child_->Dump (stream); }
 
         //  CTORS
-        ReturnNode (NodeInterface* child):
+        ReturnNode (ReturnGetter* returnGetter, NodeInterface* child):
             NodeInterface (NodeType::RETURN),
+            returnGetter_ (returnGetter),
             child_ (child)
             {}
         ReturnNode (const ReturnNode& node) = delete;
@@ -124,7 +112,7 @@ class ReturnNode final : public NodeInterface {
         ReturnNode& operator = (ReturnNode& node) = delete;
 };
 
-class ScopeNode final : public ScopeNodeInterface {
+class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
     private:
         std::stack <ScopeNodeInterface*> previousStack_ {};
         std::vector <NodeInterface*> branches_ {};
@@ -134,7 +122,7 @@ class ScopeNode final : public ScopeNodeInterface {
     public:
         //  METHODS FROM NODE INTERFACE
         void Dump (std::ostream& stream) const override { stream << "{ ... }"; }   
-        NumberType Execute () const override;
+        NumberType Execute () override;
 
         //  METHODS FROM SCOPE INTERFACE
         void AddBranch (NodeInterface* node) override { branches_.push_back (node); }
@@ -183,7 +171,7 @@ class ValueNode final : public NodeInterface {
         NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { return value_; }
+        NumberType Execute () override { return value_; }
         void Dump (std::ostream& stream) const override { stream << value_; }
 
         //  CTOR
@@ -191,20 +179,15 @@ class ValueNode final : public NodeInterface {
             NodeInterface (NodeType::VALUE),
             value_ (value)
             {}
-
-        //  DTOR
-        ~ValueNode () = default;
 };
 
 class VariableNode final : public NodeInterface {
     private:
         std::string name_ {};
-
-        //  mutable because it only changes the way this node dumps
-        mutable NumberType value_ = 0;
+        NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override { value_ = globalCurrentScope->GetVariableValue (name_); return value_; }
+        NumberType Execute () override { value_ = globalCurrentScope->GetVariableValue (name_); return value_; }
         void Dump (std::ostream& stream) const override { stream << name_ << " {" << value_ << "}"; }
 
         //  EXTRA METHODS
@@ -217,21 +200,16 @@ class VariableNode final : public NodeInterface {
             name_ (name),
             value_ (0)
             {}
-
-        //  DTOR
-        ~VariableNode () = default;
 };
 
 class FunctionVariableNode final : public NodeInterface {
     private:
         std::string variableName_ {};
         ArgumentsListElement* argumentsList_ = nullptr;
-
-        //  mutable because it only changes the way this node dumps
-        mutable NumberType value_ = 0;
+        NumberType value_ = 0;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  EXTRA METHOD
@@ -262,11 +240,11 @@ class BinaryOpNode final : public NodeInterface {
         NodeInterface* leftChild_ = nullptr;
         NodeInterface* rightChild_ = nullptr;
 
-        //  mutable because it only changes the way this node dumps
-        mutable bool isRed_ = false;
+        //  FOR DUMP
+        bool isRed_ = false;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  CTORS
@@ -296,7 +274,7 @@ class IfNode final : public NodeInterface {
        ScopeNodeInterface* scopeFalse_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  CTORS
@@ -321,7 +299,7 @@ class WhileNode final : public NodeInterface {
        ScopeNodeInterface* scope_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  CTORS
@@ -341,12 +319,13 @@ class WhileNode final : public NodeInterface {
 
 class ScanNode final : public NodeInterface {
     private:
-        // mutable because they only change the way this node dumps
-        mutable NumberType value_ = 0;
-        mutable bool isScanned_ = false;
+        NumberType value_ = 0;
+        
+        // FOR DUMP
+        bool isScanned_ = false;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  CTOR
@@ -355,9 +334,6 @@ class ScanNode final : public NodeInterface {
             value_ (0),
             isScanned_ (false)
             {}
-
-        //  DTOR
-        ~ScanNode () = default;
 };
 
 class PrintNode final : public NodeInterface {
@@ -365,7 +341,7 @@ class PrintNode final : public NodeInterface {
         NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () const override;
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override { stream << "print "; child_->Dump (stream); }
 
         //  CTORS
