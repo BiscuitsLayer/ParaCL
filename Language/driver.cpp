@@ -27,7 +27,7 @@ bool yy::LangDriver::parse () {
     yy::parser parser (this);
     bool failure = true;
     failure = parser.parse ();
-    bool success = !failure && globalFunctionSymTable->CheckMissingFunctions ();
+    bool success = !failure&& globalFunctionSymTable->CheckMissingFunctions ();
     return success;
 }
 

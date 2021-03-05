@@ -27,14 +27,14 @@ namespace yy {
                 try {
                     scope->Execute ();
                 }
-                catch (ReturnPerformer &performer) {}
+                catch (ReturnPerformer& performer) {}
             }
 
             //  ERROR HANDLING METHODS
             void PrintErrorAndExit (yy::location location, const std::string& message) const;
             std::string GetCurrentString () const { return lexer_->GetCurrentString (); }
 
-            //  CTOR
+            //  CTORS
             LangDriver (std::ifstream& programStream):
                 lexer_ (new SyntaxCheck)
                 {
@@ -47,12 +47,16 @@ namespace yy {
                     globalFunctionSymTable = new FunctionSymTable ();
                     lexer_->switch_streams (programStream, *OUTSTREAM);
                 }
+            LangDriver (const LangDriver& driver) = delete;
 
             //  DTOR
             ~LangDriver () {
                 delete globalFunctionSymTable;
                 delete lexer_;
             }
+
+            //  OPERATORS
+            LangDriver& operator = (LangDriver& driver) = delete;
     };
 
 }

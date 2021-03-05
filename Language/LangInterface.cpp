@@ -56,7 +56,7 @@ NumberType ArgumentsListElement::ExecuteNode () const {
     return result;
 }
 
-void ArgumentsListElement::Dump (std::ostream &stream) const {
+void ArgumentsListElement::Dump (std::ostream& stream) const {
     node_->Dump (stream);
     if (previous_) {
         stream << ", ";

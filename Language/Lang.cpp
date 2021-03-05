@@ -152,7 +152,7 @@ bool FunctionVariableSymTable::SetFunctionVariable (const std::string& variableN
 
 NumberType ScopeNode::Execute () const {
     NumberType result = 0;
-    globalCurrentScope->Entry (const_cast <ScopeNode *> (this));
+    globalCurrentScope->Entry (const_cast <ScopeNode*> (this));
     for (int i = 0; i < branches_.size (); ++i) {
         try {
             result = branches_[i]->Execute ();
@@ -292,7 +292,7 @@ NumberType FunctionVariableNode::Execute () const {
     return value_; 
 }
 
-void FunctionVariableNode::Dump (std::ostream &stream) const { 
+void FunctionVariableNode::Dump (std::ostream& stream) const { 
     stream << variableName_ << " (";
     argumentsList_->Dump (stream);
     stream << ") {" << value_ << "}";
@@ -489,7 +489,7 @@ NumberType IfNode::Execute () const {
     return result;
 }
 
-void IfNode::Dump (std::ostream &stream) const {
+void IfNode::Dump (std::ostream& stream) const {
     stream << "if ";
     condition_->Dump (stream);
     stream << " ";
@@ -508,7 +508,7 @@ NumberType WhileNode::Execute () const {
     return result;
 }
 
-void WhileNode::Dump (std::ostream &stream) const {
+void WhileNode::Dump (std::ostream& stream) const {
     stream << "while ";
     condition_->Dump (stream);
     stream << " ";
@@ -536,7 +536,7 @@ NumberType ScanNode::Execute () const {
     return inputValue;
 }
 
-void ScanNode::Dump (std::ostream &stream) const {
+void ScanNode::Dump (std::ostream& stream) const {
     if (isScanned_) {
         stream << "{" << value_ << "}";
     }

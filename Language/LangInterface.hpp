@@ -51,7 +51,7 @@ class NodeInterface {
         //  METHODS
         NodeType GetType () const { return type_; }
         virtual NumberType Execute () const = 0;
-        virtual void Dump (std::ostream &stream) const = 0;
+        virtual void Dump (std::ostream& stream) const = 0;
 
         //  CTOR
         NodeInterface (NodeType type):
@@ -120,7 +120,7 @@ class ArgumentsListElement final {
         ArgumentsListElement* GetPreviousArgument () const { return previous_; }
         const std::string& GetArgumentName () const;
         NumberType ExecuteNode () const;
-        void Dump (std::ostream &stream) const;
+        void Dump (std::ostream& stream) const;
         int GetListLength ();
 
         //  CTOR
@@ -128,11 +128,15 @@ class ArgumentsListElement final {
             previous_ (previous),
             node_ (node)
             {}
+        ArgumentsListElement (const ArgumentsListElement& element) = delete;
 
         //  DTOR
         ~ArgumentsListElement () {
             delete previous_;
             delete node_;
         }
+
+        //  OPERATORS
+        ArgumentsListElement& operator = (ArgumentsListElement& element) = delete;
 
 };

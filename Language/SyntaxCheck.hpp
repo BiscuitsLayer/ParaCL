@@ -20,6 +20,9 @@ class SyntaxCheck : public yyFlexLexer {
             location_ ({})
             {}
 
+        //  DTOR
+        ~SyntaxCheck () = default;
+
         //  SETTER
         void SetLocation ();
 
