@@ -10,6 +10,7 @@ class SyntaxCheck : public yyFlexLexer {
     private:
         //  DUMP STUFF
         yy::location location_ {};
+        std::string previousString_ {};
         std::string currentString_ {};
 
         //  CARRIAGE RETURN CHECK
@@ -17,7 +18,9 @@ class SyntaxCheck : public yyFlexLexer {
     public:
         //  CTOR
         SyntaxCheck ():
-            location_ ({})
+            location_ ({}),
+            previousString_ {},
+            currentString_ {}
             {}
 
         //  SETTER
@@ -25,6 +28,7 @@ class SyntaxCheck : public yyFlexLexer {
 
         //  GETTERS
         yy::location GetLocation () const { return location_; }
+        std::string GetPreviousString () const { return previousString_; }
         std::string GetCurrentString () const { return currentString_; }
 
         //  OVERLOADED METHOD

@@ -5,6 +5,7 @@ void SyntaxCheck::SetLocation () {
     location_.begin.line = location_.end.line = lineno ();
     if (isCR (yytext)) {
         location_.begin.column = location_.end.column = 1;
+        previousString_ = currentString_;
         currentString_.clear ();
     }
     else {

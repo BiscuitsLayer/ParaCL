@@ -94,7 +94,7 @@ class ReturnNode final : public NodeInterface {
         NodeInterface* child_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
-        NumberType Execute () override { returnGetter_->SetReturnedNode (child_); return 0; }
+        NumberType Execute () override;
         void Dump (std::ostream& stream) const override { stream << "return "; child_->Dump (stream); }
 
         //  CTORS
@@ -114,6 +114,9 @@ class ReturnNode final : public NodeInterface {
 
 class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
     private:
+        //  The one we gonna send returned node to
+        ReturnGetter* wrappingReturnGetter = nullptr;
+
         std::stack <ScopeNodeInterface*> previousStack_ {};
         std::vector <NodeInterface*> branches_ {};
         VariableSymTable variableTable_ {};
@@ -140,6 +143,7 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override;
         
         //  SCOPE MOVES
+        void SetWrappingReturnGetter (ReturnGetter* returnGetter) { wrappingReturnGetter = returnGetter; }
         void Entry (ScopeNodeInterface* scope) override;
         ScopeNodeInterface* Previous () const override { return (previousStack_.empty () ? nullptr : previousStack_.top ()); }
         void Outro () override;
@@ -147,6 +151,7 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         //  CTORS
         ScopeNode ():
             ScopeNodeInterface (),
+            wrappingReturnGetter (nullptr),
             previousStack_ (),
             branches_ ({}),
             variableTable_ ({}),

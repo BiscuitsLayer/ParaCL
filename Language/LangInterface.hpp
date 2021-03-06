@@ -77,17 +77,19 @@ class NodeInterface {
 
 class ReturnGetter {
     private:
-        NodeInterface* returnedNode_ = nullptr;
+        bool executed_ = false;
+        NumberType value_ = 0;
     protected:
         /* empty */
     public:
         //  METHODS
-        void SetReturnedNode (NodeInterface* returnedNode) { returnedNode_ = returnedNode; }
-        NodeInterface* GetReturnedNode () const { return returnedNode_; }
+        void SetReturnedNodeValue (NumberType value) { value_ = value; executed_ = true; }
+        bool GetReturnedNodeValue (NumberType& value);
 
         //  CTOR
         ReturnGetter ():
-            returnedNode_ (nullptr)
+            executed_ (false),
+            value_ (0)
             {}
 };
 

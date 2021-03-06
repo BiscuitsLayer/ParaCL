@@ -37,6 +37,16 @@ NodeInterface* NodeInterface::CreatePrintNode (NodeInterface* child) {
     return new PrintNode (child);
 }
 
+bool ReturnGetter::GetReturnedNodeValue (NumberType& value) { 
+    if (executed_) { 
+        value = value_; 
+        executed_ = false; 
+        return true; 
+    }
+    return false; 
+}
+
+
 ScopeNodeInterface* ScopeNodeInterface::CreateScopeNode () {
     return new ScopeNode ();
 }
@@ -47,8 +57,11 @@ const std::string& ArgumentsListElement::GetArgumentName () const {
 
 NumberType ArgumentsListElement::Execute () {
     NumberType result = 0;
+    if (child_->GetType () == NodeType::SCOPE) {
+        static_cast <ScopeNode*> (child_)->SetWrappingReturnGetter (this);
+    }
     result = child_->Execute ();
-    //  TODO Add check for return from argument
+    GetReturnedNodeValue (result);
     return result;
 }
 

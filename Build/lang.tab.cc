@@ -1162,7 +1162,7 @@ namespace yy {
 
   case 37: // return: "return" exprLvl1 ";"
 #line 254 "Language/lang.y"
-                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateReturnNode (dynamic_cast <ReturnGetter*> (globalCurrentScope), yystack_[1].value.as < NodeInterface* > ()); }
+                                                        { yylhs.value.as < NodeInterface* > () = NodeInterface::CreateReturnNode (static_cast <ScopeNode*> (globalCurrentScope), yystack_[1].value.as < NodeInterface* > ()); }
 #line 1167 "Build/lang.tab.cc"
     break;
 

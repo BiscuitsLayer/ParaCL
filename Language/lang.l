@@ -16,15 +16,15 @@
 #define YY_USER_ACTION SetLocation ();
 
 %}
-
+            
 WS              [ \t]+
 CR              [\n\v]+
 DOT             [.]
 MINUS           [-]
 DIGIT           [0-9]
 DIGIT_NON_ZERO  [1-9]
-DOUBLE          {MINUS}?{DIGIT}+{DOT}?{DIGIT}*
-INT             {MINUS}?{DIGIT}{DIGIT}*
+DOUBLE          {DIGIT}+{DOT}?{DIGIT}*
+INT             {DIGIT}{DIGIT}*
 NUMBER          {DOUBLE}
 LETTER          [a-zA-Z_]
 LETTER_OR_DIGIT [a-zA-Z0-9_]
@@ -34,6 +34,8 @@ TEXT            {LETTER}{LETTER_OR_DIGIT}*
                             /* Сопоставляем каждой лексеме её константу для парсера */
 {WS}                        /* skip blanks and tabs */
 {CR}                        /* next line or vertical tab */
+"//".*
+
 "+"                         return yy::parser::token_type::ADD;
 "-"                         return yy::parser::token_type::SUB;
 "*"                         return yy::parser::token_type::MUL;

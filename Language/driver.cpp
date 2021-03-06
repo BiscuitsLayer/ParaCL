@@ -32,10 +32,17 @@ bool yy::LangDriver::parse () {
 }
 
 void yy::LangDriver::PrintErrorAndExit (yy::location location, const std::string& message) const {
-    std::string wholeString = lexer_->GetCurrentString (), 
-    trueString = wholeString.substr (0, location.begin.column - 1),
-    falseString = wholeString.substr (location.begin.column - 1, location.end.column - location.begin.column);
-    
+    std::string wholeString {};
+    if (location.begin.line == lexer_->lineno () - 1) {
+        wholeString = lexer_->GetPreviousString ();
+    }
+    else {
+        wholeString = lexer_->GetCurrentString ();
+    }
+
+    std::string trueString = wholeString.substr (0, location.begin.column - 1);
+    std::string falseString = wholeString.substr (location.begin.column - 1, location.end.column - location.begin.column);
+
     *ERRSTREAM << message << std::endl;
     *OUTSTREAM << "Line: " << location.begin.line << ", Columns: " << location.begin.column << " - " << location.end.column << ":" << std::endl;
     *OUTSTREAM << trueString;

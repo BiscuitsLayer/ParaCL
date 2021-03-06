@@ -150,9 +150,15 @@ bool FunctionVariableSymTable::SetFunctionVariable (const std::string& variableN
     }
 }
 
+NumberType ReturnNode::Execute () {
+    NumberType result = child_->Execute ();
+    returnGetter_->SetReturnedNodeValue (result); 
+    return result; 
+}
+
 NumberType ScopeNode::Execute () {
     NumberType result = 0;
-    globalCurrentScope->Entry (const_cast <ScopeNode*> (this));
+    globalCurrentScope->Entry (this);
     for (int i = 0; i < branches_.size (); ++i) {
         try {
             result = branches_[i]->Execute ();
@@ -164,11 +170,13 @@ NumberType ScopeNode::Execute () {
             exit (ErrorCodes::ERROR_OVF);
         }
         
-        if (GetReturnedNode ()) {            
-            dynamic_cast <ReturnGetter*> (Previous ())->SetReturnedNode (GetReturnedNode ());
-            SetReturnedNode (nullptr);
+        if (GetReturnedNodeValue (result)) {
+            if (!wrappingReturnGetter) {
+                wrappingReturnGetter = static_cast <ScopeNode*> (Previous ());
+            }         
+            wrappingReturnGetter->SetReturnedNodeValue (result);
             globalCurrentScope->Outro ();
-            return 0;
+            return result;
         }
     }
     globalCurrentScope->Outro ();
@@ -208,11 +216,8 @@ NumberType ScopeNode::ExecuteWithArguments (ArgumentsListElement* arguments) {
 
     NumberType result = 0;
     result = Execute ();
-    if (GetReturnedNode ()) {
-        globalCurrentScope->Entry (this);
-        result = GetReturnedNode ()->Execute ();
-        globalCurrentScope->Outro ();
-    }
+    //  Wrapping return getter clear
+    static_cast <ScopeNode*> (globalCurrentScope)->GetReturnedNodeValue (result);
 
     //  Returning back to function's scope (to set variables back)
     globalCurrentScope->Entry (this);
