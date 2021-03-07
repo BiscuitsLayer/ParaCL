@@ -2,7 +2,7 @@ CC = g++
 LDFLAGS = -std=c++2a
 CXXFLAGS = -MMD -ggdb3 -std=c++2a
 Level = 2
-Test = 1
+Test = 4
 
 all: main run
 

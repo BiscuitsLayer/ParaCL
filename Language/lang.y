@@ -75,8 +75,8 @@
 %token <std::string*> TEXT
 
 /* Объявление нетерминалов */
-%nterm <NodeInterface*> exprLvl1 exprLvl2 exprLvl3
-%nterm <NodeInterface*> assignment
+%nterm <NodeInterface*> exprLvl1 exprLvl1_no_unary exprLvl2 exprLvl2_no_unary exprLvl3 exprLvl4
+%nterm <NodeInterface*> assignment assignment_scope
 
 %nterm <NodeInterface*> function_assignment_entry
 %nterm <NodeInterface*> function_assignment
@@ -90,8 +90,8 @@
 %nterm <NodeInterface*> while_condition
 
 %nterm <ScopeNodeInterface*> scope
-%nterm <NodeInterface*> inside_scope
-%nterm <NodeInterface*> action
+%nterm <NodeInterface*> inside_scope_left inside_scope
+%nterm <NodeInterface*> action_no_unary action
 
 %nterm <ArgumentsListElement*> arg_list
 %nterm <ArgumentsListElement*> arg_list_inside
@@ -103,6 +103,7 @@
 %left '*' '/'
 %nonassoc "then"
 %nonassoc "else"
+%left UNARY_MINUS
 
 %start inside_scope
 
@@ -119,7 +120,17 @@ scope_entry:
 ;
 
 inside_scope:
-	inside_scope action									{ globalCurrentScope->AddBranch ($2); }
+	inside_scope_left									{ /* empty */ }
+|	inside_scope_left assignment_scope					{ globalCurrentScope->AddBranch ($2); }
+;
+
+inside_scope_left:
+	inside_scope_left action							{ globalCurrentScope->AddBranch ($2); }
+/* Next one is special - there must be an action without unary operators after it */
+|	inside_scope_left assignment_scope action_no_unary	{ 
+															globalCurrentScope->AddBranch ($2);
+															globalCurrentScope->AddBranch ($3);
+														}
 |														{ /* empty */ }
 ;
 
@@ -131,7 +142,16 @@ action:
 |	syscall 											{ $$ = $1; }
 |	if													{ $$ = $1; }
 |	while												{ $$ = $1; }
-|	scope												{ $$ = $1; }
+;
+
+action_no_unary:
+	assignment 											{ $$ = $1; }
+|	function_assignment									{ $$ = $1; }
+|	return												{ $$ = $1; }
+|	exprLvl1_no_unary SCOLON							{ $$ = $1; }
+|	syscall 											{ $$ = $1; }
+|	if													{ $$ = $1; }
+|	while												{ $$ = $1; }
 ;
 
 scope_outro:
@@ -140,6 +160,12 @@ scope_outro:
 
 if:
 	if_condition action			%prec "then"			{
+															globalCurrentScope->AddBranch ($2);
+															ScopeNodeInterface* scopeTrue = globalCurrentScope;
+															globalCurrentScope->Outro ();
+															$$ = NodeInterface::CreateIfNode ($1, scopeTrue, nullptr);
+														}
+|	if_condition scope			%prec "then"			{
 															globalCurrentScope->AddBranch ($2);
 															ScopeNodeInterface* scopeTrue = globalCurrentScope;
 															globalCurrentScope->Outro ();
@@ -191,18 +217,21 @@ condition:
 ;
 
 assignment:
-	TEXT ASSIGN exprLvl1 SCOLON			{ 	
-											globalCurrentScope->SetVariableValue (*($1), 0);
-											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
-											delete $1;
-								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
-										}
-|	TEXT ASSIGN scope					{ 
-											globalCurrentScope->SetVariableValue (*($1), 0);
-											NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
-											delete $1;
-								  			$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
-										}
+	TEXT ASSIGN exprLvl1 SCOLON				{ 	
+												globalCurrentScope->SetVariableValue (*($1), 0);
+												NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
+												delete $1;
+								  				$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
+											}
+;
+
+assignment_scope:
+	TEXT ASSIGN scope 						{ 
+												globalCurrentScope->SetVariableValue (*($1), 0);
+												NodeInterface* left = NodeInterface::CreateVariableNode (*($1));
+												delete $1;
+								  				$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ASSIGN, left, $3);
+											}
 ;
 
 function_assignment:
@@ -264,13 +293,31 @@ exprLvl1:
 | 	exprLvl2							{ $$ = $1; }
 ;
 
+exprLvl1_no_unary:
+	exprLvl2_no_unary ADD exprLvl1  	{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_ADD, $1, $3); }
+| 	exprLvl2_no_unary SUB exprLvl1 		{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, $1, $3); }
+| 	exprLvl2_no_unary						{ $$ = $1; }
+;
+
 exprLvl2:
 	exprLvl3 MUL exprLvl2  				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, $1, $3); }
 | 	exprLvl3 DIV exprLvl2 				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, $1, $3); }
 | 	exprLvl3							{ $$ = $1; }
 ;
 
+exprLvl2_no_unary:
+	exprLvl4 MUL exprLvl2  				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_MUL, $1, $3); }
+| 	exprLvl4 DIV exprLvl2 				{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_DIV, $1, $3); }
+| 	exprLvl4							{ $$ = $1; }
+;
+
 exprLvl3:
+	SUB exprLvl4						{ $$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_SUB, NodeInterface::CreateValueNode (0), $2); }
+|	ADD exprLvl4						{ $$ = $2; }
+|	exprLvl4							{ $$ = $1; }
+;
+
+exprLvl4:
 	scope								{ $$ = $1; }
 |	LPARENTHESES exprLvl1 RPARENTHESES  { $$ = $2; }
 | 	NUMBER				  				{ $$ = NodeInterface::CreateValueNode ($1); }

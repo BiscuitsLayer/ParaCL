@@ -385,20 +385,26 @@ namespace yy {
       char dummy1[sizeof (ArgumentsListElement*)];
 
       // inside_scope
+      // inside_scope_left
       // action
+      // action_no_unary
       // if
       // if_condition
       // while
       // while_condition
       // condition
       // assignment
+      // assignment_scope
       // function_assignment
       // function_assignment_entry
       // return
       // syscall
       // exprLvl1
+      // exprLvl1_no_unary
       // exprLvl2
+      // exprLvl2_no_unary
       // exprLvl3
+      // exprLvl4
       char dummy2[sizeof (NodeInterface*)];
 
       // NUMBER
@@ -484,7 +490,8 @@ namespace yy {
     COMMA = 282,                   // ","
     ERROR = 283,                   // ERROR
     NUMBER = 284,                  // NUMBER
-    TEXT = 285                     // TEXT
+    TEXT = 285,                    // TEXT
+    UNARY_MINUS = 287              // UNARY_MINUS
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -501,7 +508,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 36, ///< Number of tokens.
+        YYNTOKENS = 37, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -539,29 +546,36 @@ namespace yy {
         S_33_ = 33,                              // '*'
         S_34_ = 34,                              // '/'
         S_35_then_ = 35,                         // "then"
-        S_YYACCEPT = 36,                         // $accept
-        S_scope = 37,                            // scope
-        S_scope_entry = 38,                      // scope_entry
-        S_inside_scope = 39,                     // inside_scope
-        S_action = 40,                           // action
-        S_scope_outro = 41,                      // scope_outro
-        S_if = 42,                               // if
-        S_if_condition = 43,                     // if_condition
-        S_while = 44,                            // while
-        S_while_condition = 45,                  // while_condition
-        S_condition = 46,                        // condition
-        S_assignment = 47,                       // assignment
-        S_function_assignment = 48,              // function_assignment
-        S_function_assignment_entry = 49,        // function_assignment_entry
-        S_arg_list = 50,                         // arg_list
-        S_arg_list_inside = 51,                  // arg_list_inside
-        S_return = 52,                           // return
-        S_syscall = 53,                          // syscall
-        S_exprLvl1 = 54,                         // exprLvl1
-        S_exprLvl2 = 55,                         // exprLvl2
-        S_exprLvl3 = 56,                         // exprLvl3
-        S_call_arg_list = 57,                    // call_arg_list
-        S_call_arg_list_inside = 58              // call_arg_list_inside
+        S_UNARY_MINUS = 36,                      // UNARY_MINUS
+        S_YYACCEPT = 37,                         // $accept
+        S_scope = 38,                            // scope
+        S_scope_entry = 39,                      // scope_entry
+        S_inside_scope = 40,                     // inside_scope
+        S_inside_scope_left = 41,                // inside_scope_left
+        S_action = 42,                           // action
+        S_action_no_unary = 43,                  // action_no_unary
+        S_scope_outro = 44,                      // scope_outro
+        S_if = 45,                               // if
+        S_if_condition = 46,                     // if_condition
+        S_while = 47,                            // while
+        S_while_condition = 48,                  // while_condition
+        S_condition = 49,                        // condition
+        S_assignment = 50,                       // assignment
+        S_assignment_scope = 51,                 // assignment_scope
+        S_function_assignment = 52,              // function_assignment
+        S_function_assignment_entry = 53,        // function_assignment_entry
+        S_arg_list = 54,                         // arg_list
+        S_arg_list_inside = 55,                  // arg_list_inside
+        S_return = 56,                           // return
+        S_syscall = 57,                          // syscall
+        S_exprLvl1 = 58,                         // exprLvl1
+        S_exprLvl1_no_unary = 59,                // exprLvl1_no_unary
+        S_exprLvl2 = 60,                         // exprLvl2
+        S_exprLvl2_no_unary = 61,                // exprLvl2_no_unary
+        S_exprLvl3 = 62,                         // exprLvl3
+        S_exprLvl4 = 63,                         // exprLvl4
+        S_call_arg_list = 64,                    // call_arg_list
+        S_call_arg_list_inside = 65              // call_arg_list_inside
       };
     };
 
@@ -606,20 +620,26 @@ namespace yy {
         break;
 
       case symbol_kind::S_inside_scope: // inside_scope
+      case symbol_kind::S_inside_scope_left: // inside_scope_left
       case symbol_kind::S_action: // action
+      case symbol_kind::S_action_no_unary: // action_no_unary
       case symbol_kind::S_if: // if
       case symbol_kind::S_if_condition: // if_condition
       case symbol_kind::S_while: // while
       case symbol_kind::S_while_condition: // while_condition
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_assignment_scope: // assignment_scope
       case symbol_kind::S_function_assignment: // function_assignment
       case symbol_kind::S_function_assignment_entry: // function_assignment_entry
       case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
+      case symbol_kind::S_exprLvl1_no_unary: // exprLvl1_no_unary
       case symbol_kind::S_exprLvl2: // exprLvl2
+      case symbol_kind::S_exprLvl2_no_unary: // exprLvl2_no_unary
       case symbol_kind::S_exprLvl3: // exprLvl3
+      case symbol_kind::S_exprLvl4: // exprLvl4
         value.move< NodeInterface* > (std::move (that.value));
         break;
 
@@ -758,20 +778,26 @@ switch (yykind)
         break;
 
       case symbol_kind::S_inside_scope: // inside_scope
+      case symbol_kind::S_inside_scope_left: // inside_scope_left
       case symbol_kind::S_action: // action
+      case symbol_kind::S_action_no_unary: // action_no_unary
       case symbol_kind::S_if: // if
       case symbol_kind::S_if_condition: // if_condition
       case symbol_kind::S_while: // while
       case symbol_kind::S_while_condition: // while_condition
       case symbol_kind::S_condition: // condition
       case symbol_kind::S_assignment: // assignment
+      case symbol_kind::S_assignment_scope: // assignment_scope
       case symbol_kind::S_function_assignment: // function_assignment
       case symbol_kind::S_function_assignment_entry: // function_assignment_entry
       case symbol_kind::S_return: // return
       case symbol_kind::S_syscall: // syscall
       case symbol_kind::S_exprLvl1: // exprLvl1
+      case symbol_kind::S_exprLvl1_no_unary: // exprLvl1_no_unary
       case symbol_kind::S_exprLvl2: // exprLvl2
+      case symbol_kind::S_exprLvl2_no_unary: // exprLvl2_no_unary
       case symbol_kind::S_exprLvl3: // exprLvl3
+      case symbol_kind::S_exprLvl4: // exprLvl4
         value.template destroy< NodeInterface* > ();
         break;
 
@@ -1410,6 +1436,21 @@ switch (yykind)
         return symbol_type (token::TEXT, v, l);
       }
 #endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_UNARY_MINUS (location_type l)
+      {
+        return symbol_type (token::UNARY_MINUS, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_UNARY_MINUS (const location_type& l)
+      {
+        return symbol_type (token::UNARY_MINUS, l);
+      }
+#endif
 
 
     class context
@@ -1471,7 +1512,7 @@ switch (yykind)
     // Tables.
     // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
     // STATE-NUM.
-    static const signed char yypact_[];
+    static const short yypact_[];
 
     // YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
     // Performed when YYTABLE does not specify something else to do.  Zero
@@ -1479,7 +1520,7 @@ switch (yykind)
     static const signed char yydefact_[];
 
     // YYPGOTO[NTERM-NUM].
-    static const signed char yypgoto_[];
+    static const short yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
     static const signed char yydefgoto_[];
@@ -1731,9 +1772,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 129,     ///< Last index in yytable_.
-      yynnts_ = 23,  ///< Number of nonterminal symbols.
-      yyfinal_ = 2 ///< Termination state number.
+      yylast_ = 157,     ///< Last index in yytable_.
+      yynnts_ = 29,  ///< Number of nonterminal symbols.
+      yyfinal_ = 3 ///< Termination state number.
     };
 
 
@@ -1744,7 +1785,7 @@ switch (yykind)
 
 
 } // yy
-#line 1748 "Build/lang.tab.hh"
+#line 1789 "Build/lang.tab.hh"
 
 
 
