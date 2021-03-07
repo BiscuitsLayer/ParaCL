@@ -18,7 +18,8 @@ int main (int argc, char** argv) {
 		return 0;
 	}
 	
-	yy::LangDriver driver { programStream };
+	SyntaxCheck lexer {};
+	yy::LangDriver driver { programStream, &lexer };
 	if (driver.parse ()) {
 		driver.execute ();
 	}
