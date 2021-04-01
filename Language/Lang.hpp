@@ -11,7 +11,6 @@
 //  INTERFACE
 #include "LangInterface.hpp"
 
-extern ScopeNodeInterface* globalCurrentScope;
 const int poisonFunctionIdx = -1;
 
 using PairIS = std::pair <int, std::string>;
@@ -35,17 +34,18 @@ class VariableSymTable final {
 };
 
 class FunctionSymTable final {
+    // TODO: should be singleton
     private:
         //  in pair -> first = arguments count, second = function name
-        std::map <PairIS, ScopeNodeInterface*> namedData_ {};
+        std::map <PairIS, ScopeNode*> namedData_ {};
         //  first idx = id, second idx = arguments count
-        VectorOfPair <int, ScopeNodeInterface*> unnamedData_ {};
+        VectorOfPair <int, ScopeNode*> unnamedData_ {};
         std::set <PairIS> missingFunctions_ {};
         int unnamedIdx = 0;
     public:
         //  METHODS
-        ScopeNodeInterface* GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const;
-        bool SetFunctionScope (VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist);
+        ScopeNode* GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const;
+        bool SetFunctionScope (VariantIS& id, ArgumentsListElement* arguments, ScopeNode* scope, bool mustExist);
         void AddMissingFunction (const std::string& name, ArgumentsListElement* arguments);
         bool CheckMissingFunctions () const;
 
@@ -79,8 +79,8 @@ class FunctionVariableSymTable final {
         std::map <PairIS, VariantIS> data_ {};
     public:
         //  METHODS
-        ScopeNodeInterface* GetFunctionVariableScope (const std::string& name, ArgumentsListElement* arguments) const;
-        bool SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist, bool hasFunctionName = false, const std::string& functionName = "");
+        ScopeNode* GetFunctionVariableScope (const std::string& name, ArgumentsListElement* arguments) const;
+        bool SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNode* scope, bool mustExist, bool hasFunctionName = false, const std::string& functionName = "");
         
         //  CTOR
         FunctionVariableSymTable ():
@@ -117,7 +117,6 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         //  The one we gonna send returned node to
         ReturnGetter* wrappingReturnGetter = nullptr;
 
-        std::stack <ScopeNodeInterface*> previousStack_ {};
         std::vector <NodeInterface*> branches_ {};
         VariableSymTable variableTable_ {};
         FunctionVariableSymTable functionVariableTable_ {};
@@ -139,20 +138,16 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         void SetVariableValue (const std::string& name, NumberType value) override;
 
         //  FUNCTION VARIABLES
-        ScopeNodeInterface* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const override;
+        ScopeNode* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const override;
         void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override;
         
-        //  SCOPE MOVES
+        //  RETURN MECHANICS
         void SetWrappingReturnGetter (ReturnGetter* returnGetter) { wrappingReturnGetter = returnGetter; }
-        void Entry (ScopeNodeInterface* scope) override;
-        ScopeNodeInterface* Previous () const override { return (previousStack_.empty () ? nullptr : previousStack_.top ()); }
-        void Outro () override;
 
         //  CTORS
         ScopeNode ():
             ScopeNodeInterface (),
             wrappingReturnGetter (nullptr),
-            previousStack_ (),
             branches_ ({}),
             variableTable_ ({}),
             functionVariableTable_ ({}),
@@ -170,6 +165,47 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         //  OPERATORS
         ScopeNode& operator = (ScopeNode& node) = delete;
 };
+
+class ScopeManager {
+    //  SINGLETON CLASS
+    //  Loads a scope node, copies its arguments, branches, and executes it
+    private:
+        std::vector <ScopeNode> scopes_ {};
+        
+        //  PRIVATE CTOR
+        ScopeManager ():
+            scopes_ ()
+            {}
+    public:
+        //  INSTANCE
+        static ScopeManager* GetInstance () {
+            static ScopeManager instance_;
+            return &instance_;
+        }
+
+        //  OPERATOR CAST
+        operator ScopeNode* () { return &scopes_.back (); }
+        
+        //  SCOPE MOVES
+        void SetWrappingReturnGetter (ReturnGetter* returnGetter) { scopes_.back ().SetWrappingReturnGetter (returnGetter); }
+        void Entry (ScopeNode* scope) { scopes_.push_back (*scope); }
+        ////ScopeNode* Previous () const override { return (previousStack_.empty () ? nullptr : previousStack_.top ()); }
+        ScopeNode* Previous () { 
+            if (scopes_.size () < 2) {
+                return nullptr;
+            }
+            return &scopes_[scopes_.size () - 2];
+        }
+        void Outro () { scopes_.pop_back (); }
+
+        //  CTORS
+        ScopeManager (const ScopeManager& manager) = delete;
+
+        //  OPERATORS
+        ScopeManager& operator = (ScopeManager& manager) = delete;
+};
+
+extern ScopeManager* globalCurrentScope;
 
 class ValueNode final : public NodeInterface {
     private:
@@ -218,7 +254,7 @@ class FunctionVariableNode final : public NodeInterface {
         void Dump (std::ostream& stream) const override;
 
         //  EXTRA METHOD
-        void Assign (ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") { 
+        void Assign (ScopeNode* scope, bool hasFunctionName = false, const std::string& functionName = "") { 
             globalCurrentScope->SetFunctionVariableScope (variableName_, argumentsList_, scope, hasFunctionName, functionName);
         }
 
@@ -275,15 +311,15 @@ class BinaryOpNode final : public NodeInterface {
 class IfNode final : public NodeInterface {
     private:
        NodeInterface* condition_ = nullptr;
-       ScopeNodeInterface* scopeTrue_ = nullptr;
-       ScopeNodeInterface* scopeFalse_ = nullptr;
+       ScopeNode* scopeTrue_ = nullptr;
+       ScopeNode* scopeFalse_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  CTORS
-        IfNode (NodeInterface* condition, ScopeNodeInterface* scopeTrue, ScopeNodeInterface* scopeFalse):
+        IfNode (NodeInterface* condition, ScopeNode* scopeTrue, ScopeNode* scopeFalse):
             NodeInterface (NodeType::IF),
             condition_ (condition),
             scopeTrue_ (scopeTrue),
@@ -301,14 +337,14 @@ class IfNode final : public NodeInterface {
 class WhileNode final : public NodeInterface {
     private:
        NodeInterface* condition_ = nullptr;
-       ScopeNodeInterface* scope_ = nullptr;
+       ScopeNode* scope_ = nullptr;
     public:
         //  METHODS FROM NODE INTERFACE
         NumberType Execute () override;
         void Dump (std::ostream& stream) const override;
 
         //  CTORS
-        WhileNode (NodeInterface* condition, ScopeNodeInterface* scope):
+        WhileNode (NodeInterface* condition, ScopeNode* scope):
             NodeInterface (NodeType::WHILE),
             condition_ (condition),
             scope_ (scope)

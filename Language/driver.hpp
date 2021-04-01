@@ -8,7 +8,7 @@
 #include "../Build/lang.tab.hh"
 #include "../Language/SyntaxCheck.hpp"
 
-extern ScopeNodeInterface* globalCurrentScope;
+extern ScopeNode* globalCurrentScope;
 extern FunctionSymTable* globalFunctionSymTable;
 
 namespace yy {
@@ -21,7 +21,7 @@ namespace yy {
             parser::token_type yylex (parser::semantic_type* yylval, parser::location_type* location);
             bool parse ();
             void execute () {
-                ScopeNodeInterface* scope = globalCurrentScope;
+                ScopeNode* scope = globalCurrentScope;
                 //  Outro to external scope
                 globalCurrentScope->Outro ();
                 scope->Execute ();
@@ -36,11 +36,14 @@ namespace yy {
                 lexer_ (lexer)
                 {   
                     //  External scope
-                    globalCurrentScope = ScopeNodeInterface::CreateScopeNode ();
+                    globalCurrentScope = CurrentScopeNode::GetInstance ();
+                    //?
+                    /*
                     //  The main scope with code
-                    ScopeNodeInterface* mainScope = ScopeNodeInterface::CreateScopeNode ();
+                    ScopeNode* mainScope = ScopeNodeInterface::CreateScopeNode ();
                     globalCurrentScope->AddBranch (mainScope);
                     globalCurrentScope->Entry (mainScope);
+                    */
                     globalFunctionSymTable = new FunctionSymTable ();
                     lexer_->switch_streams (programStream, *OUTSTREAM);
                 }

@@ -232,11 +232,11 @@ assignment_scope:
 
 function_assignment:
 	function_assignment_entry inside_scope scope_outro 			{	
-																	ScopeNodeInterface* scope = globalCurrentScope; globalCurrentScope->Outro ();
+																	ScopeNode* scope = globalCurrentScope; globalCurrentScope->Outro ();
 																	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, $1, scope);
 																}
 |	function_assignment_entry inside_scope scope_outro SCOLON	{	
-																	ScopeNodeInterface* scope = globalCurrentScope; globalCurrentScope->Outro ();
+																	ScopeNode* scope = globalCurrentScope; globalCurrentScope->Outro ();
 																	$$ = NodeInterface::CreateBinaryOpNode (NodeType::BINARY_OP_FUNCTION_ASSIGN, $1, scope);
 																}
 ;

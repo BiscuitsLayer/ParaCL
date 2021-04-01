@@ -11,7 +11,7 @@
 //	GOOGLE TEST
 #include <gtest/gtest.h>
 
-ScopeNodeInterface* globalCurrentScope = nullptr;
+CurrentScopeNode* globalCurrentScope = nullptr;
 FunctionSymTable* globalFunctionSymTable = nullptr;
 
 class ParaCLTest : public ::testing::Test {
