@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "Makefile": "makefile",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "stdexcept": "cpp"
     }
 }
