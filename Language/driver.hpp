@@ -32,9 +32,10 @@ namespace yy {
             std::string GetCurrentString () const { return lexer_->GetCurrentString (); }
 
             //  CTORS
-            LangDriver (std::ifstream& programStream, SyntaxCheck* lexer):
-                lexer_ (lexer)
+            LangDriver (std::ifstream& programStream):
+                lexer_ (nullptr)
                 {   
+                    SyntaxCheck *temp = new SyntaxCheck;
                     //  External scope
                     globalCurrentScope = CurrentScopeNode::GetInstance ();
                     //?
@@ -45,6 +46,7 @@ namespace yy {
                     globalCurrentScope->Entry (mainScope);
                     */
                     globalFunctionSymTable = new FunctionSymTable ();
+                    lexer_ = temp;
                     lexer_->switch_streams (programStream, *OUTSTREAM);
                 }
             LangDriver (const LangDriver& driver) = delete;
@@ -53,6 +55,7 @@ namespace yy {
             ~LangDriver () {
                 delete globalCurrentScope;
                 delete globalFunctionSymTable;
+                delete lexer_;
             }
 
             //  OPERATORS

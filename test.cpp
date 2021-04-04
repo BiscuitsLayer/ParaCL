@@ -26,8 +26,7 @@ class ParaCLTest : public ::testing::Test {
     	    std::ifstream programStream { filename.str () };
 		    ASSERT_TRUE (programStream) << "Error opening file: " << filename.str ();
 	
-			SyntaxCheck lexer {};
-		    yy::LangDriver driver { programStream, &lexer };
+		    yy::LangDriver driver { programStream };
 			bool parserResult = driver.parse ();
 			ASSERT_TRUE (parserResult) << "Parser failed";
 
