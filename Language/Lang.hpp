@@ -7,7 +7,6 @@
 #include <map>
 #include <set>
 #include <exception>
-#include <algorithm>
 
 //  INTERFACE
 #include "LangInterface.hpp"
@@ -118,20 +117,11 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         //  The one we gonna send returned node to
         ReturnGetter* wrappingReturnGetter = nullptr;
 
-        //  BRANCHES
         std::vector <NodeInterface*> branches_ {};
-
-        //  VARIABLE AND FUNC VARIABLE TABLES
         VariableSymTable variableTable_ {};
         FunctionVariableSymTable functionVariableTable_ {};
-
-        //  ARGUMENTS
         std::vector <std::string> argumentsNames_ {};
-        std::vector <NumberType> savedArgumentValues_ {};
     public:
-        //  FRIEND CLASS
-        friend class ScopeManager;
-
         //  METHODS FROM NODE INTERFACE
         void Dump (std::ostream& stream) const override { stream << "{ ... }"; }   
         NumberType Execute () override;
@@ -140,10 +130,17 @@ class ScopeNode final : public ScopeNodeInterface, public ReturnGetter {
         void AddBranch (NodeInterface* node) override { branches_.push_back (node); }
 
         //  ARGUMENTS
-        
         bool SetArgumentsNames (ArgumentsListElement* arguments) override;
         NumberType ExecuteWithArguments (ArgumentsListElement* arguments) override;
 
+        //  VARIABLES
+        NumberType GetVariableValue (const std::string& name) const override;
+        void SetVariableValue (const std::string& name, NumberType value) override;
+
+        //  FUNCTION VARIABLES
+        ScopeNode* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const override;
+        void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) override;
+        
         //  RETURN MECHANICS
         void SetWrappingReturnGetter (ReturnGetter* returnGetter) { wrappingReturnGetter = returnGetter; }
 
@@ -173,7 +170,7 @@ class ScopeManager {
     //  SINGLETON CLASS
     //  Loads a scope node, copies its arguments, branches, and executes it
     private:
-        std::vector <ScopeNode*> scopes_ {};
+        std::vector <ScopeNode> scopes_ {};
         
         //  PRIVATE CTOR
         ScopeManager ():
@@ -186,34 +183,19 @@ class ScopeManager {
             return &instance_;
         }
 
-        //  VARIABLES
-        NumberType GetVariableValue (const std::string& name);
-        void SetVariableValue (const std::string& name, NumberType value);
-
-        //  FUNCTION VARIABLES
-        ScopeNode* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments);
-        void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNode* scope, bool hasFunctionName, const std::string& functionName);
-        
-        //  GET CURRENT
-        ScopeNode* GetCurrent () const { auto ans = &scopes_.back (); return const_cast <ScopeNode*> (ans); }
+        //  OPERATOR CAST
+        operator ScopeNode* () { return &scopes_.back (); }
         
         //  SCOPE MOVES
         void SetWrappingReturnGetter (ReturnGetter* returnGetter) { scopes_.back ().SetWrappingReturnGetter (returnGetter); }
-        void Entry (ScopeNode* scope) { 
-            scopes_.push_back (scope); 
-        }
-        ScopeNode* Previous (ScopeNode* scope) { 
-            auto resultIt = std::find (scopes_.begin (), scopes_.end (), *scope);
-            if (resultIt == scopes_.end ()) {
-                throw std::runtime_error ("Wrong scope node!");
+        void Entry (ScopeNode* scope) { scopes_.push_back (*scope); }
+        ////ScopeNode* Previous () const override { return (previousStack_.empty () ? nullptr : previousStack_.top ()); }
+        ScopeNode* Previous () { 
+            if (scopes_.size () < 2) {
+                return nullptr;
             }
-            int resultIdx = resultIt - scopes_.begin ();
-            if (--resultIdx >= 0) {
-                return &scopes_[resultIdx];
-            }
-            return nullptr;
+            return &scopes_[scopes_.size () - 2];
         }
-        ScopeNode* Previous () const { return Previous (&scopes_.back ()); }
         void Outro () { scopes_.pop_back (); }
 
         //  CTORS

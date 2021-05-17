@@ -173,6 +173,7 @@ NumberType ScopeNode::Execute () {
         if (GetReturnedNodeValue (result)) {
             if (!wrappingReturnGetter) {
                 wrappingReturnGetter = globalCurrentScope->Previous ();
+                ////wrappingReturnGetter = static_cast <ScopeNode*> (Previous ());
             }         
             wrappingReturnGetter->SetReturnedNodeValue (result);
             globalCurrentScope->Outro ();
@@ -228,12 +229,12 @@ NumberType ScopeNode::ExecuteWithArguments (ArgumentsListElement* arguments) {
     return result;
 }
 
-NumberType ScopeManager::GetVariableValue (const std::string& name) {
-    ScopeNode* cur = GetCurrent ();
+NumberType ScopeManager::GetVariableValue (const std::string& name) const {
+    const ScopeNode* cur = this;
     NumberType value = 0;
     while (!cur->variableTable_.GetVariableValue (name, value)) {
-        if (Previous (cur)) {
-            cur = static_cast <ScopeNode*> (Previous (cur));
+        if (cur->Previous ()) {
+            cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
             throw std::invalid_argument ("Wrong name of variable: " + name);
@@ -243,24 +244,24 @@ NumberType ScopeManager::GetVariableValue (const std::string& name) {
 }
 
 void ScopeManager::SetVariableValue (const std::string& name, NumberType value) {
-    ScopeNode* cur = GetCurrent ();
+    ScopeNode* cur = this;
     while (!cur->variableTable_.SetVariableValue (name, value, true)) {
-        if (Previous (cur)) {
-            cur = static_cast <ScopeNode*> (Previous (cur));
+        if (cur->Previous ()) {
+            cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
-            GetCurrent ()->variableTable_.SetVariableValue (name, value, false);
+            this->variableTable_.SetVariableValue (name, value, false);
             break;
         }
     }
 }
 
-ScopeNode* ScopeManager::GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) {
-    ScopeNode* cur = GetCurrent ();
+ScopeNode* ScopeNode::GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const {
+    const ScopeNode* cur = this;
     ScopeNode* foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
     while (!foundScope) {
-        if (Previous (cur)) {
-            cur = static_cast <ScopeNode*> (Previous (cur));
+        if (cur->Previous ()) {
+            cur = static_cast <ScopeNode*> (cur->Previous ());
             foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
         }
         else {
@@ -270,14 +271,14 @@ ScopeNode* ScopeManager::GetFunctionVariableScope (const std::string& variableNa
     return foundScope;
 }
 
-void ScopeManager::SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNode* scope, bool hasFunctionName, const std::string& functionName) {
-    ScopeNode* cur = GetCurrent ();
+void ScopeNode::SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNode* scope, bool hasFunctionName, const std::string& functionName) {
+    ScopeNode* cur = this;
     while (!cur->functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, true, hasFunctionName, functionName)) {
-        if (Previous (cur)) {
-            cur = static_cast <ScopeNode*> (Previous (cur));
+        if (cur->Previous ()) {
+            cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
-            GetCurrent ()->functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, false, hasFunctionName, functionName);
+            functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, false, hasFunctionName, functionName);
             break;
         }
     }
