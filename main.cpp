@@ -8,7 +8,7 @@
 //	LANGUAGE
 #include "Language/Lang.hpp"
 
-ScopeNode* globalCurrentScope = nullptr;
+ScopeNodeInterface* globalCurrentScope = nullptr;
 FunctionSymTable* globalFunctionSymTable = nullptr;
 
 int main (int argc, char** argv) {

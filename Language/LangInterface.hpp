@@ -7,8 +7,6 @@
 //  SETTINGS
 #include "../Settings/Settings.hpp"
 
-//  SCOPE INTERFACE
-
 enum class NodeType {
     RETURN,
 
@@ -115,6 +113,11 @@ class ScopeNodeInterface : public NodeInterface {
         //  FUNCTION VARIABLES
         virtual ScopeNodeInterface* GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const = 0;
         virtual void SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName = false, const std::string& functionName = "") = 0;
+        
+        //  SCOPE MOVES
+        virtual void Entry (ScopeNodeInterface* scope) = 0;
+        virtual ScopeNodeInterface* Previous () const = 0;
+        virtual void Outro () = 0;
 
         //  CTOR
         ScopeNodeInterface ():

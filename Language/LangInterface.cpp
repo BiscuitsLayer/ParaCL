@@ -21,11 +21,11 @@ NodeInterface* NodeInterface::CreateBinaryOpNode (NodeType type, NodeInterface* 
     return new BinaryOpNode (type, leftChild, rightChild);
 }
 
-NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, ScopeNode* scopeTrue, ScopeNode* scopeFalse) {
+NodeInterface* NodeInterface::CreateIfNode (NodeInterface* condition, ScopeNodeInterface* scopeTrue, ScopeNodeInterface* scopeFalse) {
     return new IfNode (condition, scopeTrue, scopeFalse);
 }
 
-NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, ScopeNode* scope) {
+NodeInterface* NodeInterface::CreateWhileNode (NodeInterface* condition, ScopeNodeInterface* scope) {
     return new WhileNode (condition, scope);
 }
 

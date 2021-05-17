@@ -28,9 +28,9 @@ bool VariableSymTable::SetVariableValue (const std::string& name, NumberType val
     }
 }
 
-ScopeNode* FunctionSymTable::GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const {
+ScopeNodeInterface* FunctionSymTable::GetFunctionScope (const VariantIS& id, ArgumentsListElement* arguments) const {
     int argumentsCount = (arguments ? arguments->GetListLength () : 0);
-    ScopeNode* foundScope = nullptr;
+    ScopeNodeInterface* foundScope = nullptr;
     if (std::holds_alternative <std::string> (id)) {
         auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
         if (search == namedData_.end ()) {
@@ -52,7 +52,7 @@ ScopeNode* FunctionSymTable::GetFunctionScope (const VariantIS& id, ArgumentsLis
     return foundScope;
 }
 
-bool FunctionSymTable::SetFunctionScope (VariantIS& id, ArgumentsListElement* arguments, ScopeNode* scope, bool mustExist) {
+bool FunctionSymTable::SetFunctionScope (VariantIS& id, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist) {
     int argumentsCount = (arguments ? arguments->GetListLength () : 0);
     if (std::holds_alternative <std::string> (id)) {
         auto search = namedData_.find ({ argumentsCount, std::get <std::string> (id) });
@@ -105,7 +105,7 @@ bool FunctionSymTable::CheckMissingFunctions () const {
     return true;
 }
 
-ScopeNode* FunctionVariableSymTable::GetFunctionVariableScope (const std::string& name, ArgumentsListElement* arguments) const {
+ScopeNodeInterface* FunctionVariableSymTable::GetFunctionVariableScope (const std::string& name, ArgumentsListElement* arguments) const {
     int argumentsCount = (arguments ? arguments->GetListLength () : 0);
     auto search = data_.find ({ argumentsCount, name });
     if (search != data_.end ()) {
@@ -117,7 +117,7 @@ ScopeNode* FunctionVariableSymTable::GetFunctionVariableScope (const std::string
     }
 }
 
-bool FunctionVariableSymTable::SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNode* scope, bool mustExist, bool hasFunctionName, const std::string& functionName) {
+bool FunctionVariableSymTable::SetFunctionVariable (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool mustExist, bool hasFunctionName, const std::string& functionName) {
     int argumentsCount = (arguments ? arguments->GetListLength () : 0);
     auto search = data_.find ({ argumentsCount, variableName });
     if (search == data_.end ()) {
@@ -172,8 +172,7 @@ NumberType ScopeNode::Execute () {
         
         if (GetReturnedNodeValue (result)) {
             if (!wrappingReturnGetter) {
-                wrappingReturnGetter = globalCurrentScope->Previous ();
-                ////wrappingReturnGetter = static_cast <ScopeNode*> (Previous ());
+                wrappingReturnGetter = static_cast <ScopeNode*> (Previous ());
             }         
             wrappingReturnGetter->SetReturnedNodeValue (result);
             globalCurrentScope->Outro ();
@@ -229,7 +228,7 @@ NumberType ScopeNode::ExecuteWithArguments (ArgumentsListElement* arguments) {
     return result;
 }
 
-NumberType ScopeManager::GetVariableValue (const std::string& name) const {
+NumberType ScopeNode::GetVariableValue (const std::string& name) const {
     const ScopeNode* cur = this;
     NumberType value = 0;
     while (!cur->variableTable_.GetVariableValue (name, value)) {
@@ -243,22 +242,22 @@ NumberType ScopeManager::GetVariableValue (const std::string& name) const {
     return value;
 }
 
-void ScopeManager::SetVariableValue (const std::string& name, NumberType value) {
+void ScopeNode::SetVariableValue (const std::string& name, NumberType value) {
     ScopeNode* cur = this;
     while (!cur->variableTable_.SetVariableValue (name, value, true)) {
         if (cur->Previous ()) {
             cur = static_cast <ScopeNode*> (cur->Previous ());
         }
         else {
-            this->variableTable_.SetVariableValue (name, value, false);
+            variableTable_.SetVariableValue (name, value, false);
             break;
         }
     }
 }
 
-ScopeNode* ScopeNode::GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const {
+ScopeNodeInterface* ScopeNode::GetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments) const {
     const ScopeNode* cur = this;
-    ScopeNode* foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
+    ScopeNodeInterface* foundScope = cur->functionVariableTable_.GetFunctionVariableScope (variableName, arguments);
     while (!foundScope) {
         if (cur->Previous ()) {
             cur = static_cast <ScopeNode*> (cur->Previous ());
@@ -271,7 +270,7 @@ ScopeNode* ScopeNode::GetFunctionVariableScope (const std::string& variableName,
     return foundScope;
 }
 
-void ScopeNode::SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNode* scope, bool hasFunctionName, const std::string& functionName) {
+void ScopeNode::SetFunctionVariableScope (const std::string& variableName, ArgumentsListElement* arguments, ScopeNodeInterface* scope, bool hasFunctionName, const std::string& functionName) {
     ScopeNode* cur = this;
     while (!cur->functionVariableTable_.SetFunctionVariable (variableName, arguments, scope, true, hasFunctionName, functionName)) {
         if (cur->Previous ()) {
@@ -284,8 +283,21 @@ void ScopeNode::SetFunctionVariableScope (const std::string& variableName, Argum
     }
 }
 
+void ScopeNode::Entry (ScopeNodeInterface* scope) {
+    static_cast <ScopeNode*> (scope)->previousStack_.push (globalCurrentScope);
+    //std::cout << "entry from " << globalCurrentScope << " to " << scope << std::endl;
+    globalCurrentScope = scope;
+}
+
+void ScopeNode::Outro () {
+    ScopeNodeInterface* previous = globalCurrentScope->Previous ();
+    static_cast <ScopeNode*> (globalCurrentScope)->previousStack_.pop ();
+    //std::cout << "outro from " << globalCurrentScope << " to " << previous << std::endl;
+    globalCurrentScope = previous;
+}
+
 NumberType FunctionVariableNode::Execute () { 
-    ScopeNode* foundScope = globalCurrentScope->GetFunctionVariableScope (variableName_, argumentsList_);
+    ScopeNodeInterface* foundScope = globalCurrentScope->GetFunctionVariableScope (variableName_, argumentsList_);
     value_ = foundScope->ExecuteWithArguments (argumentsList_);
     return value_; 
 }
@@ -331,8 +343,8 @@ NumberType BinaryOpNode::Execute () {
         }
         case NodeType::BINARY_OP_FUNCTION_ASSIGN: {
             FunctionVariableNode* leftChildAsFunctionVariable = static_cast <FunctionVariableNode*> (leftChild_);
-            ScopeNode* rightChildAsScope = static_cast <ScopeNode*> (rightChild_);
-            leftChildAsFunctionVariable->Assign (rightChildAsScope);
+            ScopeNodeInterface* rightChildAsScopeInterface = static_cast <ScopeNodeInterface*> (rightChild_);
+            leftChildAsFunctionVariable->Assign (rightChildAsScopeInterface);
             return 0;
             break;
         }
